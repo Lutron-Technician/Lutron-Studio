@@ -147,7 +147,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;
     }
 
-    /* ARCHITECTURAL LIGHTING */
+    /* ARCHITECTURAL LIGHTING (CLEAN & UNOBSTRUCTED) */
     .blueprint-grid { 
       position: absolute; inset: 0; 
       background-image: linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px); 
@@ -252,71 +252,59 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* 📜 IN-PAGE FLOATING LYRICS SIDE DRAWER */
-    .inpage-lyrics-drawer {
+    /* 📜 100% TRANSPARENT FLOATING LYRICS DOCK (BOTTOM-RIGHT BESIDE PLAYER) */
+    .stream-lyrics-dock {
       position: fixed;
-      top: 18%;
+      bottom: 7.5rem;
       right: 3vw;
       width: 380px;
-      max-height: 55vh;
-      background: rgba(11, 15, 25, 0.88);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(20px);
-      z-index: 80;
-      display: none;
+      height: 150px;
+      z-index: 40;
+      pointer-events: none;
+      display: flex;
       flex-direction: column;
-      gap: 12px;
+      justify-content: flex-end;
+      overflow: hidden;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
 
-    .inpage-lyrics-drawer.open {
-      display: flex;
-    }
-
-    .lyrics-drawer-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 8px;
-    }
-
-    .lyrics-drawer-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--amber-warm);
-      letter-spacing: 1px;
-    }
-
-    .lyrics-drawer-close {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    .lyrics-drawer-close:hover { color: #fff; }
-
-    .lyrics-drawer-content {
-      overflow-y: auto;
+    .lyrics-stream-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      padding-right: 6px;
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .lyrics-drawer-content::-webkit-scrollbar { width: 4px; }
-    .lyrics-drawer-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-
-    .inpage-lyric-line {
+    .lyric-line-item {
       font-family: 'Mukta', sans-serif;
       font-size: 1.15rem;
-      color: rgba(241, 245, 249, 0.85);
-      line-height: 1.6;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      font-weight: 400;
+      color: rgba(226, 232, 240, 0.45);
+      line-height: 1.4;
+      transition: all 0.5s ease;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      opacity: 0.35;
+      transform: translateY(8px);
+    }
+
+    .lyric-line-item.active {
+      color: #ffffff;
+      font-size: 1.35rem;
+      font-weight: 600;
+      opacity: 1;
+      transform: translateY(0);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 2px 12px rgba(0,0,0,0.95);
+    }
+
+    .lyric-line-item.passed {
+      opacity: 0;
+      transform: translateY(-24px);
+      height: 0;
+      margin: 0;
+      padding: 0;
+      pointer-events: none;
     }
 
     /* PLAYER CONTROLS & GLASS SHELL */
@@ -367,14 +355,6 @@
       border-radius: 50%; background: var(--amber-warm); cursor: pointer;
     }
 
-    /* 📜 IN-PAGE LYRICS TOGGLE BUTTON */
-    .lyrics-view-btn {
-      background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green);
-      border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
-      cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;
-    }
-    .lyrics-view-btn:hover { background: var(--led-green); color: #000; }
-
     .stream-tv-btn {
       background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue);
       border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
@@ -413,12 +393,16 @@
       .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
-      .inpage-lyrics-drawer {
+      .stream-lyrics-dock {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 8.5rem;
         width: 90%;
-        right: 5%;
-        top: 22%;
-        max-height: 45vh;
+        height: 110px;
+        text-align: center;
       }
+      .lyric-line-item { font-size: 0.95rem; }
+      .lyric-line-item.active { font-size: 1.15rem; }
     }
   </style>
 </head>
@@ -481,17 +465,13 @@
     </main>
   </div>
 
-  <!-- 📜 IN-PAGE LYRICS FLOATING SIDE DRAWER -->
-  <div class="inpage-lyrics-drawer" id="inpageLyricsDrawer">
-    <div class="lyrics-drawer-header">
-      <span class="lyrics-drawer-title" id="lyricsDrawerTrackName">📜 LYRICS VIEWER</span>
-      <button class="lyrics-drawer-close" id="lyricsDrawerCloseBtn">✖</button>
-    </div>
-    <div class="lyrics-drawer-content" id="lyricsDrawerContent">
-      <div class="inpage-lyric-line">सुरमई शाम का साया है...</div>
-      <div class="inpage-lyric-line">लबों पे तेरा ही नाम आया है...</div>
-      <div class="inpage-lyric-line">धड़कनों ने छेड़ा इक नया तराना...</div>
-      <div class="inpage-lyric-line">रोशनी में डूबा हर इक आशियाना...</div>
+  <!-- 📜 100% TRANSPARENT FLOATING LYRICS DOCK (BOTTOM-RIGHT BESIDE PLAYER) -->
+  <div class="stream-lyrics-dock">
+    <div class="lyrics-stream-list" id="lyricsStreamList">
+      <div class="lyric-line-item active">तू ही हक़ीक़त ख़्वाब तू...</div>
+      <div class="lyric-line-item">दरिया तू ही प्यास तू...</div>
+      <div class="lyric-line-item">तू ही दिल की बेखुदी...</div>
+      <div class="lyric-line-item">तू ही मेरी हर ख़ुशी...</div>
     </div>
   </div>
 
@@ -501,7 +481,7 @@
       
       <!-- REAL YOUTUBE LIVE SEARCH -->
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata)... (Gaana rukega nahi!)" />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata, Emraan Hashmi)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -513,7 +493,7 @@
             <img id="albumImg" src="https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" alt="Art" />
           </div>
           <div class="track-details">
-            <div class="track-title" id="trackTitle">Lag Jaa Gale — Lata Mangeshkar</div>
+            <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
             <div class="track-artist" id="trackArtist">256 kbps Master Audio • YouTube Live</div>
           </div>
         </div>
@@ -531,11 +511,6 @@
             <span class="volume-icon" id="volumeIcon">🔊</span>
             <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
           </div>
-
-          <!-- 📜 IN-PAGE LYRICS TOGGLE BUTTON -->
-          <button class="lyrics-view-btn" id="lyricsViewBtn">
-            <span>📜</span> <span>LYRICS</span>
-          </button>
 
           <button class="stream-tv-btn" id="streamTvBtn">
             <span>📡</span> <span>STREAM TV</span>
@@ -565,7 +540,66 @@
     // 🔑 CONFIGURED FULL 39-CHAR API KEY
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
 
+    // 📜 SMART BOLLYWOOD & CLASSICS REAL LYRICS DATABASE
+    const hindiLyricsBank = {
+      "haqeeqat": [
+        "तू ही हक़ीक़त ख़्वाब तू...",
+        "दरिया तू ही प्यास तू...",
+        "तू ही दिल की बेखुदी...",
+        "तू ही मेरी हर ख़ुशी..."
+      ],
+      "mehboob": [
+        "मेरे महबूब क़यामत होगी...",
+        "आज रुसवा तेरी गलियों में मोहब्बत होगी...",
+        "मेरी नज़रों से तुम देखो...",
+        "तेरी तस्वीर से कितनी चाहत होगी..."
+      ],
+      "gale": [
+        "लग जा गले कि फिर ये हसीं रात हो न हो...",
+        "शायद फिर इस जनम में मुलाक़ात हो न हो...",
+        "हमको मिली हैं आज ये घड़ियाँ नसीब से...",
+        "जी भर के देख लीजिये हमको क़रीब से..."
+      ],
+      "kesariya": [
+        "केसरिया तेरा इश्क़ है पिया...",
+        "रंग जाऊँ जो मैं हाथ लगाऊँ...",
+        "दिन बीते सारा तेरी फ़िक्र में...",
+        "रैन सारी तेरी ख़ैर मनाऊँ..."
+      ],
+      "dil to": [
+        "दिल तो है दिल, दिल का ऐतबार क्या कीजै...",
+        "आ गया जो किसी पे प्यार क्या कीजै...",
+        "खुद पे बस तो नहीं है कोई...",
+        "बेबसी में जिया जाए ना..."
+      ],
+      "dooriyan": [
+        "दूरियाँ बढ़ती जा रही हैं...",
+        "बातें अधूरी रह जा रही हैं...",
+        "दिल को समझाना मुश्किल है...",
+        "यादें तेरी सता रही हैं..."
+      ],
+      "kishore": [
+        "चला जाता हूँ किसी की धुन में...",
+        "धड़कते दिल के तराने लिए...",
+        "मिलन की मस्ती भरी आँखों में...",
+        "हज़ारों सपने सजाने लिए..."
+      ],
+      "arijit": [
+        "हम तेरे बिन अब रह नहीं सकते...",
+        "तेरे बिना क्या वजूद मेरा...",
+        "तुझसे जुदा गर हो जायेंगे...",
+        "तो खुद से ही हो जायेंगे जुदा..."
+      ],
+      "default": [
+        "सुरमई शाम का साया है...",
+        "लबों पे तेरा ही नाम आया है...",
+        "धड़कनों ने छेड़ा इक नया तराना...",
+        "रोशनी में डूबा हर इक आशियाना..."
+      ]
+    };
+
     let songsList = [
+      { id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" },
       { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
       { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" },
       { id: "sLykke8q2Is", name: "Dooriyan — Dino James ft. Kaprila", img: "https://i.ytimg.com/vi/sLykke8q2Is/hqdefault.jpg" },
@@ -584,13 +618,12 @@
     const shadesBtn = document.getElementById('shadesBtn');
     const processorStatusText = document.getElementById('processorStatusText');
 
-    let curtainPos = 0; // 0 = fully closed, 100 = fully open
-    let curtainMotionState = 'STOPPED'; // 'OPENING', 'CLOSING', 'STOPPED'
-    let lastDirection = 'OPEN'; // Next logical direction when stopped
+    let curtainPos = 0;
+    let curtainMotionState = 'STOPPED';
+    let lastDirection = 'OPEN';
     let curtainAnimFrame = null;
 
     function renderCurtainPosition() {
-      // Scale left & right drapery according to custom percentage
       const leftTranslate = -92 * (curtainPos / 100);
       const rightTranslate = 92 * (curtainPos / 100);
       const scaleX = 1 - (0.75 * (curtainPos / 100));
@@ -601,7 +634,7 @@
 
     function animateCurtainStep() {
       if (curtainMotionState === 'OPENING') {
-        curtainPos += 0.75; // Smooth motor speed
+        curtainPos += 0.75;
         if (curtainPos >= 100) {
           curtainPos = 100;
           curtainMotionState = 'STOPPED';
@@ -634,14 +667,12 @@
 
     function handleDraperyClick() {
       if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        // STOP MOTOR AT CURRENT POSITION
         cancelAnimationFrame(curtainAnimFrame);
         lastDirection = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
         curtainMotionState = 'STOPPED';
         shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${lastDirection}`;
         processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
       } else {
-        // START MOVING IN LOGICAL DIRECTION
         if (lastDirection === 'OPEN') {
           curtainMotionState = 'OPENING';
         } else {
@@ -650,6 +681,24 @@
         shadesBtn.classList.add('active');
         curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
       }
+    }
+
+    // UPDATE SMART LYRICS DOCK
+    function updateLyrics(songTitle) {
+      const lower = (songTitle || '').toLowerCase();
+      let lines = hindiLyricsBank.default;
+
+      for (let key in hindiLyricsBank) {
+        if (lower.includes(key)) {
+          lines = hindiLyricsBank[key];
+          break;
+        }
+      }
+
+      const lyricsStreamList = document.getElementById('lyricsStreamList');
+      lyricsStreamList.innerHTML = lines.map((l, i) => `
+        <div class="lyric-line-item ${i === 0 ? 'active' : ''}">${l}</div>
+      `).join('');
     }
 
     // TIME-BASED BACKGROUND ATMOSPHERE
@@ -844,8 +893,7 @@
         document.getElementById('trackTitle').textContent = track.name;
         document.getElementById('trackArtist').textContent = "256 kbps Master Audio • YouTube Live";
         if (track.img) document.getElementById('albumImg').src = track.img;
-
-        document.getElementById('lyricsDrawerTrackName').textContent = "📜 " + track.name;
+        updateLyrics(track.name);
 
         if ('mediaSession' in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
@@ -884,6 +932,21 @@
           document.getElementById('totalTime').textContent = formatTime(dur);
           if (dur > 0) {
             document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
+          }
+
+          // Smooth Teleprompter Fade Engine
+          const lines = document.querySelectorAll('.lyric-line-item');
+          if (lines.length > 0 && dur > 0) {
+            const activeIdx = Math.min(lines.length - 1, Math.floor((cur / dur) * lines.length));
+            lines.forEach((l, i) => {
+              if (i < activeIdx) {
+                l.className = 'lyric-line-item passed';
+              } else if (i === activeIdx) {
+                l.className = 'lyric-line-item active';
+              } else {
+                l.className = 'lyric-line-item';
+              }
+            });
           }
         }
       }, 400);
@@ -927,19 +990,6 @@
       if (val === 0) volumeIcon.textContent = "🔇";
       else if (val < 50) volumeIcon.textContent = "🔉";
       else volumeIcon.textContent = "🔊";
-    });
-
-    // 📜 IN-PAGE FLOATING LYRICS TOGGLE
-    const inpageLyricsDrawer = document.getElementById('inpageLyricsDrawer');
-    const lyricsViewBtn = document.getElementById('lyricsViewBtn');
-    const lyricsDrawerCloseBtn = document.getElementById('lyricsDrawerCloseBtn');
-
-    lyricsViewBtn.addEventListener('click', () => {
-      inpageLyricsDrawer.classList.toggle('open');
-    });
-
-    lyricsDrawerCloseBtn.addEventListener('click', () => {
-      inpageLyricsDrawer.classList.remove('open');
     });
 
     // CHROMECAST / STREAM TV TRIGGER
