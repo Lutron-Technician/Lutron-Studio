@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER */
+    /* OUTDOOR WINDOW SCENERY LAYER (BEHIND CURTAINS) */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -259,13 +259,13 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* 📜 TRANSPARENT FLOATING LYRICS DOCK */
+    /* 📜 TRANSPARENT FLOATING LYRICS DOCK (UPAR SHIFT KIYA HAI PLAYER BOX SE BAHAR) */
     .stream-lyrics-dock {
       position: fixed;
-      bottom: 7.8rem;
-      right: 4vw;
-      width: 360px;
-      height: 150px;
+      bottom: 150px;
+      right: 3vw;
+      width: 380px;
+      height: 240px;
       z-index: 40;
       pointer-events: none;
       display: flex;
@@ -277,34 +277,34 @@
     .lyrics-stream-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .lyric-line-item {
       font-family: 'Mukta', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 400;
-      color: rgba(203, 213, 225, 0.45);
-      line-height: 1.4;
-      transition: all 0.5s ease;
+      color: rgba(203, 213, 225, 0.4);
+      line-height: 1.5;
+      transition: all 0.4s ease;
       text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-      opacity: 0.4;
+      opacity: 0.35;
       transform: translateY(8px);
     }
 
     .lyric-line-item.active {
       color: #ffffff;
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 600;
       opacity: 1;
       transform: translateY(0);
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 2px 12px rgba(0,0,0,0.95);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 2px 12px rgba(0,0,0,0.95);
     }
 
     .lyric-line-item.passed {
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateY(-24px);
       height: 0;
       margin: 0;
       padding: 0;
@@ -400,9 +400,9 @@
       .stream-lyrics-dock {
         right: 50%;
         transform: translateX(50%);
-        bottom: 8.5rem;
+        bottom: 140px;
         width: 90%;
-        height: 110px;
+        height: 120px;
         text-align: center;
       }
       .lyric-line-item { font-size: 0.95rem; }
@@ -469,13 +469,10 @@
     </main>
   </div>
 
-  <!-- 📜 TRANSPARENT FLOATING LYRICS DOCK (BOTTOM RIGHT / MOBILE RESPONSIVE) -->
+  <!-- 📜 REAL LIVE LYRICS FLOATING DOCK (RIGHT SIDE EMPTY SPACE) -->
   <div class="stream-lyrics-dock">
     <div class="lyrics-stream-list" id="lyricsStreamList">
-      <div class="lyric-line-item active">सुरमई शाम का साया है...</div>
-      <div class="lyric-line-item">लबों पे तेरा ही नाम आया है...</div>
-      <div class="lyric-line-item">धड़कनों ने छेड़ा इक नया तराना...</div>
-      <div class="lyric-line-item">रोशनी में डूबा हर इक आशियाना...</div>
+      <div class="lyric-line-item active">Lyrics loading...</div>
     </div>
   </div>
 
@@ -544,58 +541,6 @@
     // 🔑 CONFIGURED FULL 39-CHAR API KEY
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
 
-    // 📜 Hindi Lyrics Database for Indian Classics & Hits
-    const lyricsBank = {
-      default: [
-        "सुरमई शाम का साया है...",
-        "लबों पे तेरा ही नाम आया है...",
-        "धड़कनों ने छेड़ा इक नया तराना...",
-        "रोशनी में डूबा हर इक आशियाना..."
-      ],
-      "mere mehboob": [
-        "मेरे महबूब क़यामत होगी...",
-        "आज रुसवा तेरी गलियों में मोहब्बत होगी...",
-        "मेरी नज़रों से तुम देखो...",
-        "तेरी तस्वीर से कितनी चाहत होगी..."
-      ],
-      "lag jaa gale": [
-        "लग जा गले कि फिर ये हसीं रात हो न हो...",
-        "शायद फिर इस जनम में मुलाक़ात हो न हो...",
-        "हमको मिली हैं आज ये घड़ियाँ नसीब से...",
-        "जी भर के देख लीजिये हमको क़रीब से..."
-      ],
-      "tere paas": [
-        "तेरे पास मैं आ रहा हूँ...",
-        "सपनों को अपने सजा रहा हूँ...",
-        "तेरी आँखों में डूब के...",
-        "हर इक पल को अपना बना रहा हूँ..."
-      ],
-      "abhi mujh mein": [
-        "अभी मुझ में कहीं बाक़ी थोड़ी सी है ज़िन्दगी...",
-        "जगी धड़कन नई जाना ज़िंदा हूँ मैं तो अभी...",
-        "कुछ ऐसी लगन इस लम्हे में है...",
-        "ये लम्हा कहाँ था मेरा..."
-      ],
-      "kesariya": [
-        "केसरिया तेरा इश्क़ है पिया...",
-        "रंग जाऊँ जो मैं हाथ लगाऊँ...",
-        "दिन बीते सारा तेरी फ़िक्र में...",
-        "रैन सारी तेरी ख़ैर मनाऊँ..."
-      ],
-      "kishore": [
-        "चला जाता हूँ किसी की धुन में...",
-        "धड़कते दिल के तराने लिए...",
-        "मिलन की मस्ती भरी आँखों में...",
-        "हज़ारों सपने सजाने लिए..."
-      ],
-      "arijit": [
-        "हम तेरे बिन अब रह नहीं सकते...",
-        "तेरे बिना क्या वजूद मेरा...",
-        "तुझसे जुदा गर हो जायेंगे...",
-        "तो खुद से ही हो जायेंगे जुदा..."
-      ]
-    };
-
     let songsList = [
       { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
       { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" },
@@ -609,22 +554,61 @@
     let isPlaying = false;
     let progressTimer = null;
     let isCurtainOpen = false;
+    let parsedSyncedLyrics = [];
 
-    // UPDATE LIVE HINDI LYRICS IN DOCK
-    function updateLyrics(songTitle) {
-      const titleLower = (songTitle || '').toLowerCase();
-      let selectedLyrics = lyricsBank.default;
+    // 🌐 REAL-TIME DYNAMIC LYRICS ENGINE (LRCLIB API)
+    async function fetchRealLyrics(songTitle) {
+      const lyricsStreamList = document.getElementById('lyricsStreamList');
+      lyricsStreamList.innerHTML = '<div class="lyric-line-item active">Lyrics loading...</div>';
+      parsedSyncedLyrics = [];
 
-      for (let key in lyricsBank) {
-        if (titleLower.includes(key)) {
-          selectedLyrics = lyricsBank[key];
-          break;
+      // Clean search title
+      const cleanTitle = songTitle.replace(/\(.*?\)|\[.*?\]|official|video|audio|lyrics|hd|full song/gi, '').split('—')[0].split('-')[0].trim();
+
+      try {
+        const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(cleanTitle)}`);
+        const data = await res.json();
+
+        if (data && data.length > 0) {
+          const trackData = data.find(t => t.syncedLyrics) || data[0];
+
+          if (trackData.syncedLyrics) {
+            // Synced LRC Parser ([00:12.34] text)
+            const lines = trackData.syncedLyrics.split('\n');
+            parsedSyncedLyrics = lines.map(line => {
+              const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+              if (match) {
+                const time = parseInt(match[1]) * 60 + parseFloat(match[2]);
+                return { time: time, text: match[3].trim() };
+              }
+              return null;
+            }).filter(item => item && item.text.length > 0);
+
+            lyricsStreamList.innerHTML = parsedSyncedLyrics.map((item, idx) => `
+              <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${item.text}</div>
+            `).join('');
+            return;
+          } else if (trackData.plainLyrics) {
+            const lines = trackData.plainLyrics.split('\n').filter(l => l.trim().length > 0);
+            parsedSyncedLyrics = lines.map((text, i) => ({ time: i * 4, text: text.trim() }));
+            lyricsStreamList.innerHTML = parsedSyncedLyrics.map((item, idx) => `
+              <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${item.text}</div>
+            `).join('');
+            return;
+          }
         }
+      } catch (err) {
+        console.log("Lyrics API fallback triggered");
       }
 
-      const lyricsStreamList = document.getElementById('lyricsStreamList');
-      lyricsStreamList.innerHTML = selectedLyrics.map((line, idx) => `
-        <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${line}</div>
+      // If lyrics are not found on LRCLIB, display clean track info
+      parsedSyncedLyrics = [
+        { time: 0, text: songTitle },
+        { time: 6, text: "🎵 256 kbps Studio Master Stream" },
+        { time: 12, text: "Lutron Wala Banda • Pure Atmosphere" }
+      ];
+      lyricsStreamList.innerHTML = parsedSyncedLyrics.map((item, idx) => `
+        <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${item.text}</div>
       `).join('');
     }
 
@@ -837,7 +821,7 @@
         document.getElementById('trackTitle').textContent = track.name;
         document.getElementById('trackArtist').textContent = "256 kbps Master Audio • YouTube Live";
         if (track.img) document.getElementById('albumImg').src = track.img;
-        updateLyrics(track.name);
+        fetchRealLyrics(track.name);
 
         if ('mediaSession' in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
@@ -878,10 +862,16 @@
             document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
           }
 
-          // Smart Teleprompter Lyric Fade
+          // Real-time Synced Lyrics Follower
           const lines = document.querySelectorAll('.lyric-line-item');
-          if (lines.length > 0 && dur > 0) {
-            const activeIdx = Math.min(lines.length - 1, Math.floor((cur / dur) * lines.length));
+          if (parsedSyncedLyrics.length > 0 && lines.length > 0) {
+            let activeIdx = 0;
+            for (let i = 0; i < parsedSyncedLyrics.length; i++) {
+              if (cur >= parsedSyncedLyrics[i].time) {
+                activeIdx = i;
+              }
+            }
+
             lines.forEach((l, i) => {
               if (i < activeIdx) {
                 l.className = 'lyric-line-item passed';
@@ -893,7 +883,7 @@
             });
           }
         }
-      }, 500);
+      }, 400);
     }
 
     function stopTimer() {
