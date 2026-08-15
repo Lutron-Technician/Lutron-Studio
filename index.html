@@ -533,27 +533,50 @@
     const playlistDrawer = document.getElementById('playlistDrawer');
     const playlistToggleBtn = document.getElementById('playlistToggleBtn');
 
-    function renderPlaylistDrawer() {
-      playlistDrawer.innerHTML = '';
-      songsList.forEach((song, idx) => {
-        const item = document.createElement('div');
-        item.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
-        item.innerHTML = `
-  <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:70%;">
-    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name}</span>
-  </div>
-  <div style="display:flex; align-items:center; gap:8px;">
-    <button onclick='event.stopPropagation(); addToMyPlaylist(${JSON.stringify(song)})' style="background:#f97316; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>
-    <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
-  </div>
-`;
-        item.addEventListener('click', () => {
-          playTrackAtIndex(idx);
-          playlistDrawer.classList.remove('open');
-        });
-        playlistDrawer.appendChild(item);
-      });
-    }
+    let currentViewTab = 'search';
+
+function renderPlaylistDrawer() {
+  playlistDrawer.innerHTML = `
+    <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:8px;">
+      <button onclick="switchTab('search')" style="flex:1; padding:8px; background:${currentViewTab==='search'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='search'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">SEARCH RESULTS</button>
+      <button onclick="switchTab('my_playlist')" style="flex:1; padding:8px; background:${currentViewTab==='my_playlist'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='my_playlist'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">MY MOOD PLAYLIST</button>
+    </div>
+  `;
+
+  let activeList = (currentViewTab === 'search') ? songsList : JSON.parse(localStorage.getItem('my_custom_mood') || '[]');
+
+  if (activeList.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.cssText = "padding:20px; text-align:center; color:#94a3b8; font-size:11px; font-family:'JetBrains Mono',monospace;";
+    emptyMsg.innerHTML = "Your Mood Playlist is empty.<br>Click '+ ADD' on search results!";
+    playlistDrawer.appendChild(emptyMsg);
+    return;
+  }
+
+  activeList.forEach((song, idx) => {
+    const item = document.createElement('div');
+    item.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
+    item.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:70%;">
+        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name || song.title}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        ${currentViewTab === 'search' ? `<button onclick='event.stopPropagation(); addToMyPlaylist(${JSON.stringify(song)})' style="background:#f97316; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>` : ''}
+        <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      playTrackAtIndex(idx);
+      playlistDrawer.classList.remove('open');
+    });
+    playlistDrawer.appendChild(item);
+  });
+}
+
+function switchTab(tabName) {
+  currentViewTab = tabName;
+  renderPlaylistDrawer();
+}
 
     playlistToggleBtn.addEventListener('click', () => {
       playlistDrawer.classList.toggle('open');
