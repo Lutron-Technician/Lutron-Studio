@@ -106,11 +106,11 @@
     /* 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
-      display: flex; width: 100%; height: 100%;
+      display: flex; width: 100%; height: 100%; overflow: hidden;
     }
 
     .curtain-panel {
-      flex: 1; height: 100%;
+      width: 50%; height: 100%;
       background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative;
       box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
@@ -131,13 +131,11 @@
 
     .curtain-left {
       border-right: 2px solid rgba(255,255,255,0.06);
-      transform-origin: left center;
       transform: translateX(0%);
     }
 
     .curtain-right {
       border-left: 2px solid rgba(255,255,255,0.06);
-      transform-origin: right center;
       transform: translateX(0%);
     }
 
@@ -375,7 +373,7 @@
     .stream-tv-btn:hover { background: var(--qs-blue); color: #000; }
 
     .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
-    .playlist-toggle-btn:hover { background: var(--amber-warm); color: #000; }
+    .playlist-toggle-btn:hover { background: rgba(255, 170, 51, 0.3); }
 
     .playlist-drawer {
       position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto;
@@ -391,7 +389,7 @@
     .playlist-item.active-track { background: rgba(255, 170, 51, 0.18); border-color: var(--amber-warm); color: var(--amber-warm); font-weight: 600; }
 
     .progress-container { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
-    .time-stamp { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 30px; }
+    .time-stamp { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 35px; }
     .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
     .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
 
@@ -430,7 +428,7 @@
     </svg>
   </div>
 
-  <!-- 2-SIDE MOTORIZED CURTAIN SYSTEM -->
+  <!-- 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM -->
   <div class="curtain-track-rod"></div>
   <div class="curtain-container" id="curtainContainer">
     <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
@@ -570,26 +568,25 @@
     let isPlaying = false;
     let progressTimer = null;
     let isMiniTvOpen = false;
+    let isTransitioningTrack = false;
 
-    // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (SLOW & QUIET GLIDE SPEED) ---
+    // --- REAL LUTRON 4-STEP DRAPERY CONTROLLER (OPEN -> STOP -> CLOSE -> STOP) ---
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
     const processorStatusText = document.getElementById('processorStatusText');
 
-    let curtainPos = 0;
+    let curtainPos = 0; // 0 = Closed, 100 = Open
     let curtainMotionState = 'STOPPED';
-    let lastDirection = 'OPEN';
+    let nextTarget = 'OPEN'; // Cycles between 'OPEN' and 'CLOSE'
     let curtainAnimFrame = null;
-    const DRAPERY_SPEED = 0.22;
+    const DRAPERY_SPEED = 0.35; // Slow & smooth Lutron glide speed
 
     function renderCurtainPosition() {
-      const leftTranslate = -92 * (curtainPos / 100);
-      const rightTranslate = 92 * (curtainPos / 100);
-      const scaleX = 1 - (0.75 * (curtainPos / 100));
-
-      curtainLeft.style.transform = `translateX(${leftTranslate}%) scaleX(${scaleX})`;
-      curtainRight.style.transform = `translateX(${rightTranslate}%) scaleX(${scaleX})`;
+      const leftTranslate = -100 * (curtainPos / 100);
+      const rightTranslate = 100 * (curtainPos / 100);
+      curtainLeft.style.transform = `translateX(${leftTranslate}%)`;
+      curtainRight.style.transform = `translateX(${rightTranslate}%)`;
     }
 
     function animateCurtainStep() {
@@ -598,7 +595,7 @@
         if (curtainPos >= 100) {
           curtainPos = 100;
           curtainMotionState = 'STOPPED';
-          lastDirection = 'CLOSE';
+          nextTarget = 'CLOSE';
           shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
           processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN";
           shadesBtn.classList.add('active');
@@ -612,7 +609,7 @@
         if (curtainPos <= 0) {
           curtainPos = 0;
           curtainMotionState = 'STOPPED';
-          lastDirection = 'OPEN';
+          nextTarget = 'OPEN';
           shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
           processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
           shadesBtn.classList.remove('active');
@@ -627,21 +624,26 @@
 
     function handleDraperyClick() {
       if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        cancelAnimationFrame(curtainAnimFrame);
-        lastDirection = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
+        // STEP 2 & 4: STOP
+        if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
+        nextTarget = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
         curtainMotionState = 'STOPPED';
-        shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${lastDirection}`;
+        shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${nextTarget}`;
         processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
       } else {
-        if (lastDirection === 'OPEN') {
-          curtainMotionState === 'OPENING';
+        // STEP 1 & 3: OPEN or CLOSE
+        if (nextTarget === 'OPEN') {
+          curtainMotionState = 'OPENING';
+          shadesBtn.classList.add('active');
         } else {
           curtainMotionState = 'CLOSING';
         }
-        shadesBtn.classList.add('active');
+        shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
         curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
       }
     }
+
+    renderCurtainPosition();
 
     // TIME-BASED BACKGROUND ATMOSPHERE
     const outdoorScenery = document.getElementById('outdoorScenery');
@@ -708,7 +710,7 @@
           <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
         `;
         item.addEventListener('click', () => {
-          playTrackAtIndex(idx);
+          playTrackAtIndex(idx, true);
           playlistDrawer.classList.remove('open');
         });
         playlistDrawer.appendChild(item);
@@ -779,6 +781,8 @@
           'controls': 1, 
           'playsinline': 1, 
           'rel': 0, 
+          'enablejsapi': 1,
+          'origin': window.location.origin,
           'vq': 'hd1080'
         },
         events: {
@@ -793,19 +797,42 @@
       });
     }
 
-    function playTrackAtIndex(index) {
-      currentTrackIndex = index;
+    // CONTINUOUS PLAYBACK ENGINE
+    function playTrackAtIndex(index, autoPlay = true) {
+      isTransitioningTrack = true;
+      currentTrackIndex = (index + songsList.length) % songsList.length;
       const track = songsList[currentTrackIndex];
       if (!track) return;
 
       renderPlaylistDrawer();
       updateTrackInfo();
-      if (player && player.loadVideoById) {
-        player.loadVideoById({
-          videoId: track.id,
-          suggestedQuality: 'hd1080'
-        });
+
+      if (player && typeof player.loadVideoById === 'function') {
+        if (autoPlay) {
+          player.loadVideoById({
+            videoId: track.id,
+            suggestedQuality: 'hd1080'
+          });
+          player.playVideo();
+        } else {
+          player.cueVideoById({
+            videoId: track.id,
+            suggestedQuality: 'hd1080'
+          });
+        }
       }
+
+      setTimeout(() => { isTransitioningTrack = false; }, 1200);
+    }
+
+    function playNextTrack() {
+      if (isTransitioningTrack) return;
+      playTrackAtIndex(currentTrackIndex + 1, true);
+    }
+
+    function playPrevTrack() {
+      if (isTransitioningTrack) return;
+      playTrackAtIndex(currentTrackIndex - 1, true);
     }
 
     const playPauseBtn = document.getElementById('playPauseBtn');
@@ -814,15 +841,16 @@
 
     function onPlayerStateChange(event) {
       updateTimeDisplay();
+
       if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
+        isTransitioningTrack = false;
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
-        currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
-        playTrackAtIndex(currentTrackIndex);
+        playNextTrack();
       } else {
         isPlaying = false;
         playIcon.style.display = 'block';
@@ -847,14 +875,8 @@
           });
           navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
           navigator.mediaSession.setActionHandler('pause', () => { if (player) player.pauseVideo(); });
-          navigator.mediaSession.setActionHandler('nexttrack', () => {
-            currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
-            playTrackAtIndex(currentTrackIndex);
-          });
-          navigator.mediaSession.setActionHandler('previoustrack', () => {
-            currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
-            playTrackAtIndex(currentTrackIndex);
-          });
+          navigator.mediaSession.setActionHandler('nexttrack', () => { playNextTrack(); });
+          navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevTrack(); });
         }
       }
     }
@@ -871,10 +893,16 @@
       if (player && typeof player.getDuration === 'function') {
         const cur = player.getCurrentTime() || 0;
         const dur = player.getDuration() || 0;
+        
         document.getElementById('currentTime').textContent = formatTime(cur);
         if (dur > 0) {
           document.getElementById('totalTime').textContent = formatTime(dur);
           document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
+
+          // Automatic Fallback for Auto-Next when track nears end
+          if (isPlaying && !isTransitioningTrack && (dur - cur) < 0.8 && dur > 10) {
+            playNextTrack();
+          }
         }
       }
     }
@@ -882,7 +910,7 @@
     function startTimer() {
       stopTimer();
       updateTimeDisplay();
-      progressTimer = setInterval(updateTimeDisplay, 500);
+      progressTimer = setInterval(updateTimeDisplay, 400);
     }
 
     function stopTimer() {
@@ -891,17 +919,21 @@
     }
 
     playPauseBtn.addEventListener('click', () => {
-      if (player) isPlaying ? player.pauseVideo() : player.playVideo();
+      if (player) {
+        if (isPlaying) {
+          player.pauseVideo();
+        } else {
+          player.playVideo();
+        }
+      }
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-      currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
-      playTrackAtIndex(currentTrackIndex);
+      playNextTrack();
     });
 
     document.getElementById('prevBtn').addEventListener('click', () => {
-      currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
-      playTrackAtIndex(currentTrackIndex);
+      playPrevTrack();
     });
 
     document.getElementById('progressBarBg').addEventListener('click', (e) => {
