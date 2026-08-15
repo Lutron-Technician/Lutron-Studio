@@ -103,14 +103,14 @@
     .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
     .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
 
-    /* 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM */
+    /* 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
-      display: flex; width: 100%; height: 100%;
+      display: flex; width: 100%; height: 100%; overflow: hidden;
     }
 
     .curtain-panel {
-      flex: 1; height: 100%;
+      width: 50%; height: 100%;
       background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative;
       box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
@@ -572,25 +572,25 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
-    // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (SLOW & QUIET GLIDE SPEED) ---
+    // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (SLOW & SMOOTH SLIDE) ---
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
     const processorStatusText = document.getElementById('processorStatusText');
 
-    let curtainPos = 0;
-    let curtainMotionState = 'STOPPED';
-    let lastDirection = 'OPEN';
+    let curtainPos = 0; // 0 = fully closed, 100 = fully open
+    let curtainMotionState = 'STOPPED'; // 'OPENING', 'CLOSING', 'STOPPED'
+    let lastDirection = 'OPEN'; // Next action direction
     let curtainAnimFrame = null;
-    const DRAPERY_SPEED = 0.22;
+    const DRAPERY_SPEED = 0.35; // Calibrated slow & steady glide speed
 
     function renderCurtainPosition() {
-      const leftTranslate = -92 * (curtainPos / 100);
-      const rightTranslate = 92 * (curtainPos / 100);
-      const scaleX = 1 - (0.75 * (curtainPos / 100));
+      // Smooth slide transform
+      const leftTranslate = -100 * (curtainPos / 100);
+      const rightTranslate = 100 * (curtainPos / 100);
 
-      curtainLeft.style.transform = `translateX(${leftTranslate}%) scaleX(${scaleX})`;
-      curtainRight.style.transform = `translateX(${rightTranslate}%) scaleX(${scaleX})`;
+      curtainLeft.style.transform = `translateX(${leftTranslate}%)`;
+      curtainRight.style.transform = `translateX(${rightTranslate}%)`;
     }
 
     function animateCurtainStep() {
@@ -627,22 +627,28 @@
     }
 
     function handleDraperyClick() {
+      // If currently moving, stop immediately
       if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        cancelAnimationFrame(curtainAnimFrame);
+        if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
         lastDirection = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
         curtainMotionState = 'STOPPED';
         shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${lastDirection}`;
         processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
       } else {
+        // Start movement in the intended direction
         if (lastDirection === 'OPEN') {
-          curtainMotionState === 'OPENING';
+          curtainMotionState = 'OPENING';
+          shadesBtn.classList.add('active');
         } else {
           curtainMotionState = 'CLOSING';
         }
-        shadesBtn.classList.add('active');
+        shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
         curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
       }
     }
+
+    // Initial render
+    renderCurtainPosition();
 
     // TIME-BASED BACKGROUND ATMOSPHERE
     const outdoorScenery = document.getElementById('outdoorScenery');
@@ -796,7 +802,7 @@
       });
     }
 
-    // 🚀 CONTINUOUS PLAYBACK ENGINE: Auto next-song logic
+    // 🚀 CONTINUOUS PLAYBACK ENGINE
     function playTrackAtIndex(index, autoPlay = true) {
       isTransitioningTrack = true;
       currentTrackIndex = (index + songsList.length) % songsList.length;
@@ -849,7 +855,6 @@
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
-        // 🔥 AUTO-ADVANCE TO NEXT TRACK AS SOON AS CURRENT TRACK ENDS
         playNextTrack();
       } else {
         isPlaying = false;
@@ -899,7 +904,6 @@
           document.getElementById('totalTime').textContent = formatTime(dur);
           document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
 
-          // Seamless auto-switch fallback when video reaches last second
           if (isPlaying && !isTransitioningTrack && (dur - cur) < 0.8 && dur > 10) {
             playNextTrack();
           }
