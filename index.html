@@ -539,11 +539,14 @@
         const item = document.createElement('div');
         item.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
         item.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:80%;">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name}</span>
-          </div>
-          <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
-        `;
+  <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:70%;">
+    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name}</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <button onclick='event.stopPropagation(); addToMyPlaylist(${JSON.stringify(song)})' style="background:#f97316; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>
+    <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
+  </div>
+`;
         item.addEventListener('click', () => {
           playTrackAtIndex(idx);
           playlistDrawer.classList.remove('open');
