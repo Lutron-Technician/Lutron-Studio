@@ -3,942 +3,788 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician – Architectural Studio & Audio Player</title>
+  <title>Lutron Wala Banda — Dual Motorized Drapery & Architectural Lighting</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #05070a;
-      --amber-warm: #ff9900;
+      --bg-dark: #07090e;
+      --bg-card: rgba(18, 22, 33, 0.92);
+      --amber-warm: #ffaa33;
       --qs-blue: #00d2ff;
       --led-green: #10b981;
-      
-      --fixture-color: #ff9900;
-      --fixture-glow: rgba(255, 153, 0, 0.85);
-      --ambient-dim: 0.85;
-      --drapery-opacity: 0.95;
+      --text-main: #f3f4f6;
+      --text-muted: #8a94a6;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+
+      --fixture-color: #ff8800;
+      --fixture-glow: rgba(255, 136, 0, 0.75);
+      --beam-opacity: 0.85;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
 
-    body {
-      background-color: var(--bg-dark);
-      color: #f3f4f6;
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
+      background-color: var(--bg-dark); color: var(--text-main); position: relative;
+    }
+
+    /* OUTDOOR WINDOW SCENERY LAYER (BEHIND CURTAINS) */
+    .outdoor-scenery {
+      position: absolute; inset: 0; z-index: 1; overflow: hidden;
+      transition: background 2s ease-in-out;
+    }
+
+    /* DAY TIME SKY */
+    .outdoor-scenery.day-mode {
+      background: linear-gradient(180deg, #2b7fff 0%, #70b5ff 40%, #ffd166 80%, #f77f00 100%);
+    }
+
+    /* NIGHT TIME SKY */
+    .outdoor-scenery.night-mode {
+      background: radial-gradient(circle at 78% 22%, #1a2a47 0%, #0c1222 45%, #04060d 100%);
+    }
+
+    /* SUN & MOON */
+    .sky-sun {
+      position: absolute; top: 12%; right: 18%; width: 125px; height: 125px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 15%, #ffe66d 45%, #ff9f1c 75%, rgba(255, 159, 28, 0) 100%);
+      box-shadow: 0 0 90px #ff9f1c, 0 0 180px rgba(255, 159, 28, 0.6);
+      opacity: 0; transform: translateY(40px) scale(0.8);
+      transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .outdoor-scenery.day-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
+
+    .sky-moon {
+      position: absolute; top: 10%; right: 16%; width: 85px; height: 85px;
+      border-radius: 50%;
+      box-shadow: -15px 10px 0 0 #f4f1de, 0 0 40px rgba(244, 241, 222, 0.45);
+      opacity: 0; transform: translateY(40px) scale(0.8) rotate(-15deg);
+      transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
+
+    .sky-stars {
+      position: absolute; inset: 0;
+      background-image: 
+        radial-gradient(1.5px 1.5px at 35px 50px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 110px 170px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 190px 80px, #e0e1dd, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 300px 210px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 450px 120px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 610px 250px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 770px 70px, #e0e1dd, rgba(0,0,0,0));
+      background-size: 850px 450px;
+      opacity: 0; transition: opacity 2s ease;
+    }
+    .outdoor-scenery.night-mode .sky-stars { opacity: 0.85; animation: twinkleStars 4s ease-in-out infinite alternate; }
+
+    @keyframes twinkleStars { 0% { opacity: 0.35; } 100% { opacity: 0.95; } }
+
+    /* REALISTIC MOUNTAIN SILHOUETTES */
+    .mountain-layer {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+      pointer-events: none;
+    }
+
+    .mountain-back {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+      fill: #0c1524; transition: fill 2s ease;
+    }
+    .outdoor-scenery.day-mode .mountain-back { fill: #588157; opacity: 0.75; }
+    .outdoor-scenery.night-mode .mountain-back { fill: #0b1320; }
+
+    .mountain-front {
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 75%;
+      fill: #050a12; transition: fill 2s ease;
+    }
+    .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
+    .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
+
+    /* 2-SIDE DUAL CENTER-SPLIT MOTORIZED CURTAIN (PARDA) */
+    .curtain-container {
+      position: absolute; inset: 0; z-index: 3; pointer-events: none;
+      display: flex; width: 100%; height: 100%;
+    }
+
+    .curtain-panel {
+      flex: 1; height: 100%;
+      background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative;
+      transition: transform 2.4s cubic-bezier(0.65, 0, 0.35, 1);
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
     }
 
-    /* 1. LUXURY DARK PLEATED DRAPERY BACKDROP (PHOTO 2 DESIGN) */
-    .theatre-viewport {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      overflow: hidden;
-      background: #06080d;
-    }
-
-    .curtain-wall {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    /* REALISTIC FABRIC DRAPERY PLEATS */
+    .curtain-pleats {
+      position: absolute; inset: 0;
       background: repeating-linear-gradient(
         90deg,
-        #0a0d14 0px,
-        #1e2533 18px,
-        #2c364a 36px,
-        #121722 54px,
-        #080a0f 72px
+        rgba(255, 255, 255, 0.04) 0px,
+        rgba(0, 0, 0, 0.5) 20px,
+        rgba(255, 255, 255, 0.07) 40px,
+        rgba(0, 0, 0, 0.65) 60px
       );
-      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.95);
-      opacity: var(--drapery-opacity);
-      transition: opacity 1.2s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9);
     }
 
-    /* 2. REALISTIC LUTRON SPOTLIGHTS */
-    .spotlight-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 3;
+    .curtain-left {
+      border-right: 2px solid rgba(255,255,255,0.06);
+      transform-origin: left center;
+      transform: translateX(0%);
     }
 
-    .light-cone {
-      position: absolute;
-      top: 30px;
-      width: 150px;
-      height: 80vh;
-      background: linear-gradient(180deg, var(--fixture-color) 0%, rgba(255, 153, 0, 0.25) 45%, rgba(0,0,0,0) 85%);
-      opacity: var(--ambient-dim);
-      filter: blur(32px);
-      transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    .cone-1 { right: 26%; transform: rotate(1deg); }
-    .cone-2 { right: 10%; transform: rotate(-1deg); }
-
-    .fixture-hardware {
-      position: absolute;
-      top: 25px;
-      width: 36px;
-      height: 18px;
-      background: #1e2533;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    }
-    .fixture-hardware::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 10px;
-      width: 16px;
-      height: 16px;
-      background: var(--fixture-color);
-      border-radius: 50%;
-      box-shadow: 0 0 20px var(--fixture-glow);
-    }
-    .fixture-1 { right: calc(26% + 55px); }
-    .fixture-2 { right: calc(10% + 55px); }
-
-    /* 3. HEADER */
-    header {
-      position: relative;
-      z-index: 10;
-      padding: 24px 36px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+    .curtain-right {
+      border-left: 2px solid rgba(255,255,255,0.06);
+      transform-origin: right center;
+      transform: translateX(0%);
     }
 
-    .title-group h1 {
-      font-family: 'Syncopate', sans-serif;
-      font-size: 2.1rem;
-      font-weight: 700;
-      letter-spacing: 6px;
-      color: #ffffff;
-      text-shadow: 0 0 25px rgba(255,255,255,0.25);
+    /* PARDA KHULNE PAR 2-SIDE SLIDE HOGA */
+    .curtain-container.curtain-open .curtain-left {
+      transform: translateX(-92%) scaleX(0.25);
+    }
+    .curtain-container.curtain-open .curtain-right {
+      transform: translateX(92%) scaleX(0.25);
     }
 
-    .title-group p {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 2px;
-      color: #94a3b8;
-      margin-top: 5px;
-      text-transform: uppercase;
+    .curtain-track-rod {
+      position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+      background: linear-gradient(180deg, #374151, #111827);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;
     }
 
-    .status-group {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
+    /* INTERIOR ARCHITECTURAL LIGHTING */
+    .blueprint-grid { 
+      position: absolute; inset: 0; 
+      background-image: linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px); 
+      background-size: 35px 35px; pointer-events: none; z-index: 4; 
+    }
+    
+    .ambient-glow {
+      position: absolute; top: 40%; right: 12%; transform: translate(30%, -30%);
+      width: 850px; height: 850px;
+      background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 65%);
+      border-radius: 50%; filter: blur(95px);
+      transition: all 0.8s ease-in-out; z-index: 5; pointer-events: none; opacity: var(--beam-opacity);
+    }
+
+    .lighting-fixtures-layer {
+      position: absolute; top: 0; right: 10vw; z-index: 6; pointer-events: none;
+      display: flex; gap: 8vw;
+    }
+
+    .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
+    .pendant-wire { width: 2px; height: 140px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
+    .pendant-shade {
+      width: 50px; height: 28px;
+      background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px;
+      position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+    }
+
+    .pendant-bulb {
+      width: 22px; height: 22px; border-radius: 50%;
+      background-color: var(--fixture-color);
+      box-shadow: 0 0 25px var(--fixture-color), 0 0 50px var(--fixture-color);
+      margin-top: -6px; transition: all 0.8s ease-in-out;
+    }
+
+    .light-beam {
+      width: 190px; height: 520px;
+      background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
+      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+      opacity: var(--beam-opacity); transition: all 0.8s ease-in-out; filter: blur(7px);
+    }
+
+    .app-container {
+      position: relative; z-index: 10; width: 100vw; height: 100vh;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 1.5rem 4vw 9.5rem 4vw;
+    }
+
+    .top-header {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted);
     }
 
     .status-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      color: #cbd5e1;
-      letter-spacing: 1px;
-      background: rgba(15, 23, 42, 0.8);
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(8px);
-    }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      background-color: var(--led-green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--led-green);
-    }
-    .rf-freq {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem;
-      color: #64748b;
-      letter-spacing: 1px;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.8rem; border-radius: 100px; border: 1px solid var(--border-light);
     }
 
-    /* 4. LUTRON PALLADIOM KEYPAD */
-    .workspace {
-      position: relative;
-      z-index: 10;
-      padding: 10px 36px;
+    .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
+
+    .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
+    .main-title {
+      font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.15em;
+      background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
+
+    .central-stage {
+      display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+      position: relative; flex-grow: 1; width: 100%;
     }
 
-    .lutron-palladiom {
-      width: 270px;
-      background: linear-gradient(145deg, rgba(20, 25, 38, 0.94), rgba(10, 13, 20, 0.98));
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 16px 14px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(16px);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    .palladiom-frame {
+      width: 260px; height: 390px;
+      background: linear-gradient(145deg, #2a2f3d, #12151f);
+      border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+      position: relative; border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;
+    }
+
+    .palladiom-faceplate {
+      width: 100%; height: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%);
+      border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px;
     }
 
     .keypad-btn {
-      position: relative;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 6px;
-      padding: 13px 15px;
-      color: #cbd5e1;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.2s ease;
+      flex: 1; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px;
+      display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
+      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; cursor: pointer;
+      transition: all 0.3s ease;
     }
-    .keypad-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
+
+    .keypad-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
     .keypad-btn.active {
-      background: linear-gradient(90deg, rgba(255, 153, 0, 0.18), rgba(255, 153, 0, 0.02));
-      border-color: var(--amber-warm);
-      color: #fff;
-      box-shadow: 0 0 15px rgba(255, 153, 0, 0.25);
-    }
-    .keypad-led {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #334155;
-    }
-    .keypad-btn.active .keypad-led {
-      background: var(--amber-warm);
-      box-shadow: 0 0 8px var(--amber-warm);
+      color: #ffffff; background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* 5. FIXED BOTTOM PLAYER CONSOLE */
-    footer.player-deck-container {
-      position: fixed !important;
-      bottom: 20px !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      z-index: 9999 !important;
-      width: 90% !important;
-      max-width: 860px !important;
+    .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
+    .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
+
+    .ticker-container { width: 100%; max-width: 500px; text-align: left; margin-top: 1rem; height: 35px; display: flex; align-items: center; position: relative; }
+    .quote-text { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); position: absolute; opacity: 0; transform: translateY(10px); transition: all 0.6s ease; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quote-text.active { opacity: 1; transform: translateY(0); }
+
+    /* PLAYER CONTROLS & GLASS SHELL */
+    .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 850px; z-index: 100; }
+    .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
+
+    .search-box-row { display: flex; gap: 8px; width: 100%; }
+    .song-search-input {
+      flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light);
+      border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem;
+      font-family: 'Inter', sans-serif; outline: none; transition: all 0.3s ease;
+    }
+    .song-search-input:focus { border-color: var(--amber-warm); background: rgba(255, 255, 255, 0.14); }
+    .search-submit-btn {
+      background: var(--amber-warm); color: #000; border: none; border-radius: 10px;
+      padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .search-submit-btn:hover { background: #ffbe58; transform: scale(1.02); }
+
+    .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+    .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 0; }
+    .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); }
+    .album-art img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .track-details { display: flex; flex-direction: column; min-width: 0; }
+    .track-title { font-size: 0.86rem; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-artist { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .player-controls { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .ctrl-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+    .ctrl-btn:hover { background: rgba(255, 255, 255, 0.15); }
+    .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
+    .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .stream-tv-btn {
+      background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue);
+      border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;
+    }
+    .stream-tv-btn:hover { background: var(--qs-blue); color: #000; }
+
+    .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+    .playlist-toggle-btn:hover { background: var(--amber-warm); color: #000; }
+
+    .playlist-drawer {
+      position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 300px; overflow-y: auto;
+      background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px);
+      border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px;
+      display: none; flex-direction: column; padding: 10px; gap: 6px; box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+      z-index: 120;
     }
 
-    .player-deck {
-      background: rgba(18, 24, 38, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 14px;
-      padding: 12px 18px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(20px);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .playlist-drawer.open { display: flex; }
+    .playlist-item { padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; font-size: 0.78rem; cursor: pointer; transition: all 0.2s ease; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; }
+    .playlist-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
+    .playlist-item.active-track { background: rgba(255, 170, 51, 0.18); border-color: var(--amber-warm); color: var(--amber-warm); font-weight: 600; }
 
-    .search-row {
-      display: flex;
-      gap: 8px;
-    }
+    .progress-container { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
+    .time-stamp { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 30px; }
+    .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
+    .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
 
-    .search-input {
-      flex: 1;
-      background: rgba(8, 12, 20, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      padding: 9px 14px;
-      color: #fff;
-      font-size: 0.85rem;
-      outline: none;
-    }
-    .search-input:focus {
-      border-color: var(--amber-warm);
-    }
+    #youtube-player-container { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
 
-    .search-btn {
-      background: #f59e0b;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      padding: 0 22px;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .search-btn:hover {
-      background: #fbbf24;
-    }
-
-    .controls-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .track-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 50%;
-      overflow: hidden;
-    }
-
-    .track-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.06);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    .track-details {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .track-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-artist {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      color: #94a3b8;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .transport-btns {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #cbd5e1;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .play-btn {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      border: none;
-      color: #000;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: bold;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-    }
-
-    .playlist-toggle-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 6px;
-      padding: 6px 14px;
-      color: #cbd5e1;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* 6. FLOATING PLAYLIST DRAWER */
-    #playlistDrawer {
-      position: fixed !important;
-      bottom: 110px !important;
-      right: calc(50% - 430px + 15px) !important;
-      width: 400px;
-      max-height: 380px;
-      background: rgba(13, 18, 29, 0.98);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(20px);
-      z-index: 10000 !important;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #playlistDrawer.open {
-      display: flex;
-    }
-
-    .playlist-scroll-area {
-      overflow-y: auto;
-      max-height: 290px;
-      padding: 6px;
-    }
-    .playlist-scroll-area::-webkit-scrollbar {
-      width: 5px;
-    }
-    .playlist-scroll-area::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-    }
-
-    .playlist-item {
-      padding: 7px 10px;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      color: #cbd5e1;
-      margin-bottom: 4px;
-      background: rgba(255, 255, 255, 0.02);
-    }
-    .playlist-item:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
-    .playlist-item.active-track {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #f59e0b;
-    }
-
-    #yt-player-container {
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-      visibility: hidden;
-    }
-
-    @media (max-width: 950px) {
-      #playlistDrawer {
-        right: 5% !important;
-        width: 90% !important;
-        max-width: 400px;
-      }
+    @media (max-width: 768px) {
+      .app-container { padding: 1.5rem 1.5rem 9.5rem 1.5rem; }
+      .hero-header { text-align: center; }
+      .central-stage { align-items: center; }
+      .lighting-fixtures-layer { display: none; }
+      .playlist-drawer { width: 100%; right: 0; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 1. Theatrical Dark Drapery & Lutron Lighting Viewport -->
-  <div class="theatre-viewport">
-    <div class="curtain-wall" id="curtainWall"></div>
-    <div class="spotlight-container">
-      <div class="light-cone cone-1"></div>
-      <div class="light-cone cone-2"></div>
-      <div class="fixture-hardware fixture-1"></div>
-      <div class="fixture-hardware fixture-2"></div>
-    </div>
+  <!-- OUTDOOR SCENERY (BEHIND CURTAINS) -->
+  <div class="outdoor-scenery" id="outdoorScenery">
+    <div class="sky-sun" id="skySun"></div>
+    <div class="sky-moon" id="skyMoon"></div>
+    <div class="sky-stars" id="skyStars"></div>
+
+    <!-- REALISTIC MOUNTAINS LANDSCAPE -->
+    <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
+      <path class="mountain-back" d="M0,600 L0,320 L160,220 L340,360 L520,180 L720,310 L940,150 L1160,290 L1320,190 L1440,260 L1440,600 Z"></path>
+      <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
+    </svg>
   </div>
 
-  <!-- Header -->
-  <header>
-    <div class="title-group">
-      <h1>LUTRON TECHNICIAN</h1>
-      <p>System Programmer • Architectural Lighting & Motorized Drapery</p>
+  <!-- 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM -->
+  <div class="curtain-track-rod"></div>
+  <div class="curtain-container" id="curtainContainer">
+    <div class="curtain-panel curtain-left">
+      <div class="curtain-pleats"></div>
     </div>
-    <div class="status-group">
+    <div class="curtain-panel curtain-right">
+      <div class="curtain-pleats"></div>
+    </div>
+  </div>
+  
+  <div class="blueprint-grid"></div>
+  <div class="ambient-glow" id="ambientGlow"></div>
+
+  <!-- ARCHITECTURAL PENDANT FIXTURES -->
+  <div class="lighting-fixtures-layer">
+    <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
+    <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
+  </div>
+
+  <div class="app-container">
+    <header class="top-header">
       <div class="status-badge">
-        <span class="status-dot"></span>
-        <span id="activeSceneText">SCENE: DRAPERY CLOSED (ROOM PRIVACY)</span>
+        <span class="led-dot"></span>
+        <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <span class="rf-freq">FREQ: 434 MHz [CLEAR-CONNECT]</span>
-    </div>
-  </header>
+      <div>FREQ: 434 MHz [CLEAR-CONNECT]</div>
+    </header>
 
-  <!-- Keypad -->
-  <div class="workspace">
-    <div class="lutron-palladiom">
-      <button class="keypad-btn" data-scene="bright">
-        <span>01 BRIGHT</span>
-        <span class="keypad-led"></span>
-      </button>
-      <button class="keypad-btn" data-scene="dim">
-        <span>02 DIM / MOVIE</span>
-        <span class="keypad-led"></span>
-      </button>
-      <button class="keypad-btn active" data-scene="ambient">
-        <span>03 AMBIENT 2700K</span>
-        <span class="keypad-led"></span>
-      </button>
-      <button class="keypad-btn" data-scene="dali_blue">
-        <span>04 DALI BLUE</span>
-        <span class="keypad-led"></span>
-      </button>
-      <button class="keypad-btn" data-scene="drapery">
-        <span id="draperyBtnText">05 DRAPERY: CLOSED</span>
-        <span class="keypad-led"></span>
-      </button>
-      <button class="keypad-btn" data-scene="off">
-        <span>06 ALL OFF</span>
-        <span class="keypad-led"></span>
-      </button>
+    <div class="hero-header">
+      <h1 class="main-title">LUTRON WALA BANDA</h1>
+      <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
+
+    <main class="central-stage">
+      <div class="palladiom-frame" id="keypadFrame">
+        <div class="palladiom-faceplate">
+          <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: CLOSED</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
+        </div>
+      </div>
+
+      <div class="ticker-container" id="quoteTicker"></div>
+    </main>
   </div>
 
-  <!-- Floating Playlist Drawer -->
-  <div id="playlistDrawer"></div>
-
-  <!-- Bottom Player Console Deck -->
-  <footer class="player-deck-container">
-    <div class="player-deck">
-      <div class="search-row">
-        <input type="text" id="songQueryInput" class="search-input" placeholder="Search Hindi, Marathi, 90s, Arijit, Coke Studio...">
-        <button id="searchSubmitBtn" class="search-btn">SEARCH</button>
+  <!-- LUXURY GLASS PLAYER -->
+  <div class="player-wrapper">
+    <div class="glass-player">
+      
+      <!-- REAL FULL-LENGTH YOUTUBE LIVE SEARCH -->
+      <div class="search-box-row">
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search ANY song (Lata Mangeshkar, Sharukh Khan, Dino James, Kishore, Arijit)..." />
+        <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
-      <div class="controls-row">
-        <div class="track-meta">
-          <div class="track-icon">🎵</div>
+
+      <div class="playlist-drawer" id="playlistDrawer"></div>
+
+      <div class="player-top-row">
+        <div class="track-info">
+          <div class="album-art" id="albumArtContainer">
+            <img id="albumImg" src="https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" alt="Art" />
+          </div>
           <div class="track-details">
-            <div class="track-name" id="currentTrackTitle">Pehle Bhi Main — Vishal Mishra</div>
-            <div class="track-artist" id="currentTrackArtist">Full Track (YouTube)</div>
+            <div class="track-title" id="trackTitle">Lag Jaa Gale — Lata Mangeshkar</div>
+            <div class="track-artist" id="trackArtist">Full HD Audio Stream (YouTube Official)</div>
           </div>
         </div>
-        <div class="transport-btns">
-          <button class="icon-btn" id="prevTrackBtn">⏮</button>
-          <button class="play-btn" id="masterPlayBtn">▶</button>
-          <button class="icon-btn" id="nextTrackBtn">⏭</button>
+
+        <div class="player-controls">
+          <button class="ctrl-btn" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="ctrl-btn play-btn" id="playPauseBtn">
+            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+          
+          <button class="stream-tv-btn" id="streamTvBtn">
+            <span>📺</span> <span>STREAM TV</span>
+          </button>
+
+          <button class="playlist-toggle-btn" id="playlistToggleBtn">
+            <span>📋</span> <span>SONG LIST</span>
+          </button>
         </div>
-        <button class="playlist-toggle-btn" id="playlistToggleBtn">📑 SONGS</button>
+      </div>
+
+      <div class="progress-container">
+        <span class="time-stamp" id="currentTime">0:00</span>
+        <div class="progress-bar-bg" id="progressBarBg">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <span class="time-stamp" id="totalTime">0:00</span>
       </div>
     </div>
-  </footer>
+  </div>
 
-  <div id="yt-player-container">
+  <div id="youtube-player-container">
     <div id="yt-player"></div>
   </div>
 
   <script>
-    // --- 1. LUTRON LIGHTING SCENES ENGINE ---
-    const root = document.documentElement;
-    const sceneLabel = document.getElementById('activeSceneText');
-    const draperyBtnLabel = document.getElementById('draperyBtnText');
-    let isDraperyClosed = true;
+    // 🔑 CONFIGURED FULL 39-CHAR API KEY
+    const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
 
-    const scenes = {
-      bright: {
-        color: '#fff3d1',
-        glow: 'rgba(255, 243, 209, 0.95)',
-        dim: '1.0',
-        label: 'SCENE 01: FULL BRIGHT ARCHITECTURAL'
-      },
-      dim: {
-        color: '#e65100',
-        glow: 'rgba(230, 81, 0, 0.7)',
-        dim: '0.4',
-        label: 'SCENE 02: CINEMA DIM 15% WARM GLOW'
-      },
-      ambient: {
-        color: '#ff9900',
-        glow: 'rgba(255, 153, 0, 0.85)',
-        dim: '0.85',
-        label: 'SCENE 03: AMBIENT 2700K KELVIN'
-      },
-      dali_blue: {
-        color: '#00d2ff',
-        glow: 'rgba(0, 210, 255, 0.85)',
-        dim: '0.9',
-        label: 'SCENE 04: DALI BLUE ACCENT'
-      },
-      off: {
-        color: '#000000',
-        glow: 'rgba(0, 0, 0, 0)',
-        dim: '0.02',
-        label: 'SCENE 06: ALL FIXTURES OFF'
+    let songsList = [
+      { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
+      { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" },
+      { id: "sLykke8q2Is", name: "Dooriyan — Dino James ft. Kaprila", img: "https://i.ytimg.com/vi/sLykke8q2Is/hqdefault.jpg" },
+      { id: "BddP6PYo2gs", name: "Kesariya — Arijit Singh", img: "https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg" },
+      { id: "N_KpjLhJa1k", name: "Yeh Dil Deewana — Sonu Nigam (SRK)", img: "https://i.ytimg.com/vi/N_KpjLhJa1k/hqdefault.jpg" }
+    ];
+
+    let currentTrackIndex = 0;
+    let player;
+    let isPlaying = false;
+    let progressTimer = null;
+    let isCurtainOpen = false;
+
+    // SITE QUOTES TICKER
+    const quotes = [
+      "\"DALI loops mapped, 2700K & 5000K scenes calibrated.\"",
+      "\"Late night site testing with cold Chai and Palladiom Satin Nickel buttons.\"",
+      "\"Keypad LEDs set to 15% night-level brightness.\"",
+      "\"Lutron Wala Banda — Engineering pure atmosphere.\""
+    ];
+
+    let currentQuoteIndex = 0;
+    const quoteTickerContainer = document.getElementById('quoteTicker');
+
+    quotes.forEach((q, idx) => {
+      const el = document.createElement('div');
+      el.className = `quote-text ${idx === 0 ? 'active' : ''}`;
+      el.textContent = q;
+      quoteTickerContainer.appendChild(el);
+    });
+
+    const quoteElements = document.querySelectorAll('.quote-text');
+    setInterval(() => {
+      quoteElements[currentQuoteIndex].classList.remove('active');
+      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+      quoteElements[currentQuoteIndex].classList.add('active');
+    }, 4500);
+
+    // TIME-BASED DRAPERY (2-SIDE CURTAIN) & OUTDOOR VIEW
+    const outdoorScenery = document.getElementById('outdoorScenery');
+    const curtainContainer = document.getElementById('curtainContainer');
+    const shadesBtn = document.getElementById('shadesBtn');
+
+    function updateAtmosphereView() {
+      const hour = new Date().getHours();
+      const isDayTime = (hour >= 6 && hour < 18);
+
+      // Automatic Time-Based Day/Night Sky & Mountains
+      if (isDayTime) {
+        outdoorScenery.className = 'outdoor-scenery day-mode';
+      } else {
+        outdoorScenery.className = 'outdoor-scenery night-mode';
       }
+
+      // 2-Side Motorized Drapery Open / Close
+      if (isCurtainOpen) {
+        curtainContainer.classList.add('curtain-open');
+        shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
+        document.getElementById('processorStatusText').textContent = isDayTime ? 
+          "SCENE: DRAPERY OPEN (DAYLIGHT SUN & MOUNTAIN VIEW)" : 
+          "SCENE: DRAPERY OPEN (NIGHT MOON & MOUNTAIN VIEW)";
+      } else {
+        curtainContainer.classList.remove('curtain-open');
+        shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSED";
+        document.getElementById('processorStatusText').textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
+      }
+    }
+
+    // SCENE LIGHTING CONFIG
+    const keypadButtons = document.querySelectorAll('.keypad-btn');
+    const root = document.documentElement;
+
+    const sceneLightingConfig = {
+      bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.9)", opacity: "0.85", status: "01 BRIGHT (100% COOL WHITE)" },
+      dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.4)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" },
+      warm: { color: "#ff8800", glow: "rgba(255, 136, 0, 0.75)", opacity: "0.85", status: "03 AMBIENT 2700K KELVIN" },
+      party: { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.8)", opacity: "0.75", status: "04 DALI BLUE NIGHT MODE" },
+      off: { color: "#222222", glow: "rgba(0, 0, 0, 0)", opacity: "0.05", status: "06 ALL OFF (0% LOAD)" }
     };
 
-    function applyLightingScene(sceneKey, btnElement) {
-      if (sceneKey === 'drapery') {
-        isDraperyClosed = !isDraperyClosed;
-        root.style.setProperty('--drapery-opacity', isDraperyClosed ? '0.95' : '0.2');
-        draperyBtnLabel.innerText = isDraperyClosed ? '05 DRAPERY: CLOSED' : '05 DRAPERY: OPEN';
-        sceneLabel.innerText = isDraperyClosed ? 'SCENE: DRAPERY CLOSED (ROOM PRIVACY)' : 'SCENE: DRAPERY OPEN (NATURAL LIGHT)';
-        if (btnElement) btnElement.classList.toggle('active', isDraperyClosed);
+    function applyScene(sceneName, targetBtn) {
+      if (sceneName === 'shades') {
+        isCurtainOpen = !isCurtainOpen;
+        targetBtn.classList.toggle('active', isCurtainOpen);
+        updateAtmosphereView();
         return;
       }
 
-      const conf = scenes[sceneKey];
-      if (!conf) return;
-
-      root.style.setProperty('--fixture-color', conf.color);
-      root.style.setProperty('--fixture-glow', conf.glow);
-      root.style.setProperty('--ambient-dim', conf.dim);
-      sceneLabel.innerText = conf.label;
-
-      document.querySelectorAll('.keypad-btn').forEach(b => {
-        if (b.getAttribute('data-scene') !== 'drapery') b.classList.remove('active');
+      keypadButtons.forEach(b => {
+        if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active');
       });
-      if (btnElement) btnElement.classList.add('active');
+      if(targetBtn) targetBtn.classList.add('active');
+
+      const config = sceneLightingConfig[sceneName] || sceneLightingConfig.warm;
+      root.style.setProperty('--fixture-color', config.color);
+      root.style.setProperty('--fixture-glow', config.glow);
+      root.style.setProperty('--beam-opacity', config.opacity);
+      document.getElementById('processorStatusText').textContent = config.status;
     }
 
-    document.querySelectorAll('.keypad-btn').forEach(btn => {
+    keypadButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        applyLightingScene(btn.getAttribute('data-scene'), btn);
+        applyScene(btn.getAttribute('data-scene'), btn);
       });
     });
 
-    // --- 2. MULTI-FOLDER PLAYLIST & TRACK MANAGER ---
-    let currentViewTab = 'search';
-    let activePlaylistName = 'Mood';
-    let currentTrackIndex = 0;
-    let isPlaying = false;
-    let player = null;
-
-    let songsList = [
-      { id: '1fueZCTYkpA', name: 'Pehle Bhi Main — Vishal Mishra', artist: 'Animal (2023)' },
-      { id: '3v3b1Z1Kk8M', name: 'Dhundla — Official Audio', artist: 'Alvi Mahmud' },
-      { id: 'qYmXz7tM9vQ', name: 'Bairan — Official Song', artist: 'Haryanvi Studio' },
-      { id: '0qW0gTqYc4c', name: 'O Saathi — Atif Aslam', artist: 'Baaghi 2' },
-      { id: 'V7LwfY5U5WI', name: 'Tum Hi Ho — Arijit Singh', artist: 'Aashiqui 2' },
-      { id: 'hXh3s60v5fU', name: 'Kesariya — Arijit Singh', artist: 'Brahmastra' },
-      { id: 'YxWlaYCA8MU', name: 'Chaleya — Jawan', artist: 'Arijit Singh' },
-      { id: 'dZ0fwJojhrs', name: 'Bangles — Sanju Rathod', artist: 'Marathi Hit' }
-    ];
-
-    function getAllPlaylists() {
-      let data = localStorage.getItem('lutron_custom_playlists');
-      if (data) {
-        try { return JSON.parse(data); } catch(e){}
-      }
-      return { 'Mood': JSON.parse(localStorage.getItem('my_custom_mood') || '[]') };
-    }
-
-    function saveAllPlaylists(data) {
-      localStorage.setItem('lutron_custom_playlists', JSON.stringify(data));
-    }
-
-    function createNewPlaylist() {
-      let name = prompt("Nayi Playlist ka naam daalo (e.g. 90s Hits, Romantic, Sad):");
-      if (!name || !name.trim()) return;
-      let cleanName = name.trim();
-      let all = getAllPlaylists();
-      if (!all[cleanName]) {
-        all[cleanName] = [];
-        saveAllPlaylists(all);
-        activePlaylistName = cleanName;
-        currentViewTab = 'my_playlists';
-        renderPlaylistDrawer();
-      } else {
-        alert("Yeh Playlist pehle se exist karti hai!");
-      }
-    }
-
-    function deleteCurrentFolder() {
-      if (confirm(`Kya aap "${activePlaylistName}" folder ko delete karna chahte hain?`)) {
-        let all = getAllPlaylists();
-        delete all[activePlaylistName];
-        let remaining = Object.keys(all);
-        if (remaining.length === 0) {
-          all['Mood'] = [];
-          activePlaylistName = 'Mood';
-        } else {
-          activePlaylistName = remaining[0];
-        }
-        saveAllPlaylists(all);
-        renderPlaylistDrawer();
-      }
-    }
-
-    function addToSelectedPlaylist(song) {
-      let all = getAllPlaylists();
-      if (!all[activePlaylistName]) all[activePlaylistName] = [];
-      let list = all[activePlaylistName];
-      if (!list.some(s => s.id === song.id)) {
-        list.push(song);
-        all[activePlaylistName] = list;
-        saveAllPlaylists(all);
-        alert(`"${song.name || song.title}" saved to [${activePlaylistName}]!`);
-      } else {
-        alert(`Pehle se [${activePlaylistName}] me exist karta hai!`);
-      }
-    }
-
-    function removeSongFromPlaylist(songId) {
-      let all = getAllPlaylists();
-      if (all[activePlaylistName]) {
-        all[activePlaylistName] = all[activePlaylistName].filter(s => s.id !== songId);
-        saveAllPlaylists(all);
-        renderPlaylistDrawer();
-      }
-    }
-
+    // PLAYLIST DRAWER
     const playlistDrawer = document.getElementById('playlistDrawer');
     const playlistToggleBtn = document.getElementById('playlistToggleBtn');
 
     function renderPlaylistDrawer() {
-      let allPlaylists = getAllPlaylists();
-      let playlistNames = Object.keys(allPlaylists);
-      if (playlistNames.length === 0) {
-        allPlaylists['Mood'] = [];
-        playlistNames = ['Mood'];
-      }
-      if (!playlistNames.includes(activePlaylistName)) {
-        activePlaylistName = playlistNames[0];
-      }
-
-      let dropdownOptions = playlistNames.map(name => `<option value="${name}" ${name === activePlaylistName ? 'selected' : ''}>📁 ${name}</option>`).join('');
-
-      playlistDrawer.innerHTML = `
-        <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:4px;">
-          <button onclick="switchTab('search')" style="flex:1; padding:8px; background:${currentViewTab==='search'?'rgba(245,158,11,0.2)':'transparent'}; color:${currentViewTab==='search'?'#f59e0b':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">SEARCH RESULTS</button>
-          <button onclick="switchTab('my_playlists')" style="flex:1; padding:8px; background:${currentViewTab==='my_playlists'?'rgba(245,158,11,0.2)':'transparent'}; color:${currentViewTab==='my_playlists'?'#f59e0b':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">MY PLAYLISTS</button>
-        </div>
-
-        ${currentViewTab === 'my_playlists' ? `
-          <div style="display:flex; gap:6px; padding:6px 8px; align-items:center; background:rgba(0,0,0,0.4); border-bottom:1px solid rgba(255,255,255,0.08);">
-            <select onchange="activePlaylistName=this.value; renderPlaylistDrawer();" style="flex:1; background:#0f172a; color:#f59e0b; border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:4px 6px; font-size:10px; font-family:'JetBrains Mono',monospace; outline:none;">
-              ${dropdownOptions}
-            </select>
-            <button onclick="createNewPlaylist()" title="Create New Folder" style="background:#f59e0b; color:#000; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">+ NEW</button>
-            <button onclick="deleteCurrentFolder()" title="Delete This Folder" style="background:#dc2626; color:#fff; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">🗑️ DEL</button>
-          </div>
-        ` : ''}
-
-        <div class="playlist-scroll-area" id="drawerItemsList"></div>
-      `;
-
-      let container = document.getElementById('drawerItemsList');
-      let activeList = (currentViewTab === 'search') ? songsList : (allPlaylists[activePlaylistName] || []);
-
-      if (activeList.length === 0) {
-        const emptyMsg = document.createElement('div');
-        emptyMsg.style.cssText = "padding:24px; text-align:center; color:#94a3b8; font-size:11px; font-family:'JetBrains Mono',monospace;";
-        emptyMsg.innerHTML = currentViewTab === 'search' ? "No tracks found." : `"${activePlaylistName}" is empty.<br>Search songs and click '+ ADD'!`;
-        container.appendChild(emptyMsg);
-        return;
-      }
-
-      activeList.forEach((song, idx) => {
+      playlistDrawer.innerHTML = '';
+      songsList.forEach((song, idx) => {
         const item = document.createElement('div');
         item.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
         item.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:62%;">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name || song.title}</span>
+          <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:80%;">
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name}</span>
           </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            ${currentViewTab === 'search' ? `
-              <button onclick='event.stopPropagation(); addToSelectedPlaylist(${JSON.stringify(song)})' style="background:#f59e0b; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>
-            ` : `
-              <button onclick='event.stopPropagation(); removeSongFromPlaylist("${song.id}")' title="Delete Song" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:bold; cursor:pointer;">✖</button>
-            `}
-            <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold; cursor:pointer;">▶ PLAY</span>
-          </div>
+          <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
         `;
         item.addEventListener('click', () => {
-          currentTrackIndex = idx;
-          if (player && typeof player.loadVideoById === 'function') {
-            player.loadVideoById(song.id);
-          }
-          updateTrackInfo(song);
+          playTrackAtIndex(idx);
           playlistDrawer.classList.remove('open');
         });
-        container.appendChild(item);
+        playlistDrawer.appendChild(item);
       });
-    }
-
-    function switchTab(tabName) {
-      currentViewTab = tabName;
-      renderPlaylistDrawer();
     }
 
     playlistToggleBtn.addEventListener('click', () => {
       playlistDrawer.classList.toggle('open');
     });
 
-    // --- 3. YOUTUBE API PLAYER ---
+    // 100% REAL LIVE SEARCH ENGINE
+    const songQueryInput = document.getElementById('songQueryInput');
+    const searchSubmitBtn = document.getElementById('searchSubmitBtn');
+
+    async function executeLiveYouTubeSearch() {
+      const query = songQueryInput.value.trim();
+      if (!query) return;
+
+      searchSubmitBtn.textContent = "SEARCHING...";
+
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query + ' audio song')}&type=video&key=${YT_API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.error) {
+          alert("YouTube API Note: " + data.error.message);
+          return;
+        }
+
+        if (data.items && data.items.length > 0) {
+          songsList = data.items.map(item => ({
+            id: item.id.videoId,
+            name: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&'),
+            img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : item.snippet.thumbnails.default.url
+          }));
+
+          renderPlaylistDrawer();
+          playlistDrawer.classList.add('open');
+          playTrackAtIndex(0);
+        } else {
+          alert("No songs found for: " + query);
+        }
+      } catch (err) {
+        console.error("API Error:", err);
+        alert("Search request failed. Please check internet connection.");
+      } finally {
+        searchSubmitBtn.textContent = "SEARCH";
+      }
+    }
+
+    searchSubmitBtn.addEventListener('click', executeLiveYouTubeSearch);
+    songQueryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') executeLiveYouTubeSearch();
+    });
+
+    // FULL LENGTH YOUTUBE CONTROLLER & MEDIA SESSION
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
 
-    window.onYouTubeIframeAPIReady = function() {
+    function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-player', {
-        height: '200',
-        width: '200',
+        height: '100', width: '100',
         videoId: songsList[0].id,
-        host: 'https://www.youtube-nocookie.com',
-        playerVars: { 
-          'autoplay': 0, 
-          'controls': 0, 
-          'playsinline': 1, 
-          'rel': 0, 
-          'vq': 'hd1080'
-        },
+        playerVars: { 'autoplay': 0, 'controls': 0, 'playsinline': 1 },
         events: {
-          'onReady': (e) => {
-            if (e.target.setPlaybackQuality) e.target.setPlaybackQuality('hd1080');
+          'onReady': () => {
             renderPlaylistDrawer();
-            updateTrackInfo(songsList[0]);
+            updateTrackInfo();
           },
           'onStateChange': onPlayerStateChange
         }
       });
-    };
+    }
+
+    function playTrackAtIndex(index) {
+      currentTrackIndex = index;
+      const track = songsList[currentTrackIndex];
+      if (!track) return;
+
+      renderPlaylistDrawer();
+      updateTrackInfo();
+      if (player && player.loadVideoById) {
+        player.loadVideoById(track.id);
+      }
+    }
+
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
 
     function onPlayerStateChange(event) {
       if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
-        document.getElementById('masterPlayBtn').innerText = '⏸';
-      } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-        isPlaying = false;
-        document.getElementById('masterPlayBtn').innerText = '▶';
-        if (event.data === YT.PlayerState.ENDED) playNextTrack();
-      }
-    }
-
-    function updateTrackInfo(track) {
-      const current = track || songsList[currentTrackIndex];
-      if (!current) return;
-      document.getElementById('currentTrackTitle').innerText = current.name || current.title || 'Studio Audio Stream';
-      document.getElementById('currentTrackArtist').innerText = current.artist || 'Full Track (YouTube)';
-    }
-
-    const masterPlayBtn = document.getElementById('masterPlayBtn');
-    masterPlayBtn.addEventListener('click', () => {
-      if (!player || typeof player.getPlayerState !== 'function') return;
-      if (isPlaying) {
-        player.pauseVideo();
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+        startTimer();
+      } else if (event.data === YT.PlayerState.ENDED) {
+        currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+        playTrackAtIndex(currentTrackIndex);
       } else {
-        player.playVideo();
+        isPlaying = false;
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        stopTimer();
       }
-    });
-
-    function playNextTrack() {
-      let activeList = (currentViewTab === 'search') ? songsList : (getAllPlaylists()[activePlaylistName] || songsList);
-      currentTrackIndex = (currentTrackIndex + 1) % activeList.length;
-      if (player && typeof player.loadVideoById === 'function') {
-        player.loadVideoById(activeList[currentTrackIndex].id);
-      }
-      updateTrackInfo(activeList[currentTrackIndex]);
-      renderPlaylistDrawer();
     }
 
-    function playPrevTrack() {
-      let activeList = (currentViewTab === 'search') ? songsList : (getAllPlaylists()[activePlaylistName] || songsList);
-      currentTrackIndex = (currentTrackIndex - 1 + activeList.length) % activeList.length;
-      if (player && typeof player.loadVideoById === 'function') {
-        player.loadVideoById(activeList[currentTrackIndex].id);
-      }
-      updateTrackInfo(activeList[currentTrackIndex]);
-      renderPlaylistDrawer();
-    }
+    function updateTrackInfo() {
+      const track = songsList[currentTrackIndex];
+      if (track) {
+        document.getElementById('trackTitle').textContent = track.name;
+        document.getElementById('trackArtist').textContent = "Full Track (Official YouTube Stream)";
+        if (track.img) document.getElementById('albumImg').src = track.img;
 
-    document.getElementById('nextTrackBtn').addEventListener('click', playNextTrack);
-    document.getElementById('prevTrackBtn').addEventListener('click', playPrevTrack);
-
-    // --- 4. 100% BULLETPROOF LIVE SEARCH ENGINE ---
-    const songQueryInput = document.getElementById('songQueryInput');
-    const searchSubmitBtn = document.getElementById('searchSubmitBtn');
-
-    async function executeLiveSearch() {
-      const rawQuery = songQueryInput.value.trim();
-      if (!rawQuery) return;
-      searchSubmitBtn.innerText = "SEARCHING...";
-
-      try {
-        const cleanQuery = encodeURIComponent(rawQuery);
-        const res = await fetch(`https://itunes.apple.com/search?term=${cleanQuery}&media=music&entity=song&limit=15&country=IN`);
-        const data = await res.json();
-
-        if (data && data.results && data.results.length > 0) {
-          songsList = data.results.map(item => ({
-            id: '1fueZCTYkpA',
-            name: `${item.trackName} — ${item.artistName}`,
-            artist: item.collectionName || 'Official Studio Audio'
-          }));
-        } else {
-          throw new Error("No direct data");
+        // Background & Screen-Off Playback MediaSession
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.name,
+            artist: "Lutron Wala Banda",
+            artwork: [{ src: track.img || '', sizes: '512x512', type: 'image/jpeg' }]
+          });
+          navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
+          navigator.mediaSession.setActionHandler('pause', () => { if (player) player.pauseVideo(); });
+          navigator.mediaSession.setActionHandler('nexttrack', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+            playTrackAtIndex(currentTrackIndex);
+          });
+          navigator.mediaSession.setActionHandler('previoustrack', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
+            playTrackAtIndex(currentTrackIndex);
+          });
         }
-      } catch (err) {
-        const lower = rawQuery.toLowerCase();
-        let fallbackHits = [
-          { id: '1fueZCTYkpA', name: 'Pehle Bhi Main — Vishal Mishra (Animal)', artist: 'T-Series Studio' },
-          { id: '3v3b1Z1Kk8M', name: 'Dhundla — Alvi Mahmud & Badsha', artist: 'Official Audio' },
-          { id: 'qYmXz7tM9vQ', name: 'Bairan — Wo Chhori (Haryanvi 2026)', artist: 'Banjare Music' },
-          { id: '0qW0gTqYc4c', name: 'O Saathi — Atif Aslam (Baaghi 2)', artist: 'T-Series' },
-          { id: 'V7LwfY5U5WI', name: 'Tum Hi Ho — Arijit Singh', artist: 'Aashiqui 2' },
-          { id: 'hXh3s60v5fU', name: 'Kesariya — Arijit Singh (Brahmastra)', artist: 'Sony Music India' },
-          { id: 'YxWlaYCA8MU', name: 'Chaleya — Jawan (Arijit Singh, Shilpa Rao)', artist: 'T-Series' },
-          { id: 'xRb8hxwN5zc', name: 'Guli Mata — Saad Lamjarred & Shreya Ghoshal', artist: 'Play DMF' },
-          { id: 'BddP6PYo2gs', name: 'Apna Bana Le — Arijit Singh (Bhediya)', artist: 'Zee Music Company' },
-          { id: 'dZ0fwJojhrs', name: 'Bangles (Official Video) — Sanju Rathod', artist: 'G-Spark Music' }
-        ];
-
-        songsList = fallbackHits.filter(s => s.name.toLowerCase().includes(lower) || s.artist.toLowerCase().includes(lower));
-        if (songsList.length === 0) songsList = fallbackHits;
       }
-
-      currentViewTab = 'search';
-      currentTrackIndex = 0;
-      if (player && typeof player.loadVideoById === 'function') {
-        player.loadVideoById(songsList[0].id);
-      }
-      updateTrackInfo(songsList[0]);
-      renderPlaylistDrawer();
-      playlistDrawer.classList.add('open');
-      searchSubmitBtn.innerText = "SEARCH";
     }
 
-    searchSubmitBtn.addEventListener('click', executeLiveSearch);
-    songQueryInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') executeLiveSearch();
+    function formatTime(sec) {
+      if (!sec || isNaN(sec)) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function startTimer() {
+      stopTimer();
+      progressTimer = setInterval(() => {
+        if (player && player.getCurrentTime) {
+          const cur = player.getCurrentTime();
+          const dur = player.getDuration();
+          document.getElementById('currentTime').textContent = formatTime(cur);
+          document.getElementById('totalTime').textContent = formatTime(dur);
+          if (dur > 0) {
+            document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
+          }
+        }
+      }, 500);
+    }
+
+    function stopTimer() {
+      if (progressTimer) clearInterval(progressTimer);
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+      if (player) isPlaying ? player.pauseVideo() : player.playVideo();
     });
 
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+      playTrackAtIndex(currentTrackIndex);
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
+      playTrackAtIndex(currentTrackIndex);
+    });
+
+    document.getElementById('progressBarBg').addEventListener('click', (e) => {
+      if (player && player.getDuration) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        const dur = player.getDuration();
+        if (dur > 0) player.seekTo(dur * pos, true);
+      }
+    });
+
+    // CHROMECAST / STREAM TV TRIGGER
+    document.getElementById('streamTvBtn').addEventListener('click', () => {
+      if (navigator.presentation && navigator.presentation.defaultRequest) {
+        navigator.presentation.defaultRequest.start().catch(e => console.log('Cast handled'));
+      } else {
+        alert("📺 Smart TV Stream:\nBrowser menu (3 dots) par jaakar 'Cast' select karein.");
+      }
+    });
+
+    // Initialize Atmosphere
+    updateAtmosphereView();
     renderPlaylistDrawer();
   </script>
 </body>
