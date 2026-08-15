@@ -103,7 +103,7 @@
     .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
     .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
 
-    /* 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM */
+    /* 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
       display: flex; width: 100%; height: 100%; overflow: hidden;
@@ -797,7 +797,7 @@
       });
     }
 
-    // CONTINUOUS PLAYBACK ENGINE
+    // 🚀 CONTINUOUS FORCE-PLAYBACK ENGINE (FIXES AUTO-NEXT)
     function playTrackAtIndex(index, autoPlay = true) {
       isTransitioningTrack = true;
       currentTrackIndex = (index + songsList.length) % songsList.length;
@@ -808,21 +808,16 @@
       updateTrackInfo();
 
       if (player && typeof player.loadVideoById === 'function') {
+        player.loadVideoById({
+          videoId: track.id,
+          suggestedQuality: 'hd1080'
+        });
         if (autoPlay) {
-          player.loadVideoById({
-            videoId: track.id,
-            suggestedQuality: 'hd1080'
-          });
           player.playVideo();
-        } else {
-          player.cueVideoById({
-            videoId: track.id,
-            suggestedQuality: 'hd1080'
-          });
         }
       }
 
-      setTimeout(() => { isTransitioningTrack = false; }, 1200);
+      setTimeout(() => { isTransitioningTrack = false; }, 1000);
     }
 
     function playNextTrack() {
@@ -850,6 +845,7 @@
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
+        // 🔥 FORCE IMMEDIATE NEXT TRACK
         playNextTrack();
       } else {
         isPlaying = false;
@@ -899,8 +895,8 @@
           document.getElementById('totalTime').textContent = formatTime(dur);
           document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
 
-          // Automatic Fallback for Auto-Next when track nears end
-          if (isPlaying && !isTransitioningTrack && (dur - cur) < 0.8 && dur > 10) {
+          // 🔥 SAFETY FALLBACK: IF 0.5s LEFT, AUTO NEXT
+          if (isPlaying && !isTransitioningTrack && dur > 5 && (dur - cur) < 0.6) {
             playNextTrack();
           }
         }
@@ -910,7 +906,7 @@
     function startTimer() {
       stopTimer();
       updateTimeDisplay();
-      progressTimer = setInterval(updateTimeDisplay, 400);
+      progressTimer = setInterval(updateTimeDisplay, 300);
     }
 
     function stopTimer() {
