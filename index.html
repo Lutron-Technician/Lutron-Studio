@@ -393,8 +393,20 @@
     .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
     .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
 
-    /* Hidden player container when Mini TV is closed */
-    #youtube-player-container { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+    /* 🔥 STABLE YOUTUBE PLAYER WRAPPER (DOES NOT RELOAD ON MINI TV TOGGLE) */
+    #youtube-player-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0; pointer-events: none;
+      z-index: 1;
+    }
+    .mini-tv-dock.open #youtube-player-container {
+      position: absolute;
+      inset: 0;
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     /* RESPONSIVE LAYOUT */
     @media (max-width: 768px) {
@@ -480,7 +492,10 @@
       <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
     </div>
     <div class="mini-tv-frame" id="miniTvSlot">
-      <!-- Player will attach here when open -->
+      <!-- Stable Youtube Container Stays Here -->
+      <div id="youtube-player-container">
+        <div id="yt-player"></div>
+      </div>
     </div>
   </div>
 
@@ -546,10 +561,6 @@
     </div>
   </div>
 
-  <div id="youtube-player-container">
-    <div id="yt-player"></div>
-  </div>
-
   <script>
     // 🔑 CONFIGURED FULL 39-CHAR API KEY
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
@@ -578,9 +589,9 @@
 
     let curtainPos = 0; // 0 = Closed, 100 = Open
     let curtainMotionState = 'STOPPED';
-    let nextTarget = 'OPEN'; // Cycles between 'OPEN' and 'CLOSE'
+    let nextTarget = 'OPEN';
     let curtainAnimFrame = null;
-    const DRAPERY_SPEED = 0.35; // Slow & smooth Lutron glide speed
+    const DRAPERY_SPEED = 0.35;
 
     function renderCurtainPosition() {
       const leftTranslate = -100 * (curtainPos / 100);
@@ -624,14 +635,12 @@
 
     function handleDraperyClick() {
       if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        // STEP 2 & 4: STOP
         if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
         nextTarget = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
         curtainMotionState = 'STOPPED';
         shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${nextTarget}`;
         processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
       } else {
-        // STEP 1 & 3: OPEN or CLOSE
         if (nextTarget === 'OPEN') {
           curtainMotionState = 'OPENING';
           shadesBtn.classList.add('active');
@@ -797,7 +806,6 @@
       });
     }
 
-    // 🚀 CONTINUOUS FORCE-PLAYBACK ENGINE (FIXES AUTO-NEXT)
     function playTrackAtIndex(index, autoPlay = true) {
       isTransitioningTrack = true;
       currentTrackIndex = (index + songsList.length) % songsList.length;
@@ -845,7 +853,6 @@
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
-        // 🔥 FORCE IMMEDIATE NEXT TRACK
         playNextTrack();
       } else {
         isPlaying = false;
@@ -895,7 +902,6 @@
           document.getElementById('totalTime').textContent = formatTime(dur);
           document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
 
-          // 🔥 SAFETY FALLBACK: IF 0.5s LEFT, AUTO NEXT
           if (isPlaying && !isTransitioningTrack && dur > 5 && (dur - cur) < 0.6) {
             playNextTrack();
           }
@@ -957,24 +963,19 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // 📺 MINI TV TOGGLE SYSTEM (SHOW / HIDE WITHOUT STOPPING AUDIO)
+    // 📺 STABLE MINI TV TOGGLE SYSTEM (DOES NOT RELOAD PLAYER OR BREAK TIMER)
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
     const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
-    const miniTvSlot = document.getElementById('miniTvSlot');
-    const hiddenPlayerContainer = document.getElementById('youtube-player-container');
 
     function toggleMiniTv() {
       isMiniTvOpen = !isMiniTvOpen;
-      const iframe = document.getElementById('yt-player');
 
       if (isMiniTvOpen) {
-        if (iframe) miniTvSlot.appendChild(iframe);
         miniTvDock.classList.add('open');
         miniTvBtn.style.background = "var(--led-green)";
         miniTvBtn.style.color = "#000";
       } else {
-        if (iframe) hiddenPlayerContainer.appendChild(iframe);
         miniTvDock.classList.remove('open');
         miniTvBtn.style.background = "rgba(16, 185, 129, 0.15)";
         miniTvBtn.style.color = "var(--led-green)";
