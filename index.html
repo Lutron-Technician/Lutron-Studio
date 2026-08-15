@@ -570,7 +570,6 @@
     let isPlaying = false;
     let progressTimer = null;
     let isMiniTvOpen = false;
-    let isTransitioningTrack = false;
 
     // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (SLOW & QUIET GLIDE SPEED) ---
     const curtainLeft = document.getElementById('curtainLeft');
@@ -709,7 +708,7 @@
           <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
         `;
         item.addEventListener('click', () => {
-          playTrackAtIndex(idx, true);
+          playTrackAtIndex(idx);
           playlistDrawer.classList.remove('open');
         });
         playlistDrawer.appendChild(item);
@@ -780,8 +779,6 @@
           'controls': 1, 
           'playsinline': 1, 
           'rel': 0, 
-          'enablejsapi': 1,
-          'origin': window.location.origin,
           'vq': 'hd1080'
         },
         events: {
@@ -796,42 +793,19 @@
       });
     }
 
-    // 🚀 CONTINUOUS PLAYBACK ENGINE: Auto next-song logic
-    function playTrackAtIndex(index, autoPlay = true) {
-      isTransitioningTrack = true;
-      currentTrackIndex = (index + songsList.length) % songsList.length;
+    function playTrackAtIndex(index) {
+      currentTrackIndex = index;
       const track = songsList[currentTrackIndex];
       if (!track) return;
 
       renderPlaylistDrawer();
       updateTrackInfo();
-
-      if (player && typeof player.loadVideoById === 'function') {
-        if (autoPlay) {
-          player.loadVideoById({
-            videoId: track.id,
-            suggestedQuality: 'hd1080'
-          });
-          player.playVideo();
-        } else {
-          player.cueVideoById({
-            videoId: track.id,
-            suggestedQuality: 'hd1080'
-          });
-        }
+      if (player && player.loadVideoById) {
+        player.loadVideoById({
+          videoId: track.id,
+          suggestedQuality: 'hd1080'
+        });
       }
-
-      setTimeout(() => { isTransitioningTrack = false; }, 1500);
-    }
-
-    function playNextTrack() {
-      if (isTransitioningTrack) return;
-      playTrackAtIndex(currentTrackIndex + 1, true);
-    }
-
-    function playPrevTrack() {
-      if (isTransitioningTrack) return;
-      playTrackAtIndex(currentTrackIndex - 1, true);
     }
 
     const playPauseBtn = document.getElementById('playPauseBtn');
@@ -840,17 +814,15 @@
 
     function onPlayerStateChange(event) {
       updateTimeDisplay();
-
       if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
-        isTransitioningTrack = false;
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
-        // 🔥 AUTO-ADVANCE TO NEXT TRACK AS SOON AS CURRENT TRACK ENDS
-        playNextTrack();
+        currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+        playTrackAtIndex(currentTrackIndex);
       } else {
         isPlaying = false;
         playIcon.style.display = 'block';
@@ -875,8 +847,14 @@
           });
           navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
           navigator.mediaSession.setActionHandler('pause', () => { if (player) player.pauseVideo(); });
-          navigator.mediaSession.setActionHandler('nexttrack', () => { playNextTrack(); });
-          navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevTrack(); });
+          navigator.mediaSession.setActionHandler('nexttrack', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+            playTrackAtIndex(currentTrackIndex);
+          });
+          navigator.mediaSession.setActionHandler('previoustrack', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
+            playTrackAtIndex(currentTrackIndex);
+          });
         }
       }
     }
@@ -893,16 +871,10 @@
       if (player && typeof player.getDuration === 'function') {
         const cur = player.getCurrentTime() || 0;
         const dur = player.getDuration() || 0;
-        
         document.getElementById('currentTime').textContent = formatTime(cur);
         if (dur > 0) {
           document.getElementById('totalTime').textContent = formatTime(dur);
           document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
-
-          // Seamless auto-switch fallback when video reaches last second
-          if (isPlaying && !isTransitioningTrack && (dur - cur) < 0.8 && dur > 10) {
-            playNextTrack();
-          }
         }
       }
     }
@@ -910,7 +882,7 @@
     function startTimer() {
       stopTimer();
       updateTimeDisplay();
-      progressTimer = setInterval(updateTimeDisplay, 400);
+      progressTimer = setInterval(updateTimeDisplay, 500);
     }
 
     function stopTimer() {
@@ -919,21 +891,17 @@
     }
 
     playPauseBtn.addEventListener('click', () => {
-      if (player) {
-        if (isPlaying) {
-          player.pauseVideo();
-        } else {
-          player.playVideo();
-        }
-      }
+      if (player) isPlaying ? player.pauseVideo() : player.playVideo();
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-      playNextTrack();
+      currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+      playTrackAtIndex(currentTrackIndex);
     });
 
     document.getElementById('prevBtn').addEventListener('click', () => {
-      playPrevTrack();
+      currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
+      playTrackAtIndex(currentTrackIndex);
     });
 
     document.getElementById('progressBarBg').addEventListener('click', (e) => {
