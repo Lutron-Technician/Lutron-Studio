@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Wala Banda — Dual Motorized Drapery & Architectural Lighting</title>
+  <title>Lutron Technician — Dual Motorized Drapery & Architectural Lighting</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Mukta:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -259,58 +259,6 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* 📜 TRANSPARENT FLOATING LYRICS DOCK (UPAR SHIFT KIYA HAI PLAYER BOX SE BAHAR) */
-    .stream-lyrics-dock {
-      position: fixed;
-      bottom: 150px;
-      right: 3vw;
-      width: 380px;
-      height: 240px;
-      z-index: 40;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      overflow: hidden;
-    }
-
-    .lyrics-stream-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .lyric-line-item {
-      font-family: 'Mukta', sans-serif;
-      font-size: 1.15rem;
-      font-weight: 400;
-      color: rgba(203, 213, 225, 0.4);
-      line-height: 1.5;
-      transition: all 0.4s ease;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-      opacity: 0.35;
-      transform: translateY(8px);
-    }
-
-    .lyric-line-item.active {
-      color: #ffffff;
-      font-size: 1.35rem;
-      font-weight: 600;
-      opacity: 1;
-      transform: translateY(0);
-      text-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 2px 12px rgba(0,0,0,0.95);
-    }
-
-    .lyric-line-item.passed {
-      opacity: 0;
-      transform: translateY(-24px);
-      height: 0;
-      margin: 0;
-      padding: 0;
-      pointer-events: none;
-    }
-
     /* PLAYER CONTROLS & GLASS SHELL */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
@@ -359,6 +307,14 @@
       border-radius: 50%; background: var(--amber-warm); cursor: pointer;
     }
 
+    /* 📜 LIVE LYRICS SEARCH TRIGGER BUTTON */
+    .lyrics-view-btn {
+      background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green);
+      border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;
+    }
+    .lyrics-view-btn:hover { background: var(--led-green); color: #000; }
+
     .stream-tv-btn {
       background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue);
       border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
@@ -389,7 +345,7 @@
 
     #youtube-player-container { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
 
-    /* MOBILE AND LAPTOP RESPONSIVE STYLES */
+    /* RESPONSIVE LAYOUT */
     @media (max-width: 768px) {
       .app-container { padding: 1.2rem 1.2rem 10.5rem 1.2rem; }
       .hero-header { text-align: center; }
@@ -397,16 +353,6 @@
       .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
-      .stream-lyrics-dock {
-        right: 50%;
-        transform: translateX(50%);
-        bottom: 140px;
-        width: 90%;
-        height: 120px;
-        text-align: center;
-      }
-      .lyric-line-item { font-size: 0.95rem; }
-      .lyric-line-item.active { font-size: 1.15rem; }
     }
   </style>
 </head>
@@ -450,7 +396,7 @@
     </header>
 
     <div class="hero-header">
-      <h1 class="main-title">LUTRON WALA BANDA</h1>
+      <h1 class="main-title">LUTRON TECHNICIAN</h1>
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
@@ -467,13 +413,6 @@
         </div>
       </div>
     </main>
-  </div>
-
-  <!-- 📜 REAL LIVE LYRICS FLOATING DOCK (RIGHT SIDE EMPTY SPACE) -->
-  <div class="stream-lyrics-dock">
-    <div class="lyrics-stream-list" id="lyricsStreamList">
-      <div class="lyric-line-item active">Lyrics loading...</div>
-    </div>
   </div>
 
   <!-- LUXURY GLASS PLAYER -->
@@ -512,6 +451,11 @@
             <span class="volume-icon" id="volumeIcon">🔊</span>
             <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
           </div>
+
+          <!-- 📜 LIVE LYRICS POPUP TRIGGER -->
+          <button class="lyrics-view-btn" id="lyricsViewBtn">
+            <span>📜</span> <span>LYRICS</span>
+          </button>
 
           <button class="stream-tv-btn" id="streamTvBtn">
             <span>📡</span> <span>STREAM TV</span>
@@ -554,63 +498,6 @@
     let isPlaying = false;
     let progressTimer = null;
     let isCurtainOpen = false;
-    let parsedSyncedLyrics = [];
-
-    // 🌐 REAL-TIME DYNAMIC LYRICS ENGINE (LRCLIB API)
-    async function fetchRealLyrics(songTitle) {
-      const lyricsStreamList = document.getElementById('lyricsStreamList');
-      lyricsStreamList.innerHTML = '<div class="lyric-line-item active">Lyrics loading...</div>';
-      parsedSyncedLyrics = [];
-
-      // Clean search title
-      const cleanTitle = songTitle.replace(/\(.*?\)|\[.*?\]|official|video|audio|lyrics|hd|full song/gi, '').split('—')[0].split('-')[0].trim();
-
-      try {
-        const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(cleanTitle)}`);
-        const data = await res.json();
-
-        if (data && data.length > 0) {
-          const trackData = data.find(t => t.syncedLyrics) || data[0];
-
-          if (trackData.syncedLyrics) {
-            // Synced LRC Parser ([00:12.34] text)
-            const lines = trackData.syncedLyrics.split('\n');
-            parsedSyncedLyrics = lines.map(line => {
-              const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
-              if (match) {
-                const time = parseInt(match[1]) * 60 + parseFloat(match[2]);
-                return { time: time, text: match[3].trim() };
-              }
-              return null;
-            }).filter(item => item && item.text.length > 0);
-
-            lyricsStreamList.innerHTML = parsedSyncedLyrics.map((item, idx) => `
-              <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${item.text}</div>
-            `).join('');
-            return;
-          } else if (trackData.plainLyrics) {
-            const lines = trackData.plainLyrics.split('\n').filter(l => l.trim().length > 0);
-            parsedSyncedLyrics = lines.map((text, i) => ({ time: i * 4, text: text.trim() }));
-            lyricsStreamList.innerHTML = parsedSyncedLyrics.map((item, idx) => `
-              <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${item.text}</div>
-            `).join('');
-            return;
-          }
-        }
-      } catch (err) {
-        console.log("Lyrics API fallback triggered");
-      }
-
-      // If lyrics are not found on LRCLIB, display clean track info
-      parsedSyncedLyrics = [
-        { time: 0, text: songTitle },
-        { time: 6, text: "🎵 256 kbps Studio Master Stream" },
-        { time: 12, text: "Lutron Wala Banda • Pure Atmosphere" }
-      ];
-      lyricsStreamList.innerHTML = parsedSyncedLyrics.map((item, idx) => `
-        <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${item.text}</div>
-      `).join('');
-    }
 
     // TIME-BASED DRAPERY & OUTDOOR VIEW
     const outdoorScenery = document.getElementById('outdoorScenery');
@@ -821,12 +708,11 @@
         document.getElementById('trackTitle').textContent = track.name;
         document.getElementById('trackArtist').textContent = "256 kbps Master Audio • YouTube Live";
         if (track.img) document.getElementById('albumImg').src = track.img;
-        fetchRealLyrics(track.name);
 
         if ('mediaSession' in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
             title: track.name,
-            artist: "Lutron Wala Banda",
+            artist: "Lutron Technician",
             artwork: [{ src: track.img || '', sizes: '512x512', type: 'image/jpeg' }]
           });
           navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
@@ -860,27 +746,6 @@
           document.getElementById('totalTime').textContent = formatTime(dur);
           if (dur > 0) {
             document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
-          }
-
-          // Real-time Synced Lyrics Follower
-          const lines = document.querySelectorAll('.lyric-line-item');
-          if (parsedSyncedLyrics.length > 0 && lines.length > 0) {
-            let activeIdx = 0;
-            for (let i = 0; i < parsedSyncedLyrics.length; i++) {
-              if (cur >= parsedSyncedLyrics[i].time) {
-                activeIdx = i;
-              }
-            }
-
-            lines.forEach((l, i) => {
-              if (i < activeIdx) {
-                l.className = 'lyric-line-item passed';
-              } else if (i === activeIdx) {
-                l.className = 'lyric-line-item active';
-              } else {
-                l.className = 'lyric-line-item';
-              }
-            });
           }
         }
       }, 400);
@@ -924,6 +789,15 @@
       if (val === 0) volumeIcon.textContent = "🔇";
       else if (val < 50) volumeIcon.textContent = "🔉";
       else volumeIcon.textContent = "🔊";
+    });
+
+    // 📜 INSTANT LYRICS SEARCH TRIGGER
+    document.getElementById('lyricsViewBtn').addEventListener('click', () => {
+      const track = songsList[currentTrackIndex];
+      if (track) {
+        const cleanName = track.name.replace(/\(.*?\)|\[.*?\]|official|video|audio|lyrics|hd|full song/gi, '').trim();
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(cleanName + ' song lyrics'), '_blank');
+      }
     });
 
     // CHROMECAST / STREAM TV TRIGGER
