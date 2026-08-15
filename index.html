@@ -103,14 +103,14 @@
     .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
     .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
 
-    /* 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM */
+    /* 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
-      display: flex; width: 100%; height: 100%; overflow: hidden;
+      display: flex; width: 100%; height: 100%;
     }
 
     .curtain-panel {
-      width: 50%; height: 100%;
+      flex: 1; height: 100%;
       background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative;
       box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
@@ -570,27 +570,26 @@
     let isPlaying = false;
     let progressTimer = null;
     let isMiniTvOpen = false;
-    let isTransitioningTrack = false;
 
-    // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (SLOW & SMOOTH SLIDE) ---
+    // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (SLOW & QUIET GLIDE SPEED) ---
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
     const processorStatusText = document.getElementById('processorStatusText');
 
-    let curtainPos = 0; // 0 = fully closed, 100 = fully open
-    let curtainMotionState = 'STOPPED'; // 'OPENING', 'CLOSING', 'STOPPED'
-    let lastDirection = 'OPEN'; // Next action direction
+    let curtainPos = 0;
+    let curtainMotionState = 'STOPPED';
+    let lastDirection = 'OPEN';
     let curtainAnimFrame = null;
-    const DRAPERY_SPEED = 0.35; // Calibrated slow & steady glide speed
+    const DRAPERY_SPEED = 0.22;
 
     function renderCurtainPosition() {
-      // Smooth slide transform
-      const leftTranslate = -100 * (curtainPos / 100);
-      const rightTranslate = 100 * (curtainPos / 100);
+      const leftTranslate = -92 * (curtainPos / 100);
+      const rightTranslate = 92 * (curtainPos / 100);
+      const scaleX = 1 - (0.75 * (curtainPos / 100));
 
-      curtainLeft.style.transform = `translateX(${leftTranslate}%)`;
-      curtainRight.style.transform = `translateX(${rightTranslate}%)`;
+      curtainLeft.style.transform = `translateX(${leftTranslate}%) scaleX(${scaleX})`;
+      curtainRight.style.transform = `translateX(${rightTranslate}%) scaleX(${scaleX})`;
     }
 
     function animateCurtainStep() {
@@ -627,28 +626,22 @@
     }
 
     function handleDraperyClick() {
-      // If currently moving, stop immediately
       if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
+        cancelAnimationFrame(curtainAnimFrame);
         lastDirection = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
         curtainMotionState = 'STOPPED';
         shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${lastDirection}`;
         processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
       } else {
-        // Start movement in the intended direction
         if (lastDirection === 'OPEN') {
-          curtainMotionState = 'OPENING';
-          shadesBtn.classList.add('active');
+          curtainMotionState === 'OPENING';
         } else {
           curtainMotionState = 'CLOSING';
         }
-        shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
+        shadesBtn.classList.add('active');
         curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
       }
     }
-
-    // Initial render
-    renderCurtainPosition();
 
     // TIME-BASED BACKGROUND ATMOSPHERE
     const outdoorScenery = document.getElementById('outdoorScenery');
@@ -715,7 +708,7 @@
           <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
         `;
         item.addEventListener('click', () => {
-          playTrackAtIndex(idx, true);
+          playTrackAtIndex(idx);
           playlistDrawer.classList.remove('open');
         });
         playlistDrawer.appendChild(item);
@@ -786,8 +779,6 @@
           'controls': 1, 
           'playsinline': 1, 
           'rel': 0, 
-          'enablejsapi': 1,
-          'origin': window.location.origin,
           'vq': 'hd1080'
         },
         events: {
@@ -802,42 +793,19 @@
       });
     }
 
-    // 🚀 CONTINUOUS PLAYBACK ENGINE
-    function playTrackAtIndex(index, autoPlay = true) {
-      isTransitioningTrack = true;
-      currentTrackIndex = (index + songsList.length) % songsList.length;
+    function playTrackAtIndex(index) {
+      currentTrackIndex = index;
       const track = songsList[currentTrackIndex];
       if (!track) return;
 
       renderPlaylistDrawer();
       updateTrackInfo();
-
-      if (player && typeof player.loadVideoById === 'function') {
-        if (autoPlay) {
-          player.loadVideoById({
-            videoId: track.id,
-            suggestedQuality: 'hd1080'
-          });
-          player.playVideo();
-        } else {
-          player.cueVideoById({
-            videoId: track.id,
-            suggestedQuality: 'hd1080'
-          });
-        }
+      if (player && player.loadVideoById) {
+        player.loadVideoById({
+          videoId: track.id,
+          suggestedQuality: 'hd1080'
+        });
       }
-
-      setTimeout(() => { isTransitioningTrack = false; }, 1500);
-    }
-
-    function playNextTrack() {
-      if (isTransitioningTrack) return;
-      playTrackAtIndex(currentTrackIndex + 1, true);
-    }
-
-    function playPrevTrack() {
-      if (isTransitioningTrack) return;
-      playTrackAtIndex(currentTrackIndex - 1, true);
     }
 
     const playPauseBtn = document.getElementById('playPauseBtn');
@@ -846,16 +814,15 @@
 
     function onPlayerStateChange(event) {
       updateTimeDisplay();
-
       if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
-        isTransitioningTrack = false;
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
-        playNextTrack();
+        currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+        playTrackAtIndex(currentTrackIndex);
       } else {
         isPlaying = false;
         playIcon.style.display = 'block';
@@ -880,8 +847,14 @@
           });
           navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
           navigator.mediaSession.setActionHandler('pause', () => { if (player) player.pauseVideo(); });
-          navigator.mediaSession.setActionHandler('nexttrack', () => { playNextTrack(); });
-          navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevTrack(); });
+          navigator.mediaSession.setActionHandler('nexttrack', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+            playTrackAtIndex(currentTrackIndex);
+          });
+          navigator.mediaSession.setActionHandler('previoustrack', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
+            playTrackAtIndex(currentTrackIndex);
+          });
         }
       }
     }
@@ -898,15 +871,10 @@
       if (player && typeof player.getDuration === 'function') {
         const cur = player.getCurrentTime() || 0;
         const dur = player.getDuration() || 0;
-        
         document.getElementById('currentTime').textContent = formatTime(cur);
         if (dur > 0) {
           document.getElementById('totalTime').textContent = formatTime(dur);
           document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
-
-          if (isPlaying && !isTransitioningTrack && (dur - cur) < 0.8 && dur > 10) {
-            playNextTrack();
-          }
         }
       }
     }
@@ -914,7 +882,7 @@
     function startTimer() {
       stopTimer();
       updateTimeDisplay();
-      progressTimer = setInterval(updateTimeDisplay, 400);
+      progressTimer = setInterval(updateTimeDisplay, 500);
     }
 
     function stopTimer() {
@@ -923,21 +891,17 @@
     }
 
     playPauseBtn.addEventListener('click', () => {
-      if (player) {
-        if (isPlaying) {
-          player.pauseVideo();
-        } else {
-          player.playVideo();
-        }
-      }
+      if (player) isPlaying ? player.pauseVideo() : player.playVideo();
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-      playNextTrack();
+      currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
+      playTrackAtIndex(currentTrackIndex);
     });
 
     document.getElementById('prevBtn').addEventListener('click', () => {
-      playPrevTrack();
+      currentTrackIndex = (currentTrackIndex - 1 + songsList.length) % songsList.length;
+      playTrackAtIndex(currentTrackIndex);
     });
 
     document.getElementById('progressBarBg').addEventListener('click', (e) => {
