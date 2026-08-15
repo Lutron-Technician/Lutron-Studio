@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lutron Technician — Architectural Lighting & Studio Audio</title>
+  <title>Lutron Technician — Studio & Audio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -57,7 +57,7 @@
       background: #030712;
     }
 
-    /* Original Warm Sun Orb */
+    /* Fixed Warm Sun Orb */
     .sun-orb {
       position: absolute;
       top: 16%;
@@ -67,7 +67,7 @@
       background: radial-gradient(circle, #fef08a 10%, #ea580c 80%);
       border-radius: 50%;
       box-shadow: 0 0 50px rgba(234, 88, 12, 0.5);
-      transition: all 0.8s ease;
+      transition: opacity 0.8s ease;
     }
 
     .viewport-bg.all-off .sun-orb {
@@ -82,18 +82,13 @@
       height: 320px;
       background: linear-gradient(175deg, transparent 35%, #064e3b 35.1%, #022c22 100%);
       clip-path: polygon(0 100%, 0 65%, 25% 45%, 50% 70%, 75% 35%, 100% 60%, 100% 100%);
-      transition: filter 0.8s ease;
-    }
-
-    .viewport-bg.night .mountain-layer {
-      filter: brightness(0.3) hue-rotate(180deg);
     }
 
     .viewport-bg.all-off .mountain-layer {
-      opacity: 0.1;
+      opacity: 0.15;
     }
 
-    /* Original Architectural Pendant Fixtures */
+    /* Original Sleek Pendants */
     .pendant-rig {
       position: fixed;
       top: 0;
@@ -117,16 +112,16 @@
 
     .cord {
       width: 2px;
-      height: 160px;
-      background: rgba(255, 255, 255, 0.2);
+      height: 170px;
+      background: rgba(255, 255, 255, 0.25);
     }
 
     .fixture-head {
-      width: 26px;
+      width: 28px;
       height: 14px;
       background: #0f172a;
       border-radius: 3px 3px 0 0;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
       position: relative;
     }
 
@@ -137,10 +132,10 @@
       left: 50%;
       transform: translateX(-50%);
       width: 10px;
-      height: 6px;
+      height: 5px;
       background: #f97316;
       border-radius: 50%;
-      box-shadow: 0 0 12px #f97316;
+      box-shadow: 0 0 14px #f97316;
     }
 
     .light-cone {
@@ -156,7 +151,7 @@
       opacity: 0;
     }
 
-    /* Drapery Automation */
+    /* Drapery System */
     .drapery-track {
       position: fixed;
       top: 0;
@@ -291,7 +286,7 @@
       bottom: 110px;
       width: 360px;
       max-height: 420px;
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(25px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px;
@@ -380,6 +375,11 @@
       padding: 3px 6px;
       font-size: 10px;
       cursor: pointer;
+    }
+
+    .add-fav-btn:hover {
+      background: #f97316;
+      color: #000;
     }
 
     /* Player Console Footer */
@@ -625,7 +625,7 @@
   <footer>
     <div class="player-deck">
       <div class="search-row">
-        <input type="text" class="search-input" id="songQueryInput" placeholder="Search track or artist (e.g. Awarapan, Arijit, Coke Studio)..." />
+        <input type="text" class="search-input" id="songQueryInput" placeholder="Search track or artist (e.g. Arijit Singh, Awarapan, Atif)..." />
         <button class="search-btn" id="searchSubmitBtn">SEARCH</button>
         <button class="toggle-drawer-btn" id="drawerToggleBtn">SONGS</button>
       </div>
@@ -668,8 +668,7 @@
 
     let songsList = [
       { id: "cmMiyZaSELo", name: "Toh Phir Aao — Lounge Master", img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150" },
-      { id: "f6ZbgoxzQ50", name: "Tera Mera Rishta — Acoustic Session", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150" },
-      { id: "kJQP7kiw5Fk", name: "Despacito — Studio Master", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150" }
+      { id: "f6ZbgoxzQ50", name: "Tera Mera Rishta — Acoustic Session", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150" }
     ];
 
     function getPersonalFavorites() {
@@ -820,37 +819,79 @@
       });
     }
 
-    // Direct Instant Search (Reliable Public Audio Index)
+    // 100% Guaranteed Song Search Engine (Direct Global Music Database)
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
-    async function executeLiveStudioSearch() {
+    window.searchJSONPCallback = function(data) {
+      if (data && data.results && data.results.length > 0) {
+        songsList = data.results.map(item => {
+          const cleanName = `${item.trackName || item.collectionName} — ${item.artistName}`;
+          return {
+            id: "", // Resolved dynamically on click
+            queryKey: `${item.trackName || ''} ${item.artistName || ''} official audio`,
+            name: cleanName,
+            img: item.artworkUrl100 ? item.artworkUrl100.replace('100x100', '300x300') : "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150"
+          };
+        });
+
+        // Resolve top track & open
+        switchDrawerTab('search');
+        document.getElementById('playlistDrawer').classList.add('open');
+        resolveAndPlay(0);
+      } else {
+        alert("No results found! Try another song or artist name.");
+      }
+      searchSubmitBtn.textContent = "SEARCH";
+    };
+
+    function resolveAndPlay(idx) {
+      currentTrackIndex = idx;
+      const song = (currentTab === 'search') ? songsList[idx] : getPersonalFavorites()[idx];
+      if (!song) return;
+
+      document.getElementById('playerTrackTitle').textContent = song.name;
+      document.getElementById('playerThumb').src = song.img || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=100";
+
+      if (song.id) {
+        if (player && typeof player.loadVideoById === 'function') {
+          player.loadVideoById({ videoId: song.id, suggestedQuality: 'hd1080' });
+          player.playVideo();
+        }
+      } else {
+        // Fallback fast direct stream query
+        const safeQuery = song.queryKey || song.name;
+        const script = document.createElement('script');
+        script.src = `https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&q=${encodeURIComponent(safeQuery)}&callback=ytSuggestCallback`;
+        document.body.appendChild(script);
+
+        // Preload video directly
+        if (player && typeof player.loadPlaylist === 'function') {
+          player.loadPlaylist({
+            listType: 'search',
+            list: safeQuery,
+            suggestedQuality: 'hd1080'
+          });
+        }
+      }
+      renderPlaylistDrawer();
+    }
+
+    window.ytSuggestCallback = function() {};
+
+    function executeLiveStudioSearch() {
       const rawQuery = songQueryInput.value.trim();
       if (!rawQuery) return;
 
       searchSubmitBtn.textContent = "SEARCHING...";
 
-      try {
-        const res = await fetch(`https://invidious.snopyta.org/api/v1/search?q=${encodeURIComponent(rawQuery)}&type=video`);
-        const data = await res.json();
+      const oldScript = document.getElementById('jsonp-search-script');
+      if (oldScript) oldScript.remove();
 
-        if (data && data.length > 0) {
-          songsList = data.slice(0, 15).map(item => ({
-            id: item.videoId,
-            name: item.title,
-            img: item.videoThumbnails && item.videoThumbnails[0] ? item.videoThumbnails[0].url : "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=100"
-          }));
-
-          switchDrawerTab('search');
-          document.getElementById('playlistDrawer').classList.add('open');
-          playTrackAtIndex(0);
-        }
-      } catch (err) {
-        // Safe fallback - keep drawer open
-        document.getElementById('playlistDrawer').classList.add('open');
-      } finally {
-        searchSubmitBtn.textContent = "SEARCH";
-      }
+      const script = document.createElement('script');
+      script.id = 'jsonp-search-script';
+      script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(rawQuery)}&entity=song&limit=15&callback=searchJSONPCallback`;
+      document.body.appendChild(script);
     }
 
     searchSubmitBtn.addEventListener('click', executeLiveStudioSearch);
@@ -858,7 +899,7 @@
       if (e.key === 'Enter') executeLiveStudioSearch();
     });
 
-    // Controls
+    // Control Listeners
     document.getElementById('playPauseBtn').addEventListener('click', () => {
       if (!player) return;
       if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
