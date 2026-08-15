@@ -552,20 +552,87 @@
 
     let currentViewTab = 'search';
 
+let currentViewTab = 'search';
+let activePlaylistName = 'Mood';
+
+function getAllPlaylists() {
+  let data = localStorage.getItem('lutron_custom_playlists');
+  return data ? JSON.parse(data) : { 'Mood': JSON.parse(localStorage.getItem('my_custom_mood') || '[]') };
+}
+
+function saveAllPlaylists(data) {
+  localStorage.setItem('lutron_custom_playlists', JSON.stringify(data));
+}
+
+function createNewPlaylist() {
+  let name = prompt("Nayi Playlist ka naam daalo (e.g. 90s, Romantic, Gym):");
+  if (!name || !name.trim()) return;
+  let cleanName = name.trim();
+  let all = getAllPlaylists();
+  if (!all[cleanName]) {
+    all[cleanName] = [];
+    saveAllPlaylists(all);
+    activePlaylistName = cleanName;
+    currentViewTab = 'my_playlists';
+    renderPlaylistDrawer();
+  } else {
+    alert("Yeh Playlist pehle se bani hui hai!");
+  }
+}
+
+function addToSelectedPlaylist(song) {
+  let all = getAllPlaylists();
+  let list = all[activePlaylistName] || [];
+  if (!list.some(s => s.id === song.id)) {
+    list.push(song);
+    all[activePlaylistName] = list;
+    saveAllPlaylists(all);
+    alert(`"${song.name || song.title}" saved to [${activePlaylistName}]!`);
+  } else {
+    alert(`Pehle se [${activePlaylistName}] playlist me hai!`);
+  }
+}
+
+function removeSongFromPlaylist(songId) {
+  let all = getAllPlaylists();
+  if (all[activePlaylistName]) {
+    all[activePlaylistName] = all[activePlaylistName].filter(s => s.id !== songId);
+    saveAllPlaylists(all);
+    renderPlaylistDrawer();
+  }
+}
+
 function renderPlaylistDrawer() {
+  let allPlaylists = getAllPlaylists();
+  let playlistNames = Object.keys(allPlaylists);
+  if (!playlistNames.includes(activePlaylistName)) {
+    activePlaylistName = playlistNames[0] || 'Mood';
+  }
+
+  let dropdownOptions = playlistNames.map(name => `<option value="${name}" ${name === activePlaylistName ? 'selected' : ''}>📁 ${name}</option>`).join('');
+
   playlistDrawer.innerHTML = `
-    <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:8px;">
+    <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px;">
       <button onclick="switchTab('search')" style="flex:1; padding:8px; background:${currentViewTab==='search'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='search'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">SEARCH RESULTS</button>
-      <button onclick="switchTab('my_playlist')" style="flex:1; padding:8px; background:${currentViewTab==='my_playlist'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='my_playlist'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">MY MOOD PLAYLIST</button>
+      <button onclick="switchTab('my_playlists')" style="flex:1; padding:8px; background:${currentViewTab==='my_playlists'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='my_playlists'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">MY PLAYLISTS</button>
     </div>
+
+    ${currentViewTab === 'my_playlists' ? `
+      <div style="display:flex; gap:6px; padding:6px 8px; align-items:center; background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.08);">
+        <select onchange="activePlaylistName=this.value; renderPlaylistDrawer();" style="flex:1; background:#0f172a; color:#f97316; border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:4px 6px; font-size:10px; font-family:'JetBrains Mono',monospace; outline:none;">
+          ${dropdownOptions}
+        </select>
+        <button onclick="createNewPlaylist()" style="background:#f97316; color:#000; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">+ NEW</button>
+      </div>
+    ` : ''}
   `;
 
-  let activeList = (currentViewTab === 'search') ? songsList : JSON.parse(localStorage.getItem('my_custom_mood') || '[]');
+  let activeList = (currentViewTab === 'search') ? songsList : (allPlaylists[activePlaylistName] || []);
 
   if (activeList.length === 0) {
     const emptyMsg = document.createElement('div');
     emptyMsg.style.cssText = "padding:20px; text-align:center; color:#94a3b8; font-size:11px; font-family:'JetBrains Mono',monospace;";
-    emptyMsg.innerHTML = "Your Mood Playlist is empty.<br>Click '+ ADD' on search results!";
+    emptyMsg.innerHTML = currentViewTab === 'search' ? "No songs loaded." : `"${activePlaylistName}" is empty.<br>Click '+ ADD' on search results!`;
     playlistDrawer.appendChild(emptyMsg);
     return;
   }
@@ -574,22 +641,34 @@ function renderPlaylistDrawer() {
     const item = document.createElement('div');
     item.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
     item.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:70%;">
+      <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:65%;">
         <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name || song.title}</span>
       </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        ${currentViewTab === 'search' ? `<button onclick='event.stopPropagation(); addToMyPlaylist(${JSON.stringify(song)})' style="background:#f97316; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>` : ''}
-        <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
+      <div style="display:flex; align-items:center; gap:6px;">
+        ${currentViewTab === 'search' ? `
+          <button onclick='event.stopPropagation(); addToSelectedPlaylist(${JSON.stringify(song)})' style="background:#f97316; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>
+        ` : `
+          <button onclick='event.stopPropagation(); removeSongFromPlaylist("${song.id}")' title="Delete Song" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:bold; cursor:pointer;">✖</button>
+        `}
+        <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold; cursor:pointer;">▶ PLAY</span>
       </div>
     `;
     item.addEventListener('click', () => {
-      playTrackAtIndex(idx);
+      currentTrackIndex = idx;
+      if (player && typeof player.loadVideoById === 'function') {
+        player.loadVideoById(song.id);
+      }
+      updateTrackInfo();
       playlistDrawer.classList.remove('open');
     });
     playlistDrawer.appendChild(item);
   });
 }
 
+function switchTab(tabName) {
+  currentViewTab = tabName;
+  renderPlaylistDrawer();
+}
 function switchTab(tabName) {
   currentViewTab = tabName;
   renderPlaylistDrawer();
