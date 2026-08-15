@@ -7,7 +7,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Mukta:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -103,7 +103,7 @@
     .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
     .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
 
-    /* 2-SIDE MOTORIZED CURTAIN */
+    /* 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM (PRECISE STOP ENABLED) */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
       display: flex; width: 100%; height: 100%;
@@ -113,8 +113,8 @@
       flex: 1; height: 100%;
       background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative;
-      transition: transform 2.4s cubic-bezier(0.65, 0, 0.35, 1);
       box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
+      will-change: transform;
     }
 
     .curtain-pleats {
@@ -139,13 +139,6 @@
       border-left: 2px solid rgba(255,255,255,0.06);
       transform-origin: right center;
       transform: translateX(0%);
-    }
-
-    .curtain-container.curtain-open .curtain-left {
-      transform: translateX(-92%) scaleX(0.25);
-    }
-    .curtain-container.curtain-open .curtain-right {
-      transform: translateX(92%) scaleX(0.25);
     }
 
     .curtain-track-rod {
@@ -259,6 +252,73 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
+    /* 📜 IN-PAGE FLOATING LYRICS SIDE DRAWER */
+    .inpage-lyrics-drawer {
+      position: fixed;
+      top: 18%;
+      right: 3vw;
+      width: 380px;
+      max-height: 55vh;
+      background: rgba(11, 15, 25, 0.88);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      z-index: 80;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .inpage-lyrics-drawer.open {
+      display: flex;
+    }
+
+    .lyrics-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+
+    .lyrics-drawer-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--amber-warm);
+      letter-spacing: 1px;
+    }
+
+    .lyrics-drawer-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .lyrics-drawer-close:hover { color: #fff; }
+
+    .lyrics-drawer-content {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 6px;
+    }
+
+    .lyrics-drawer-content::-webkit-scrollbar { width: 4px; }
+    .lyrics-drawer-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+
+    .inpage-lyric-line {
+      font-family: 'Mukta', sans-serif;
+      font-size: 1.15rem;
+      color: rgba(241, 245, 249, 0.85);
+      line-height: 1.6;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
     /* PLAYER CONTROLS & GLASS SHELL */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
@@ -307,7 +367,7 @@
       border-radius: 50%; background: var(--amber-warm); cursor: pointer;
     }
 
-    /* 📜 LIVE LYRICS SEARCH TRIGGER BUTTON */
+    /* 📜 IN-PAGE LYRICS TOGGLE BUTTON */
     .lyrics-view-btn {
       background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green);
       border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
@@ -353,6 +413,12 @@
       .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
+      .inpage-lyrics-drawer {
+        width: 90%;
+        right: 5%;
+        top: 22%;
+        max-height: 45vh;
+      }
     }
   </style>
 </head>
@@ -373,8 +439,8 @@
   <!-- 2-SIDE MOTORIZED CURTAIN SYSTEM -->
   <div class="curtain-track-rod"></div>
   <div class="curtain-container" id="curtainContainer">
-    <div class="curtain-panel curtain-left"><div class="curtain-pleats"></div></div>
-    <div class="curtain-panel curtain-right"><div class="curtain-pleats"></div></div>
+    <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
+    <div class="curtain-panel curtain-right" id="curtainRight"><div class="curtain-pleats"></div></div>
   </div>
   
   <div class="blueprint-grid"></div>
@@ -408,11 +474,25 @@
           <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
           <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
           <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: CLOSED</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
           <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- 📜 IN-PAGE LYRICS FLOATING SIDE DRAWER -->
+  <div class="inpage-lyrics-drawer" id="inpageLyricsDrawer">
+    <div class="lyrics-drawer-header">
+      <span class="lyrics-drawer-title" id="lyricsDrawerTrackName">📜 LYRICS VIEWER</span>
+      <button class="lyrics-drawer-close" id="lyricsDrawerCloseBtn">✖</button>
+    </div>
+    <div class="lyrics-drawer-content" id="lyricsDrawerContent">
+      <div class="inpage-lyric-line">सुरमई शाम का साया है...</div>
+      <div class="inpage-lyric-line">लबों पे तेरा ही नाम आया है...</div>
+      <div class="inpage-lyric-line">धड़कनों ने छेड़ा इक नया तराना...</div>
+      <div class="inpage-lyric-line">रोशनी में डूबा हर इक आशियाना...</div>
+    </div>
   </div>
 
   <!-- LUXURY GLASS PLAYER -->
@@ -452,7 +532,7 @@
             <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
           </div>
 
-          <!-- 📜 LIVE LYRICS POPUP TRIGGER -->
+          <!-- 📜 IN-PAGE LYRICS TOGGLE BUTTON -->
           <button class="lyrics-view-btn" id="lyricsViewBtn">
             <span>📜</span> <span>LYRICS</span>
           </button>
@@ -497,33 +577,91 @@
     let player;
     let isPlaying = false;
     let progressTimer = null;
-    let isCurtainOpen = false;
 
-    // TIME-BASED DRAPERY & OUTDOOR VIEW
-    const outdoorScenery = document.getElementById('outdoorScenery');
-    const curtainContainer = document.getElementById('curtainContainer');
+    // --- REAL LUTRON DUAL-MOTOR DRAPERY CONTROLLER (OPEN / STOP / CLOSE) ---
+    const curtainLeft = document.getElementById('curtainLeft');
+    const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
+    const processorStatusText = document.getElementById('processorStatusText');
+
+    let curtainPos = 0; // 0 = fully closed, 100 = fully open
+    let curtainMotionState = 'STOPPED'; // 'OPENING', 'CLOSING', 'STOPPED'
+    let lastDirection = 'OPEN'; // Next logical direction when stopped
+    let curtainAnimFrame = null;
+
+    function renderCurtainPosition() {
+      // Scale left & right drapery according to custom percentage
+      const leftTranslate = -92 * (curtainPos / 100);
+      const rightTranslate = 92 * (curtainPos / 100);
+      const scaleX = 1 - (0.75 * (curtainPos / 100));
+
+      curtainLeft.style.transform = `translateX(${leftTranslate}%) scaleX(${scaleX})`;
+      curtainRight.style.transform = `translateX(${rightTranslate}%) scaleX(${scaleX})`;
+    }
+
+    function animateCurtainStep() {
+      if (curtainMotionState === 'OPENING') {
+        curtainPos += 0.75; // Smooth motor speed
+        if (curtainPos >= 100) {
+          curtainPos = 100;
+          curtainMotionState = 'STOPPED';
+          lastDirection = 'CLOSE';
+          shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
+          processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN";
+          shadesBtn.classList.add('active');
+        } else {
+          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
+          processorStatusText.textContent = `SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`;
+          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
+        }
+      } else if (curtainMotionState === 'CLOSING') {
+        curtainPos -= 0.75;
+        if (curtainPos <= 0) {
+          curtainPos = 0;
+          curtainMotionState = 'STOPPED';
+          lastDirection = 'OPEN';
+          shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
+          processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
+          shadesBtn.classList.remove('active');
+        } else {
+          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
+          processorStatusText.textContent = `SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`;
+          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
+        }
+      }
+      renderCurtainPosition();
+    }
+
+    function handleDraperyClick() {
+      if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
+        // STOP MOTOR AT CURRENT POSITION
+        cancelAnimationFrame(curtainAnimFrame);
+        lastDirection = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
+        curtainMotionState = 'STOPPED';
+        shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${lastDirection}`;
+        processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
+      } else {
+        // START MOVING IN LOGICAL DIRECTION
+        if (lastDirection === 'OPEN') {
+          curtainMotionState = 'OPENING';
+        } else {
+          curtainMotionState = 'CLOSING';
+        }
+        shadesBtn.classList.add('active');
+        curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
+      }
+    }
+
+    // TIME-BASED BACKGROUND ATMOSPHERE
+    const outdoorScenery = document.getElementById('outdoorScenery');
 
     function updateAtmosphereView() {
       const hour = new Date().getHours();
       const isDayTime = (hour >= 6 && hour < 18);
-
       if (isDayTime) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
       } else {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-      }
-
-      if (isCurtainOpen) {
-        curtainContainer.classList.add('curtain-open');
-        shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
-        document.getElementById('processorStatusText').textContent = isDayTime ? 
-          "SCENE: DRAPERY OPEN (DAYLIGHT SUN & MOUNTAIN VIEW)" : 
-          "SCENE: DRAPERY OPEN (NIGHT MOON & MOUNTAIN VIEW)";
-      } else {
-        curtainContainer.classList.remove('curtain-open');
-        shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSED";
-        document.getElementById('processorStatusText').textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
       }
     }
 
@@ -541,9 +679,7 @@
 
     function applyScene(sceneName, targetBtn) {
       if (sceneName === 'shades') {
-        isCurtainOpen = !isCurtainOpen;
-        targetBtn.classList.toggle('active', isCurtainOpen);
-        updateAtmosphereView();
+        handleDraperyClick();
         return;
       }
 
@@ -709,6 +845,8 @@
         document.getElementById('trackArtist').textContent = "256 kbps Master Audio • YouTube Live";
         if (track.img) document.getElementById('albumImg').src = track.img;
 
+        document.getElementById('lyricsDrawerTrackName').textContent = "📜 " + track.name;
+
         if ('mediaSession' in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
             title: track.name,
@@ -791,13 +929,17 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // 📜 INSTANT LYRICS SEARCH TRIGGER
-    document.getElementById('lyricsViewBtn').addEventListener('click', () => {
-      const track = songsList[currentTrackIndex];
-      if (track) {
-        const cleanName = track.name.replace(/\(.*?\)|\[.*?\]|official|video|audio|lyrics|hd|full song/gi, '').trim();
-        window.open('https://www.google.com/search?q=' + encodeURIComponent(cleanName + ' song lyrics'), '_blank');
-      }
+    // 📜 IN-PAGE FLOATING LYRICS TOGGLE
+    const inpageLyricsDrawer = document.getElementById('inpageLyricsDrawer');
+    const lyricsViewBtn = document.getElementById('lyricsViewBtn');
+    const lyricsDrawerCloseBtn = document.getElementById('lyricsDrawerCloseBtn');
+
+    lyricsViewBtn.addEventListener('click', () => {
+      inpageLyricsDrawer.classList.toggle('open');
+    });
+
+    lyricsDrawerCloseBtn.addEventListener('click', () => {
+      inpageLyricsDrawer.classList.remove('open');
     });
 
     // CHROMECAST / STREAM TV TRIGGER
