@@ -10,6 +10,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
+/* Player and Drawer Screen Lock */
+.player-deck-container, footer, .player-bar, #playerDeck, .player-deck {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  width: 90% !important;
+  max-width: 880px !important;
+}
+
+#playlistDrawer {
+  position: fixed !important;
+  bottom: 105px !important;
+  right: 5% !important;
+  z-index: 10000 !important;
+}
     :root {
       --bg-dark: #07090e;
       --bg-card: rgba(18, 22, 33, 0.92);
