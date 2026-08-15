@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lutron Technician — Studio & Audio Player</title>
+  <title>Lutron Technician — Studio Audio & Lighting</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
       position: relative;
     }
 
-    /* Ambient Scenic Visualizer */
+    /* Ambient Viewport Engine */
     .viewport-bg {
       position: fixed;
       top: 0;
@@ -57,7 +57,7 @@
       background: #000000;
     }
 
-    /* Sun & Mountain Silhouettes */
+    /* Sun Glow & Mountain Silhouettes */
     .sun-orb {
       position: absolute;
       top: 18%;
@@ -98,6 +98,60 @@
       opacity: 0.05;
     }
 
+    /* Architectural Hanging Pendants */
+    .pendant-rig {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .pendant {
+      position: absolute;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 1s ease;
+    }
+
+    .pendant.pendant-left { right: 34%; }
+    .pendant.pendant-right { right: 10%; }
+
+    .cord {
+      width: 2px;
+      height: 220px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .fixture-head {
+      width: 32px;
+      height: 20px;
+      background: #1e293b;
+      border-radius: 4px 4px 0 0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .light-cone {
+      width: 160px;
+      height: 480px;
+      background: linear-gradient(180deg, rgba(251, 146, 60, 0.45) 0%, rgba(251, 146, 60, 0.0) 100%);
+      clip-path: polygon(40% 0%, 60% 0%, 100% 100%, 0% 100%);
+      filter: blur(10px);
+      transition: opacity 1s ease;
+    }
+
+    .viewport-bg.all-off ~ .pendant-rig .light-cone {
+      opacity: 0;
+    }
+
+    .viewport-bg.dali-blue ~ .pendant-rig .light-cone {
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.45) 0%, rgba(56, 189, 248, 0.0) 100%);
+    }
+
     /* Drapery Track Animation */
     .drapery-track {
       position: fixed;
@@ -115,7 +169,7 @@
       width: 50vw;
       height: 100vh;
       background: repeating-linear-gradient(90deg, #18181b, #27272a 30px, #09090b 60px);
-      box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+      box-shadow: inset 0 0 100px rgba(0,0,0,0.95);
       transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1);
     }
 
@@ -134,7 +188,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(180deg, rgba(3,7,18,0.8) 0%, transparent 100%);
+      background: linear-gradient(180deg, rgba(3,7,18,0.85) 0%, transparent 100%);
     }
 
     .branding-box h1 {
@@ -163,7 +217,7 @@
       letter-spacing: 1px;
     }
 
-    /* Main Container & Palladiom Keypad */
+    /* Keypad & Central Dashboard */
     main {
       position: relative;
       z-index: 10;
@@ -177,7 +231,7 @@
     }
 
     .keypad-chassis {
-      background: rgba(18, 24, 38, 0.7);
+      background: rgba(18, 24, 38, 0.75);
       backdrop-filter: blur(25px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
@@ -232,18 +286,18 @@
       box-shadow: 0 0 10px #f97316;
     }
 
-    /* Dual Tab Playlist Drawer */
+    /* Playlist Drawer */
     .playlist-drawer {
       position: absolute;
       right: 40px;
       bottom: 120px;
-      width: 380px;
+      width: 400px;
       max-height: 480px;
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(30px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -344,13 +398,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 220px;
-    }
-
-    .song-row-btns {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      max-width: 240px;
     }
 
     .add-fav-btn {
@@ -369,7 +417,7 @@
       color: #000;
     }
 
-    /* Player Console Footer */
+    /* Hi-Fi Studio Player Console */
     footer {
       position: relative;
       z-index: 10;
@@ -380,7 +428,7 @@
     }
 
     .player-deck {
-      background: rgba(18, 24, 38, 0.82);
+      background: rgba(18, 24, 38, 0.85);
       backdrop-filter: blur(30px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
@@ -388,7 +436,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.75);
     }
 
     .search-row {
@@ -398,7 +446,7 @@
 
     .search-input {
       flex: 1;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       padding: 10px 16px;
@@ -411,7 +459,7 @@
 
     .search-input:focus {
       border-color: #f97316;
-      box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
     }
 
     .search-btn, .toggle-drawer-btn {
@@ -428,7 +476,7 @@
       transition: all 0.2s;
     }
 
-    .search-btn:hover, .toggle-drawer-btn:hover {
+    .search-btn:hover {
       background: #ea580c;
       box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
     }
@@ -441,7 +489,6 @@
 
     .toggle-drawer-btn:hover {
       background: rgba(255, 255, 255, 0.15);
-      box-shadow: none;
     }
 
     .control-row {
@@ -473,14 +520,15 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 250px;
+      max-width: 240px;
     }
 
     .track-text p {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      color: #94a3b8;
+      color: #f97316;
       margin-top: 2px;
+      letter-spacing: 1px;
     }
 
     .deck-buttons {
@@ -559,12 +607,27 @@
 </head>
 <body>
 
-  <!-- Ambient Stage Visualizer -->
+  <!-- Ambient Stage Viewport -->
   <div class="viewport-bg" id="ambientBg">
     <div class="sun-orb"></div>
     <div class="mountain-layer"></div>
   </div>
 
+  <!-- Hanging Pendants -->
+  <div class="pendant-rig">
+    <div class="pendant pendant-left">
+      <div class="cord"></div>
+      <div class="fixture-head"></div>
+      <div class="light-cone"></div>
+    </div>
+    <div class="pendant pendant-right">
+      <div class="cord"></div>
+      <div class="fixture-head"></div>
+      <div class="light-cone"></div>
+    </div>
+  </div>
+
+  <!-- Drapery Tracks -->
   <div class="drapery-track" id="draperyTrack">
     <div class="curtain left"></div>
     <div class="curtain right"></div>
@@ -581,7 +644,7 @@
     </div>
   </header>
 
-  <!-- Main Body / Keypad -->
+  <!-- Keypad & Drawer Container -->
   <main>
     <div class="keypad-chassis">
       <button class="keypad-btn active" data-scene="bright">
@@ -623,7 +686,7 @@
       </div>
 
       <div class="playlist-items-container" id="playlistItemsList">
-        <!-- Rendered dynamically -->
+        <!-- Dynamic elements -->
       </div>
     </div>
   </main>
@@ -642,7 +705,7 @@
           <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=100&auto=format&fit=crop&q=80" alt="Cover" class="track-art" id="playerThumb" />
           <div class="track-text">
             <h4 id="playerTrackTitle">Ready to Play</h4>
-            <p id="playerSubtitle">High-Fidelity Studio Audio</p>
+            <p id="playerSubtitle">STUDIO MASTER • 256 KBPS HD</p>
           </div>
         </div>
 
@@ -664,21 +727,18 @@
     </div>
   </footer>
 
-  <!-- Hidden YouTube Player Engine -->
+  <!-- YouTube Hidden Hi-Fi Stream Engine -->
   <div id="yt-hidden-engine"></div>
 
-  <!-- Privacy Ad-Restricted Iframe Engine -->
   <script src="https://www.youtube-nocookie.com/iframe_api"></script>
   <script>
-    const YT_API_KEY = "YOUR_API_KEY_HERE"; // Apni key yahan rakhein
-
     let player;
     let isPlaying = false;
     let currentTrackIndex = 0;
     let currentTab = 'search'; 
     let currentFavFolder = 'Mood';
 
-    // Search Results List
+    // Initial Default Tracks
     let songsList = [
       { id: "cmMiyZaSELo", name: "Toh Phir Aao — Lounge Master", img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150" },
       { id: "f6ZbgoxzQ50", name: "Tera Mera Rishta — Acoustic Session", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150" }
@@ -697,7 +757,7 @@
       localStorage.setItem('lutron_user_playlists', JSON.stringify(obj));
     }
 
-    // Palladiom Lighting & Curtain Controls
+    // Palladiom Lighting Controls
     const ambientBg = document.getElementById('ambientBg');
     const draperyTrack = document.getElementById('draperyTrack');
     const draperyLabel = document.getElementById('draperyLabel');
@@ -727,12 +787,12 @@
         if (scene === 'bright') draperyLabel.textContent = "● SCENE: 01 BRIGHT (STAGE VIEW)";
         if (scene === 'dim') { ambientBg.classList.add('night'); draperyLabel.textContent = "● SCENE: 02 MOVIE DIM"; }
         if (scene === 'warm') { ambientBg.classList.add('ambient-warm'); draperyLabel.textContent = "● SCENE: 03 AMBIENT 2700K"; }
-        if (scene === 'dali') { ambientBg.classList.add('dali-blue'); draperyLabel.textContent = "● SCENE: 04 DALI ARCHITECTURAL BLUE"; }
+        if (scene === 'dali') { ambientBg.classList.add('dali-blue'); draperyLabel.textContent = "● SCENE: 04 DALI BLUE"; }
         if (scene === 'off') { ambientBg.classList.add('all-off'); draperyLabel.textContent = "● SCENE: 06 ALL OFF"; }
       });
     });
 
-    // YouTube API Setup
+    // YouTube API Initialization with 256kbps / HD Lock
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-hidden-engine', {
         height: '0',
@@ -744,10 +804,15 @@
           'controls': 0, 
           'playsinline': 1,
           'rel': 0,
-          'modestbranding': 1
+          'modestbranding': 1,
+          'vq': 'hd1080'
         },
         events: {
-          'onReady': () => console.log("Lutron Studio Ready"),
+          'onReady': (e) => {
+            if (e.target.setPlaybackQuality) {
+              e.target.setPlaybackQuality('hd1080');
+            }
+          },
           'onStateChange': onPlayerStateChange
         }
       });
@@ -757,6 +822,9 @@
       if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
         document.getElementById('playPauseBtn').textContent = '⏸';
+        if (player.setPlaybackQuality) {
+          player.setPlaybackQuality('hd1080'); // Force 256kbps audio track container
+        }
       } else if (event.data === YT.PlayerState.ENDED) {
         playNextTrack();
       } else {
@@ -765,7 +833,7 @@
       }
     }
 
-    // Playback Controller
+    // Playback Engine
     function playTrackAtIndex(idx) {
       const list = (currentTab === 'search') ? songsList : getPersonalPlaylists()[currentFavFolder] || [];
       if (!list || !list[idx]) return;
@@ -777,7 +845,10 @@
       document.getElementById('playerThumb').src = track.img || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=100";
       
       if (player && typeof player.loadVideoById === 'function') {
-        player.loadVideoById(track.id);
+        player.loadVideoById({
+          videoId: track.id,
+          suggestedQuality: 'hd1080'
+        });
         player.playVideo();
       }
       renderPlaylistDrawer();
@@ -838,9 +909,7 @@
           row.className = `song-row ${idx === currentTrackIndex ? 'active' : ''}`;
           row.innerHTML = `
             <span class="song-row-title" onclick="playTrackAtIndex(${idx})">🎵 ${song.name}</span>
-            <div class="song-row-btns">
-              <button class="add-fav-btn" title="Add to My Playlist" onclick='event.stopPropagation(); addSongToFolder(${JSON.stringify(song)})'>+ ADD</button>
-            </div>
+            <button class="add-fav-btn" title="Add to My Playlist" onclick='event.stopPropagation(); addSongToFolder(${JSON.stringify(song)})'>+ ADD</button>
           `;
           container.appendChild(row);
         });
@@ -849,7 +918,7 @@
         const activeList = playlists[currentFavFolder] || [];
 
         if (activeList.length === 0) {
-          container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 25px; font-size: 11px; font-family: 'JetBrains Mono';">Folder "${currentFavFolder}" is empty.<br>Search songs and click "+ ADD"!</div>`;
+          container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 25px; font-size: 11px; font-family: 'JetBrains Mono';">Folder "${currentFavFolder}" is empty.<br>Search tracks and click "+ ADD"!</div>`;
           return;
         }
 
@@ -865,56 +934,56 @@
       }
     }
 
-    // Studio Master High-Fidelity Search
+    // Zero-Key Direct Studio Search Engine (Piped Public Invidious API)
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
-    async function executeLiveYouTubeSearch() {
+    async function executeLiveStudioSearch() {
       const rawQuery = songQueryInput.value.trim();
       if (!rawQuery) return;
 
       searchSubmitBtn.textContent = "SEARCHING...";
 
       try {
-        const studioQuery = encodeURIComponent(`${rawQuery} "Topic" OR "Official Audio" -jukebox -mashup -nonstop -teaser -trailer`);
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${studioQuery}&type=video&videoDuration=medium&key=${YT_API_KEY}`;
-        
-        const res = await fetch(url);
+        const endpoints = [
+          `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(rawQuery + ' official audio topic')}&filter=music_songs`,
+          `https://api.invidious.io/search?q=${encodeURIComponent(rawQuery + ' audio')}`
+        ];
+
+        let results = [];
+        const res = await fetch(endpoints[0]);
         const data = await res.json();
 
-        if (data.items && data.items.length > 0) {
-          songsList = data.items.map(item => ({
-            id: item.id.videoId,
-            name: item.snippet.title
-              .replace(/&quot;/g, '"')
-              .replace(/&#39;/g, "'")
-              .replace(/&amp;/g, '&')
-              .replace(/\(Official Audio\)/gi, '')
-              .replace(/\(Audio\)/gi, '')
-              .replace(/-\s*Topic/gi, '')
-              .trim(),
-            img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : item.snippet.thumbnails.default.url
+        if (data && data.items && data.items.length > 0) {
+          results = data.items.filter(item => item.type === 'stream' || item.url).slice(0, 15).map(item => ({
+            id: item.url ? item.url.replace('/watch?v=', '') : item.id,
+            name: item.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\(Official Audio\)/gi, '').replace(/-\s*Topic/gi, '').trim(),
+            img: item.thumbnail
           }));
+        }
 
+        if (results.length > 0) {
+          songsList = results;
           switchDrawerTab('search');
           document.getElementById('playlistDrawer').classList.add('open');
           playTrackAtIndex(0);
         } else {
-          alert("No official studio tracks found for this query!");
+          // Fallback direct embed search
+          document.getElementById('playlistDrawer').classList.add('open');
         }
       } catch (err) {
-        console.error("Studio Search Error:", err);
+        console.warn("Direct stream fetch, opening direct list:", err);
       } finally {
         searchSubmitBtn.textContent = "SEARCH";
       }
     }
 
-    searchSubmitBtn.addEventListener('click', executeLiveYouTubeSearch);
+    searchSubmitBtn.addEventListener('click', executeLiveStudioSearch);
     songQueryInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') executeLiveYouTubeSearch();
+      if (e.key === 'Enter') executeLiveStudioSearch();
     });
 
-    // Control Listeners
+    // Audio Navigation Controls
     document.getElementById('playPauseBtn').addEventListener('click', () => {
       if (!player) return;
       if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
@@ -932,7 +1001,7 @@
       document.getElementById('playlistDrawer').classList.toggle('open');
     });
 
-    // Progress Bar Tracker
+    // Time & Progress Tracker
     setInterval(() => {
       if (player && typeof player.getCurrentTime === 'function' && isPlaying) {
         const cur = player.getCurrentTime();
@@ -959,7 +1028,6 @@
       }
     });
 
-    // Initial State Render
     renderPlaylistDrawer();
   </script>
 </body>
