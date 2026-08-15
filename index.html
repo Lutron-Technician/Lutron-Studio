@@ -7,7 +7,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Rozha+One&family=Yatra+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Mukta:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (BEHIND CURTAINS) */
+    /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -48,7 +48,6 @@
       background: radial-gradient(circle at 78% 22%, #1a2a47 0%, #0c1222 45%, #04060d 100%);
     }
 
-    /* SUN & MOON */
     .sky-sun {
       position: absolute; top: 12%; right: 18%; width: 125px; height: 125px;
       border-radius: 50%;
@@ -85,7 +84,6 @@
 
     @keyframes twinkleStars { 0% { opacity: 0.35; } 100% { opacity: 0.95; } }
 
-    /* REALISTIC MOUNTAIN SILHOUETTES */
     .mountain-layer {
       position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
       pointer-events: none;
@@ -105,7 +103,7 @@
     .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
     .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
 
-    /* 2-SIDE DUAL CENTER-SPLIT MOTORIZED CURTAIN (PARDA) */
+    /* 2-SIDE MOTORIZED CURTAIN */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
       display: flex; width: 100%; height: 100%;
@@ -156,7 +154,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;
     }
 
-    /* INTERIOR ARCHITECTURAL LIGHTING */
+    /* ARCHITECTURAL LIGHTING */
     .blueprint-grid { 
       position: absolute; inset: 0; 
       background-image: linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px); 
@@ -226,10 +224,10 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* WORKSPACE SPLIT (KEYPAD ON LEFT + LYRICS ON RIGHT) */
+    /* CENTRAL STAGE */
     .central-stage {
-      display: flex; justify-content: space-between; align-items: center;
-      position: relative; flex-grow: 1; width: 100%; padding-right: 2vw;
+      display: flex; justify-content: flex-start; align-items: center;
+      position: relative; flex-grow: 1; width: 100%;
     }
 
     .palladiom-frame {
@@ -261,46 +259,57 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* 📜 RIGHT SIDE LIVE HINDI LYRICS CARD (PHOTO 2 GREEN MARKING) */
-    .lyrics-card {
-      width: 320px; height: 350px;
-      background: linear-gradient(145deg, rgba(16, 22, 35, 0.85), rgba(7, 10, 18, 0.95));
-      border: 1px solid var(--glass-border); border-radius: 14px;
-      padding: 16px 20px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(20px); display: flex; flex-direction: column;
-      position: relative; overflow: hidden;
+    /* 📜 TRANSPARENT FLOATING LYRICS DOCK */
+    .stream-lyrics-dock {
+      position: fixed;
+      bottom: 7.8rem;
+      right: 4vw;
+      width: 360px;
+      height: 150px;
+      z-index: 40;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
     }
 
-    .lyrics-header {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; margin-bottom: 12px;
+    .lyrics-stream-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .lyrics-header span {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--amber-warm); font-weight: 700;
+    .lyric-line-item {
+      font-family: 'Mukta', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: rgba(203, 213, 225, 0.45);
+      line-height: 1.4;
+      transition: all 0.5s ease;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      opacity: 0.4;
+      transform: translateY(8px);
     }
 
-    .lyrics-body {
-      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
-      scroll-behavior: smooth; padding-right: 4px;
+    .lyric-line-item.active {
+      color: #ffffff;
+      font-size: 1.3rem;
+      font-weight: 600;
+      opacity: 1;
+      transform: translateY(0);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 2px 12px rgba(0,0,0,0.95);
     }
 
-    .lyrics-body::-webkit-scrollbar { width: 4px; }
-    .lyrics-body::-webkit-scrollbar-thumb { background: rgba(255, 170, 51, 0.3); border-radius: 4px; }
-
-    .lyric-line {
-      font-family: 'Rozha One', 'Yatra One', serif; font-size: 1.15rem; color: rgba(255, 255, 255, 0.45);
-      line-height: 1.6; transition: all 0.4s ease; text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    .lyric-line-item.passed {
+      opacity: 0;
+      transform: translateY(-20px);
+      height: 0;
+      margin: 0;
+      padding: 0;
+      pointer-events: none;
     }
-
-    .lyric-line.active {
-      color: #ffd166; font-size: 1.3rem; font-weight: bold;
-      transform: scale(1.03); text-shadow: 0 0 15px rgba(255, 170, 51, 0.6);
-    }
-
-    .ticker-container { width: 100%; max-width: 500px; text-align: left; margin-top: 1rem; height: 35px; display: flex; align-items: center; position: relative; }
-    .quote-text { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); position: absolute; opacity: 0; transform: translateY(10px); transition: all 0.6s ease; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .quote-text.active { opacity: 1; transform: translateY(0); }
 
     /* PLAYER CONTROLS & GLASS SHELL */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
@@ -335,7 +344,7 @@
     .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
     .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
-    /* VOLUME SLIDER CONTROL */
+    /* VOLUME SLIDER */
     .volume-container {
       display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05);
       border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px;
@@ -380,14 +389,24 @@
 
     #youtube-player-container { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
 
-    @media (max-width: 900px) {
-      .lyrics-card { display: none; }
-      .app-container { padding: 1.5rem 1.5rem 9.5rem 1.5rem; }
+    /* MOBILE AND LAPTOP RESPONSIVE STYLES */
+    @media (max-width: 768px) {
+      .app-container { padding: 1.2rem 1.2rem 10.5rem 1.2rem; }
       .hero-header { text-align: center; }
       .central-stage { justify-content: center; }
       .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
+      .stream-lyrics-dock {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 8.5rem;
+        width: 90%;
+        height: 110px;
+        text-align: center;
+      }
+      .lyric-line-item { font-size: 0.95rem; }
+      .lyric-line-item.active { font-size: 1.15rem; }
     }
   </style>
 </head>
@@ -405,7 +424,7 @@
     </svg>
   </div>
 
-  <!-- 2-SIDE MOTORIZED CENTER-SPLIT CURTAIN SYSTEM -->
+  <!-- 2-SIDE MOTORIZED CURTAIN SYSTEM -->
   <div class="curtain-track-rod"></div>
   <div class="curtain-container" id="curtainContainer">
     <div class="curtain-panel curtain-left"><div class="curtain-pleats"></div></div>
@@ -415,7 +434,7 @@
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
-  <!-- ARCHITECTURAL PENDANT FIXTURES -->
+  <!-- ARCHITECTURAL LIGHTING -->
   <div class="lighting-fixtures-layer">
     <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
     <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
@@ -447,28 +466,24 @@
           <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
         </div>
       </div>
-
-      <!-- 📜 LIVE HINDI LYRICS CARD (PHOTO 2 DESIGN) -->
-      <div class="lyrics-card">
-        <div class="lyrics-header">
-          <span>📜 LIVE HINDI LYRICS</span>
-          <span style="color:#94a3b8; font-size:0.6rem;">STUDIO MASTER</span>
-        </div>
-        <div class="lyrics-body" id="lyricsBody">
-          <div class="lyric-line active">सुरमई शाम का साया है...</div>
-          <div class="lyric-line">लबों पे तेरा ही नाम आया है...</div>
-          <div class="lyric-line">धड़कनों ने छेड़ा इक नया तराना...</div>
-          <div class="lyric-line">रोशनी में डूबा हर इक आशियाना...</div>
-        </div>
-      </div>
     </main>
+  </div>
+
+  <!-- 📜 TRANSPARENT FLOATING LYRICS DOCK (BOTTOM RIGHT / MOBILE RESPONSIVE) -->
+  <div class="stream-lyrics-dock">
+    <div class="lyrics-stream-list" id="lyricsStreamList">
+      <div class="lyric-line-item active">सुरमई शाम का साया है...</div>
+      <div class="lyric-line-item">लबों पे तेरा ही नाम आया है...</div>
+      <div class="lyric-line-item">धड़कनों ने छेड़ा इक नया तराना...</div>
+      <div class="lyric-line-item">रोशनी में डूबा हर इक आशियाना...</div>
+    </div>
   </div>
 
   <!-- LUXURY GLASS PLAYER -->
   <div class="player-wrapper">
     <div class="glass-player">
       
-      <!-- REAL YOUTUBE LIVE SEARCH (BACKGROUND SAFE) -->
+      <!-- REAL YOUTUBE LIVE SEARCH -->
       <div class="search-box-row">
         <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata)... (Gaana rukega nahi!)" />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
@@ -549,6 +564,12 @@
         "हमको मिली हैं आज ये घड़ियाँ नसीब से...",
         "जी भर के देख लीजिये हमको क़रीब से..."
       ],
+      "tere paas": [
+        "तेरे पास मैं आ रहा हूँ...",
+        "सपनों को अपने सजा रहा हूँ...",
+        "तेरी आँखों में डूब के...",
+        "हर इक पल को अपना बना रहा हूँ..."
+      ],
       "abhi mujh mein": [
         "अभी मुझ में कहीं बाक़ी थोड़ी सी है ज़िन्दगी...",
         "जगी धड़कन नई जाना ज़िंदा हूँ मैं तो अभी...",
@@ -560,6 +581,18 @@
         "रंग जाऊँ जो मैं हाथ लगाऊँ...",
         "दिन बीते सारा तेरी फ़िक्र में...",
         "रैन सारी तेरी ख़ैर मनाऊँ..."
+      ],
+      "kishore": [
+        "चला जाता हूँ किसी की धुन में...",
+        "धड़कते दिल के तराने लिए...",
+        "मिलन की मस्ती भरी आँखों में...",
+        "हज़ारों सपने सजाने लिए..."
+      ],
+      "arijit": [
+        "हम तेरे बिन अब रह नहीं सकते...",
+        "तेरे बिना क्या वजूद मेरा...",
+        "तुझसे जुदा गर हो जायेंगे...",
+        "तो खुद से ही हो जायेंगे जुदा..."
       ]
     };
 
@@ -577,7 +610,7 @@
     let progressTimer = null;
     let isCurtainOpen = false;
 
-    // UPDATE LIVE HINDI LYRICS
+    // UPDATE LIVE HINDI LYRICS IN DOCK
     function updateLyrics(songTitle) {
       const titleLower = (songTitle || '').toLowerCase();
       let selectedLyrics = lyricsBank.default;
@@ -589,13 +622,13 @@
         }
       }
 
-      const lyricsBody = document.getElementById('lyricsBody');
-      lyricsBody.innerHTML = selectedLyrics.map((line, idx) => `
-        <div class="lyric-line ${idx === 0 ? 'active' : ''}">${line}</div>
+      const lyricsStreamList = document.getElementById('lyricsStreamList');
+      lyricsStreamList.innerHTML = selectedLyrics.map((line, idx) => `
+        <div class="lyric-line-item ${idx === 0 ? 'active' : ''}">${line}</div>
       `).join('');
     }
 
-    // TIME-BASED DRAPERY (2-SIDE CURTAIN) & OUTDOOR VIEW
+    // TIME-BASED DRAPERY & OUTDOOR VIEW
     const outdoorScenery = document.getElementById('outdoorScenery');
     const curtainContainer = document.getElementById('curtainContainer');
     const shadesBtn = document.getElementById('shadesBtn');
@@ -688,7 +721,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // 100% BACKGROUND SEARCH ENGINE (Search karne par chal raha gaana band nahi hoga!)
+    // 100% BACKGROUND SEARCH ENGINE
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -710,15 +743,12 @@
         }
 
         if (data.items && data.items.length > 0) {
-          // Keep current track intact while populating new search results
-          const currentTrack = songsList[currentTrackIndex];
           songsList = data.items.map(item => ({
             id: item.id.videoId,
             name: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&'),
             img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : item.snippet.thumbnails.default.url
           }));
 
-          // Point to matched track or keep playing current background track without stopping!
           renderPlaylistDrawer();
           playlistDrawer.classList.add('open');
         } else {
@@ -736,7 +766,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // FULL LENGTH YOUTUBE CONTROLLER & 256 KBPS HD AUDIO ENGINE
+    // YOUTUBE API CONTROLLER
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -848,11 +878,19 @@
             document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
           }
 
-          // Lyric auto line-highlight by time
-          const lines = document.querySelectorAll('.lyric-line');
+          // Smart Teleprompter Lyric Fade
+          const lines = document.querySelectorAll('.lyric-line-item');
           if (lines.length > 0 && dur > 0) {
-            const activeIdx = Math.floor((cur / dur) * lines.length);
-            lines.forEach((l, i) => l.classList.toggle('active', i === activeIdx));
+            const activeIdx = Math.min(lines.length - 1, Math.floor((cur / dur) * lines.length));
+            lines.forEach((l, i) => {
+              if (i < activeIdx) {
+                l.className = 'lyric-line-item passed';
+              } else if (i === activeIdx) {
+                l.className = 'lyric-line-item active';
+              } else {
+                l.className = 'lyric-line-item';
+              }
+            });
           }
         }
       }, 500);
@@ -907,7 +945,6 @@
       }
     });
 
-    // Initialize Atmosphere
     updateAtmosphereView();
     renderPlaylistDrawer();
   </script>
