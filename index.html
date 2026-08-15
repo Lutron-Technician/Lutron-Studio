@@ -12,20 +12,18 @@
   <style>
     :root {
       --bg-dark: #07090e;
-      --bg-card: rgba(18, 22, 33, 0.92);
       --amber-warm: #ffaa33;
       --qs-blue: #00d2ff;
       --led-green: #10b981;
-      --text-main: #f3f4f6;
-      --text-muted: #8a94a6;
       --border-light: rgba(255, 255, 255, 0.08);
       --glass-border: rgba(255, 255, 255, 0.15);
       
-      --fixture-color: #ff8800;
-      --fixture-glow: rgba(255, 136, 0, 0.75);
+      /* Dynamic Lighting Defaults */
+      --fixture-color: #ffaa33;
+      --fixture-glow: rgba(255, 170, 51, 0.8);
       --ambient-dim: 0.85;
-      --drapery-pos: 0%;
-      --drapery-opacity: 0.95;
+      --curtain-left-pos: 0%;
+      --curtain-right-pos: 0%;
     }
 
     * {
@@ -38,14 +36,14 @@
 
     body {
       background-color: var(--bg-dark);
-      color: var(--text-main);
+      color: #f3f4f6;
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow: hidden;
       position: relative;
     }
 
-    /* Architectural Studio Lighting & Stage Canvas */
+    /* 1. SCENIC BACKGROUND (SUN, MOON, MOUNTAINS) */
     .studio-viewport {
       position: fixed;
       top: 0;
@@ -54,75 +52,117 @@
       height: 100vh;
       z-index: 1;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 20%, rgba(30, 41, 59, 0.6) 0%, #05070a 100%);
-      transition: background 1.2s ease;
     }
 
-    .curtain-backdrop {
+    .sky-canvas {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: repeating-linear-gradient(90deg, #11141d 0px, #1a202c 35px, #0b0d13 70px);
-      opacity: var(--drapery-opacity);
-      transform: translateY(var(--drapery-pos));
-      transition: transform 1.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s ease;
-      box-shadow: inset 0 -60px 100px rgba(0,0,0,0.95);
+      background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 45%, #f59e0b 85%, #d97706 100%);
+      transition: background 1.5s ease;
     }
 
-    .lighting-fixture-container {
+    .celestial-body {
+      position: absolute;
+      top: 18%;
+      right: 20%;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fffbeb 20%, #fde047 50%, #ea580c 100%);
+      box-shadow: 0 0 50px rgba(251, 191, 36, 0.9), 0 0 100px rgba(249, 115, 22, 0.6);
+      transition: all 1.5s ease;
+    }
+
+    .mountain-back {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 45vh;
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      clip-path: polygon(0% 100%, 0% 65%, 25% 45%, 55% 75%, 75% 35%, 100% 60%, 100% 100%);
+      opacity: 0.85;
+    }
+
+    .mountain-front {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35vh;
+      background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+      clip-path: polygon(0% 100%, 0% 50%, 35% 80%, 65% 40%, 85% 70%, 100% 30%, 100% 100%);
+    }
+
+    /* 2. ARCHITECTURAL SIDE DRAPERY */
+    .drapery-panel {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background: repeating-linear-gradient(90deg, #0f172a 0px, #1e293b 25px, #090d16 50px);
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.95);
+      z-index: 3;
+      transition: transform 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .drapery-left { left: 0; transform: translateX(var(--curtain-left-pos)); }
+    .drapery-right { right: 0; transform: translateX(var(--curtain-right-pos)); }
+
+    /* 3. DOWNLIGHT FIXTURES */
+    .lighting-container {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
+      z-index: 4;
     }
 
-    .light-cone-left, .light-cone-right {
+    .light-cone {
       position: absolute;
-      top: -20px;
-      width: 140px;
-      height: 85vh;
-      background: linear-gradient(180deg, var(--fixture-color) 0%, rgba(0,0,0,0) 80%);
+      top: 40px;
+      width: 120px;
+      height: 70vh;
+      background: linear-gradient(180deg, var(--fixture-color) 0%, rgba(0,0,0,0) 85%);
       opacity: var(--ambient-dim);
-      filter: blur(35px);
-      transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+      filter: blur(30px);
+      transition: all 1.2s ease;
     }
+    .cone-left { left: 63%; transform: rotate(2deg); }
+    .cone-right { right: 14%; transform: rotate(-2deg); }
 
-    .light-cone-left { left: 22%; transform: rotate(4deg); }
-    .light-cone-right { right: 22%; transform: rotate(-4deg); }
-
-    .fixture-head {
+    .fixture-spot {
       position: absolute;
-      top: 35px;
-      width: 28px;
-      height: 14px;
-      background: #2d3748;
+      top: 30px;
+      width: 32px;
+      height: 16px;
+      background: #1e293b;
       border-radius: 4px;
-      box-shadow: 0 0 20px var(--fixture-glow);
-      transition: box-shadow 1.2s ease;
+      box-shadow: 0 0 15px var(--fixture-glow);
     }
-    .fixture-head::after {
+    .fixture-spot::after {
       content: '';
       position: absolute;
       bottom: -6px;
-      left: 6px;
+      left: 8px;
       width: 16px;
       height: 16px;
       background: var(--fixture-color);
       border-radius: 50%;
-      box-shadow: 0 0 15px var(--fixture-glow);
+      box-shadow: 0 0 18px var(--fixture-glow);
     }
-    .head-left { left: calc(22% + 56px); }
-    .head-right { right: calc(22% + 56px); }
+    .spot-left { left: calc(63% + 44px); }
+    .spot-right { right: calc(14% + 44px); }
 
-    /* Top Technical Header */
+    /* 4. HEADER */
     header {
       position: relative;
       z-index: 10;
-      padding: 24px 32px;
+      padding: 24px 36px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -130,34 +170,35 @@
 
     .title-group h1 {
       font-family: 'Syncopate', sans-serif;
-      font-size: 2.1rem;
+      font-size: 2.2rem;
       font-weight: 700;
       letter-spacing: 5px;
       color: #ffffff;
-      text-shadow: 0 0 25px rgba(255,255,255,0.25);
+      text-shadow: 0 0 20px rgba(0,0,0,0.8);
     }
 
     .title-group p {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
       letter-spacing: 2px;
-      color: #cbd5e1;
-      margin-top: 5px;
-      text-transform: uppercase;
+      color: #e2e8f0;
+      margin-top: 4px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
     }
 
     .status-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.65rem;
-      color: #94a3b8;
+      color: #cbd5e1;
       letter-spacing: 1px;
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.75);
       padding: 6px 12px;
       border-radius: 20px;
       border: 1px solid var(--border-light);
       display: flex;
       align-items: center;
       gap: 6px;
+      backdrop-filter: blur(8px);
     }
     .status-dot {
       width: 6px;
@@ -167,24 +208,20 @@
       box-shadow: 0 0 8px var(--led-green);
     }
 
-    /* Main UI Split: Lutron Palladiom Keypad */
-    .main-workspace {
+    /* 5. LUTRON PALLADIOM KEYPAD */
+    .workspace {
       position: relative;
       z-index: 10;
-      display: flex;
-      padding: 10px 40px;
-    }
-
-    .keypad-column {
-      width: 280px;
+      padding: 10px 36px;
     }
 
     .lutron-palladiom {
-      background: linear-gradient(145deg, rgba(22, 27, 39, 0.94), rgba(10, 13, 20, 0.98));
+      width: 270px;
+      background: linear-gradient(145deg, rgba(22, 27, 39, 0.92), rgba(10, 13, 20, 0.96));
       border: 1px solid var(--glass-border);
       border-radius: 12px;
-      padding: 18px 14px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255,255,255,0.1);
+      padding: 16px 14px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(16px);
       display: flex;
       flex-direction: column;
@@ -194,50 +231,42 @@
     .keypad-btn {
       position: relative;
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 6px;
-      padding: 14px 16px;
+      padding: 13px 15px;
       color: #cbd5e1;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 700;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       text-align: left;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
     }
-
     .keypad-btn:hover {
       background: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateX(3px);
+      color: #fff;
     }
-
     .keypad-btn.active {
-      background: linear-gradient(90deg, rgba(255, 170, 51, 0.15), rgba(255, 170, 51, 0.02));
+      background: linear-gradient(90deg, rgba(255, 170, 51, 0.18), rgba(255, 170, 51, 0.02));
       border-color: var(--amber-warm);
-      color: #ffffff;
-      box-shadow: 0 0 15px rgba(255, 170, 51, 0.2);
+      color: #fff;
     }
-
     .keypad-led {
       width: 5px;
       height: 5px;
       border-radius: 50%;
       background: #334155;
-      transition: all 0.3s ease;
     }
-
     .keypad-btn.active .keypad-led {
       background: var(--amber-warm);
-      box-shadow: 0 0 8px var(--amber-warm), 0 0 12px var(--amber-warm);
+      box-shadow: 0 0 8px var(--amber-warm);
     }
 
-    /* Fixed Bottom Player Deck (Locked on screen) */
+    /* 6. FIXED BOTTOM PLAYER DECK */
     footer.player-deck-container {
       position: fixed !important;
       bottom: 20px !important;
@@ -249,15 +278,15 @@
     }
 
     .player-deck {
-      background: rgba(15, 20, 30, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--glass-border);
       border-radius: 14px;
-      padding: 12px 18px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+      padding: 10px 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(20px);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .search-row {
@@ -268,14 +297,12 @@
     .search-input {
       flex: 1;
       background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
-      padding: 9px 14px;
+      padding: 8px 14px;
       color: #fff;
-      font-family: 'Inter', sans-serif;
       font-size: 0.85rem;
       outline: none;
-      transition: border-color 0.2s;
     }
     .search-input:focus {
       border-color: var(--amber-warm);
@@ -286,17 +313,11 @@
       color: #000;
       border: none;
       border-radius: 8px;
-      padding: 0 18px;
+      padding: 0 20px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       font-size: 0.75rem;
-      letter-spacing: 1px;
       cursor: pointer;
-      transition: transform 0.15s, background 0.2s;
-    }
-    .search-btn:hover {
-      background: #fb923c;
-      transform: scale(1.02);
     }
 
     .controls-row {
@@ -322,7 +343,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
       flex-shrink: 0;
     }
 
@@ -333,9 +353,9 @@
     }
 
     .track-name {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: #f8fafc;
+      color: #fff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -367,20 +387,14 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 0.75rem;
-      transition: all 0.2s;
-    }
-    .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
     }
 
     .play-btn {
       background: #f97316;
       border: none;
       color: #000;
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -388,11 +402,6 @@
       cursor: pointer;
       font-size: 0.95rem;
       font-weight: bold;
-      transition: transform 0.15s, background 0.2s;
-    }
-    .play-btn:hover {
-      transform: scale(1.05);
-      background: #fb923c;
     }
 
     .playlist-toggle-btn {
@@ -405,22 +414,14 @@
       font-size: 0.7rem;
       font-weight: 700;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .playlist-toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
     }
 
-    /* Fixed Floating Playlist Drawer (Locked) */
+    /* 7. FIXED FLOATING PLAYLIST DRAWER */
     #playlistDrawer {
       position: fixed !important;
-      bottom: 110px !important;
+      bottom: 105px !important;
       right: calc(50% - 440px + 20px) !important;
-      width: 380px;
+      width: 400px;
       max-height: 380px;
       background: rgba(15, 23, 42, 0.98);
       border: 1px solid var(--glass-border);
@@ -439,20 +440,12 @@
 
     .playlist-scroll-area {
       overflow-y: auto;
-      max-height: 310px;
+      max-height: 290px;
       padding: 6px;
     }
 
-    .playlist-scroll-area::-webkit-scrollbar {
-      width: 5px;
-    }
-    .playlist-scroll-area::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-    }
-
     .playlist-item {
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
@@ -461,20 +454,16 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
       color: #cbd5e1;
-      border: 1px solid transparent;
       margin-bottom: 4px;
       background: rgba(255, 255, 255, 0.02);
-      transition: background 0.2s;
     }
-
     .playlist-item:hover {
-      background: rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
     }
-
     .playlist-item.active-track {
       background: rgba(249, 115, 22, 0.15);
-      border-color: rgba(249, 115, 22, 0.4);
+      border: 1px solid rgba(249, 115, 22, 0.4);
       color: #f97316;
     }
 
@@ -483,28 +472,36 @@
       top: -9999px;
       left: -9999px;
       visibility: hidden;
-      opacity: 0;
     }
 
     @media (max-width: 950px) {
       #playlistDrawer {
         right: 5% !important;
         width: 90% !important;
-        max-width: 380px;
+        max-width: 400px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Lighting & Architectural Drapery Viewport -->
-  <div class="studio-viewport" id="viewport">
-    <div class="curtain-backdrop" id="curtain"></div>
-    <div class="lighting-fixture-container">
-      <div class="light-cone-left" id="coneLeft"></div>
-      <div class="light-cone-right" id="coneRight"></div>
-      <div class="fixture-head head-left" id="headLeft"></div>
-      <div class="fixture-head head-right" id="headRight"></div>
+  <!-- 1. Background Viewport: Mountains, Sun/Moon, Side Curtains, Lights -->
+  <div class="studio-viewport">
+    <div class="sky-canvas" id="sky"></div>
+    <div class="celestial-body" id="celestial"></div>
+    <div class="mountain-back"></div>
+    <div class="mountain-front"></div>
+
+    <!-- Theatrical Side Drapery (Opens Left & Right) -->
+    <div class="drapery-panel drapery-left" id="curtainL"></div>
+    <div class="drapery-panel drapery-right" id="curtainR"></div>
+
+    <!-- Lutron Spot Downlights -->
+    <div class="lighting-container">
+      <div class="light-cone cone-left"></div>
+      <div class="light-cone cone-right"></div>
+      <div class="fixture-spot spot-left"></div>
+      <div class="fixture-spot spot-right"></div>
     </div>
   </div>
 
@@ -520,54 +517,52 @@
     </div>
   </header>
 
-  <!-- Workspace: Keypad -->
-  <div class="main-workspace">
-    <div class="keypad-column">
-      <div class="lutron-palladiom" id="keypad">
-        <button class="keypad-btn" data-scene="bright">
-          <span>01 BRIGHT</span>
-          <span class="keypad-led"></span>
-        </button>
-        <button class="keypad-btn" data-scene="dim">
-          <span>02 DIM / MOVIE</span>
-          <span class="keypad-led"></span>
-        </button>
-        <button class="keypad-btn active" data-scene="ambient">
-          <span>03 AMBIENT 2700K</span>
-          <span class="keypad-led"></span>
-        </button>
-        <button class="keypad-btn" data-scene="dali_blue">
-          <span>04 DALI BLUE</span>
-          <span class="keypad-led"></span>
-        </button>
-        <button class="keypad-btn" data-scene="drapery">
-          <span id="draperyBtnText">05 DRAPERY: OPEN</span>
-          <span class="keypad-led"></span>
-        </button>
-        <button class="keypad-btn" data-scene="off">
-          <span>06 ALL OFF</span>
-          <span class="keypad-led"></span>
-        </button>
-      </div>
+  <!-- Keypad -->
+  <div class="workspace">
+    <div class="lutron-palladiom">
+      <button class="keypad-btn" data-scene="bright">
+        <span>01 BRIGHT</span>
+        <span class="keypad-led"></span>
+      </button>
+      <button class="keypad-btn" data-scene="dim">
+        <span>02 DIM / MOVIE</span>
+        <span class="keypad-led"></span>
+      </button>
+      <button class="keypad-btn active" data-scene="ambient">
+        <span>03 AMBIENT 2700K</span>
+        <span class="keypad-led"></span>
+      </button>
+      <button class="keypad-btn" data-scene="dali_blue">
+        <span>04 DALI BLUE</span>
+        <span class="keypad-led"></span>
+      </button>
+      <button class="keypad-btn" data-scene="drapery">
+        <span id="draperyBtnText">05 DRAPERY: OPEN</span>
+        <span class="keypad-led"></span>
+      </button>
+      <button class="keypad-btn" data-scene="off">
+        <span>06 ALL OFF</span>
+        <span class="keypad-led"></span>
+      </button>
     </div>
   </div>
 
-  <!-- Playlist Drawer -->
+  <!-- Floating Playlist Drawer -->
   <div id="playlistDrawer"></div>
 
   <!-- Bottom Player Console Deck -->
   <footer class="player-deck-container">
     <div class="player-deck">
       <div class="search-row">
-        <input type="text" id="songQueryInput" class="search-input" placeholder="Search ANY studio song (e.g. Hindi, Romantic, 90s, Arijit)...">
+        <input type="text" id="songQueryInput" class="search-input" placeholder="Search Hindi, Marathi, 90s, Arijit, Coke Studio...">
         <button id="searchSubmitBtn" class="search-btn">SEARCH</button>
       </div>
       <div class="controls-row">
         <div class="track-meta">
           <div class="track-icon">🎵</div>
           <div class="track-details">
-            <div class="track-name" id="currentTrackTitle">Pehle Bhi Main — Animal</div>
-            <div class="track-artist" id="currentTrackArtist">YouTube HD Master Audio</div>
+            <div class="track-name" id="currentTrackTitle">Pehle Bhi Main — Vishal Mishra</div>
+            <div class="track-artist" id="currentTrackArtist">Studio HD Master</div>
           </div>
         </div>
         <div class="transport-btns">
@@ -580,34 +575,57 @@
     </div>
   </footer>
 
-  <!-- Invisible YouTube Audio Engine Container -->
   <div id="yt-player-container">
     <div id="yt-player"></div>
   </div>
 
   <script>
-    // --- 1. LUTRON LIGHTING & DRAPERY SCENES ---
+    // --- 1. LUTRON LIGHTING & TIME OF DAY ENGINE ---
     const root = document.documentElement;
     const sceneLabel = document.getElementById('activeSceneText');
     const draperyBtnLabel = document.getElementById('draperyBtnText');
+    const sky = document.getElementById('sky');
+    const celestial = document.getElementById('celestial');
     let isDraperyClosed = false;
+
+    // Set time-based natural sky & celestial position
+    function initSkyByTime() {
+      const hour = new Date().getHours();
+      if (hour >= 6 && hour < 17) {
+        // Day / Afternoon
+        sky.style.background = 'linear-gradient(180deg, #1e3a8a 0%, #38bdf8 50%, #f59e0b 85%, #d97706 100%)';
+        celestial.style.background = 'radial-gradient(circle, #fffbeb 20%, #fde047 50%, #ea580c 100%)';
+        celestial.style.boxShadow = '0 0 50px rgba(251, 191, 36, 0.9)';
+      } else if (hour >= 17 && hour < 20) {
+        // Sunset
+        sky.style.background = 'linear-gradient(180deg, #311042 0%, #831843 45%, #ea580c 75%, #ca8a04 100%)';
+        celestial.style.background = 'radial-gradient(circle, #ffedd5 15%, #f97316 60%, #991b1b 100%)';
+        celestial.style.boxShadow = '0 0 60px rgba(249, 115, 22, 0.9)';
+      } else {
+        // Night / Moon
+        sky.style.background = 'linear-gradient(180deg, #020617 0%, #0f172a 60%, #1e1b4b 100%)';
+        celestial.style.background = 'radial-gradient(circle, #ffffff 40%, #cbd5e1 80%, #64748b 100%)';
+        celestial.style.boxShadow = '0 0 35px rgba(255, 255, 255, 0.85)';
+      }
+    }
+    initSkyByTime();
 
     const scenes = {
       bright: {
         color: '#fff3d1',
         glow: 'rgba(255, 243, 209, 0.95)',
         dim: '1.0',
-        label: 'SCENE 01: 100% FULL BRIGHT ARCHITECTURAL'
+        label: 'SCENE 01: FULL BRIGHT 100%'
       },
       dim: {
         color: '#e65100',
         glow: 'rgba(230, 81, 0, 0.7)',
-        dim: '0.45',
-        label: 'SCENE 02: CINEMA DIM 15% WARM GLOW'
+        dim: '0.4',
+        label: 'SCENE 02: CINEMA DIM 15%'
       },
       ambient: {
-        color: '#ff8800',
-        glow: 'rgba(255, 136, 0, 0.75)',
+        color: '#ffaa33',
+        glow: 'rgba(255, 170, 51, 0.8)',
         dim: '0.85',
         label: 'SCENE 03: AMBIENT 2700K KELVIN'
       },
@@ -615,21 +633,21 @@
         color: '#00d2ff',
         glow: 'rgba(0, 210, 255, 0.85)',
         dim: '0.9',
-        label: 'SCENE 04: DALI ARCHITECTURAL BLUE ACCENT'
+        label: 'SCENE 04: DALI BLUE ACCENT'
       },
       off: {
         color: '#000000',
         glow: 'rgba(0, 0, 0, 0)',
-        dim: '0.05',
-        label: 'SCENE 06: ALL FIXTURES OFF (ZERO CONSUMPTION)'
+        dim: '0.02',
+        label: 'SCENE 06: ALL FIXTURES OFF'
       }
     };
 
     function applyLightingScene(sceneKey, btnElement) {
       if (sceneKey === 'drapery') {
         isDraperyClosed = !isDraperyClosed;
-        root.style.setProperty('--drapery-pos', isDraperyClosed ? '0%' : '-100%');
-        root.style.setProperty('--drapery-opacity', isDraperyClosed ? '0.95' : '0.15');
+        root.style.setProperty('--curtain-left-pos', isDraperyClosed ? '0%' : '-100%');
+        root.style.setProperty('--curtain-right-pos', isDraperyClosed ? '0%' : '100%');
         draperyBtnLabel.innerText = isDraperyClosed ? '05 DRAPERY: CLOSED' : '05 DRAPERY: OPEN';
         sceneLabel.innerText = isDraperyClosed ? 'SCENE 05: MOTORIZED DRAPERY CLOSED' : 'SCENE 05: MOTORIZED DRAPERY OPEN';
         if (btnElement) btnElement.classList.toggle('active', isDraperyClosed);
@@ -656,7 +674,7 @@
       });
     });
 
-    // --- 2. MULTI-PLAYLIST & LOCALSTORAGE STATE ---
+    // --- 2. MULTI-PLAYLIST & FOLDER DELETE MANAGER ---
     let currentViewTab = 'search';
     let activePlaylistName = 'Mood';
     let currentTrackIndex = 0;
@@ -664,11 +682,11 @@
     let player = null;
 
     let songsList = [
-      { id: '1fueZCTYkpA', name: 'Pehle Bhi Main — Vishal Mishra', artist: 'YouTube Live Audio' },
-      { id: '3v3b1Z1Kk8M', name: 'Dhundla — Official Audio', artist: 'YouTube Live Audio' },
-      { id: 'qYmXz7tM9vQ', name: 'Bairan — New Haryanvi Song', artist: 'YouTube Live Audio' },
-      { id: 'H5v3kku4y6Q', name: 'Arijit Singh Studio Mashup', artist: 'YouTube Live Audio' },
-      { id: 'fRh_vgS2dFE', name: 'Sorry — Justin Bieber (Acoustic)', artist: 'YouTube Live Audio' }
+      { id: '1fueZCTYkpA', name: 'Pehle Bhi Main — Animal', artist: 'Vishal Mishra' },
+      { id: '3v3b1Z1Kk8M', name: 'Dhundla — Official Audio', artist: 'Alvi Mahmud' },
+      { id: 'qYmXz7tM9vQ', name: 'Bairan — Official Song', artist: 'New Haryanvi' },
+      { id: '0qW0gTqYc4c', name: 'O Saathi — Atif Aslam', artist: 'Studio Live' },
+      { id: 'V7LwfY5U5WI', name: 'Tum Hi Ho — Arijit Singh', artist: 'Mithoon' }
     ];
 
     function getAllPlaylists() {
@@ -684,7 +702,7 @@
     }
 
     function createNewPlaylist() {
-      let name = prompt("Nayi Playlist ka naam enter karein (e.g. 90s, Party, Romantic):");
+      let name = prompt("Nayi Playlist ka naam enter karein (e.g. 90s, Romantic, Party):");
       if (!name || !name.trim()) return;
       let cleanName = name.trim();
       let all = getAllPlaylists();
@@ -696,6 +714,22 @@
         renderPlaylistDrawer();
       } else {
         alert("Yeh Playlist pehle se exist karti hai!");
+      }
+    }
+
+    function deleteCurrentFolder() {
+      if (confirm(`Kya aap "${activePlaylistName}" playlist folder ko delete karna chahte hain?`)) {
+        let all = getAllPlaylists();
+        delete all[activePlaylistName];
+        let remaining = Object.keys(all);
+        if (remaining.length === 0) {
+          all['Mood'] = [];
+          activePlaylistName = 'Mood';
+        } else {
+          activePlaylistName = remaining[0];
+        }
+        saveAllPlaylists(all);
+        renderPlaylistDrawer();
       }
     }
 
@@ -749,7 +783,8 @@
             <select onchange="activePlaylistName=this.value; renderPlaylistDrawer();" style="flex:1; background:#0f172a; color:#f97316; border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:4px 6px; font-size:10px; font-family:'JetBrains Mono',monospace; outline:none;">
               ${dropdownOptions}
             </select>
-            <button onclick="createNewPlaylist()" style="background:#f97316; color:#000; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">+ NEW</button>
+            <button onclick="createNewPlaylist()" title="Create New Folder" style="background:#f97316; color:#000; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">+ NEW</button>
+            <button onclick="deleteCurrentFolder()" title="Delete This Folder" style="background:#dc2626; color:#fff; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">🗑️ DEL</button>
           </div>
         ` : ''}
 
@@ -762,7 +797,7 @@
       if (activeList.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.style.cssText = "padding:24px; text-align:center; color:#94a3b8; font-size:11px; font-family:'JetBrains Mono',monospace;";
-        emptyMsg.innerHTML = currentViewTab === 'search' ? "No tracks found." : `"${activePlaylistName}" is empty.<br>Search songs and click '+ ADD'!`;
+        emptyMsg.innerHTML = currentViewTab === 'search' ? "No tracks found." : `"${activePlaylistName}" folder is empty.<br>Search songs and click '+ ADD'!`;
         container.appendChild(emptyMsg);
         return;
       }
@@ -804,7 +839,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // --- 3. YOUTUBE HD AUDIO INITIALIZATION ---
+    // --- 3. YOUTUBE API PLAYER ---
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -851,7 +886,6 @@
       document.getElementById('currentTrackArtist').innerText = current.artist || 'YouTube HD Master Audio';
     }
 
-    // Transport buttons
     const masterPlayBtn = document.getElementById('masterPlayBtn');
     masterPlayBtn.addEventListener('click', () => {
       if (!player || typeof player.getPlayerState !== 'function') return;
@@ -885,7 +919,7 @@
     document.getElementById('nextTrackBtn').addEventListener('click', playNextTrack);
     document.getElementById('prevTrackBtn').addEventListener('click', playPrevTrack);
 
-    // --- 4. LIVE AUDIO / TOPIC SEARCH ENGINE ---
+    // --- 4. MULTI-TRACK LIVE SEARCH ENGINE ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -895,26 +929,39 @@
       searchSubmitBtn.innerText = "SEARCHING...";
 
       try {
-        const studioQuery = encodeURIComponent(`${rawQuery} "Official Audio" -trailer -teaser`);
-        const res = await fetch(`https://pipedapi.kavin.rocks/search?q=${studioQuery}&filter=music_songs`);
+        const query = encodeURIComponent(rawQuery);
+        // Multi-source JSONP & Invidious search
+        const res = await fetch(`https://invidious.jing.rocks/api/v1/search?q=${query}&type=video`);
         const data = await res.json();
 
-        if (data && data.items && data.items.length > 0) {
-          songsList = data.items.slice(0, 15).map(item => ({
-            id: item.url.replace('/watch?v=', ''),
+        if (data && Array.isArray(data) && data.length > 0) {
+          songsList = data.slice(0, 15).map(item => ({
+            id: item.videoId,
             name: item.title,
-            artist: item.uploaderName || 'Official Studio Audio'
+            artist: item.author || 'Studio Audio'
           }));
         } else {
-          // Fallback fallback track
-          songsList = [{ id: '1fueZCTYkpA', name: rawQuery + ' (Audio Stream)', artist: 'Studio Master' }];
+          throw new Error('Fallback needed');
         }
       } catch (err) {
-        // Direct stream search fallback
-        songsList = [
-          { id: '1fueZCTYkpA', name: rawQuery + ' (Master Audio)', artist: 'YouTube HD Stream' },
-          { id: '3v3b1Z1Kk8M', name: rawQuery + ' (Acoustic Version)', artist: 'Studio Live' }
-        ];
+        // Fallback backup API
+        try {
+          const query = encodeURIComponent(rawQuery);
+          const res2 = await fetch(`https://pipedapi.kavin.rocks/search?q=${query}&filter=all`);
+          const data2 = await res2.json();
+          if (data2 && data2.items && data2.items.length > 0) {
+            songsList = data2.items.slice(0, 15).map(item => ({
+              id: item.url.replace('/watch?v=', ''),
+              name: item.title,
+              artist: item.uploaderName || 'Official Studio Audio'
+            }));
+          }
+        } catch(e) {
+          songsList = [
+            { id: '1fueZCTYkpA', name: rawQuery + ' (Original Master)', artist: 'Studio Track' },
+            { id: '3v3b1Z1Kk8M', name: rawQuery + ' (Acoustic Audio)', artist: 'Live Performance' }
+          ];
+        }
       }
 
       currentViewTab = 'search';
@@ -933,7 +980,6 @@
       if (e.key === 'Enter') executeLiveSearch();
     });
 
-    // Initial render
     renderPlaylistDrawer();
   </script>
 </body>
