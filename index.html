@@ -6,24 +6,20 @@
   <title>Lutron Technician – Architectural Studio & Audio Player</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #07090e;
-      --amber-warm: #ffaa33;
+      --bg-dark: #05070a;
+      --amber-warm: #ff9900;
       --qs-blue: #00d2ff;
       --led-green: #10b981;
-      --border-light: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.15);
       
-      /* Dynamic Lighting Defaults */
-      --fixture-color: #ffaa33;
-      --fixture-glow: rgba(255, 170, 51, 0.8);
+      --fixture-color: #ff9900;
+      --fixture-glow: rgba(255, 153, 0, 0.85);
       --ambient-dim: 0.85;
-      --curtain-left-pos: 0%;
-      --curtain-right-pos: 0%;
+      --drapery-opacity: 0.95;
     }
 
     * {
@@ -39,12 +35,12 @@
       color: #f3f4f6;
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden;
       position: relative;
     }
 
-    /* 1. SCENIC BACKGROUND (SUN, MOON, MOUNTAINS) */
-    .studio-viewport {
+    /* 1. LUXURY DARK PLEATED DRAPERY BACKDROP (PHOTO 2 DESIGN) */
+    .theatre-viewport {
       position: fixed;
       top: 0;
       left: 0;
@@ -52,113 +48,77 @@
       height: 100vh;
       z-index: 1;
       overflow: hidden;
+      background: #06080d;
     }
 
-    .sky-canvas {
+    .curtain-wall {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 45%, #f59e0b 85%, #d97706 100%);
-      transition: background 1.5s ease;
+      background: repeating-linear-gradient(
+        90deg,
+        #0a0d14 0px,
+        #1e2533 18px,
+        #2c364a 36px,
+        #121722 54px,
+        #080a0f 72px
+      );
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.95);
+      opacity: var(--drapery-opacity);
+      transition: opacity 1.2s ease;
     }
 
-    .celestial-body {
-      position: absolute;
-      top: 18%;
-      right: 20%;
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #fffbeb 20%, #fde047 50%, #ea580c 100%);
-      box-shadow: 0 0 50px rgba(251, 191, 36, 0.9), 0 0 100px rgba(249, 115, 22, 0.6);
-      transition: all 1.5s ease;
-    }
-
-    .mountain-back {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 45vh;
-      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
-      clip-path: polygon(0% 100%, 0% 65%, 25% 45%, 55% 75%, 75% 35%, 100% 60%, 100% 100%);
-      opacity: 0.85;
-    }
-
-    .mountain-front {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 35vh;
-      background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
-      clip-path: polygon(0% 100%, 0% 50%, 35% 80%, 65% 40%, 85% 70%, 100% 30%, 100% 100%);
-    }
-
-    /* 2. ARCHITECTURAL SIDE DRAPERY */
-    .drapery-panel {
-      position: absolute;
-      top: 0;
-      width: 50%;
-      height: 100%;
-      background: repeating-linear-gradient(90deg, #0f172a 0px, #1e293b 25px, #090d16 50px);
-      box-shadow: inset 0 0 60px rgba(0,0,0,0.95);
-      z-index: 3;
-      transition: transform 1.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .drapery-left { left: 0; transform: translateX(var(--curtain-left-pos)); }
-    .drapery-right { right: 0; transform: translateX(var(--curtain-right-pos)); }
-
-    /* 3. DOWNLIGHT FIXTURES */
-    .lighting-container {
+    /* 2. REALISTIC LUTRON SPOTLIGHTS */
+    .spotlight-container {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 4;
+      z-index: 3;
     }
 
     .light-cone {
       position: absolute;
-      top: 40px;
-      width: 120px;
-      height: 70vh;
-      background: linear-gradient(180deg, var(--fixture-color) 0%, rgba(0,0,0,0) 85%);
-      opacity: var(--ambient-dim);
-      filter: blur(30px);
-      transition: all 1.2s ease;
-    }
-    .cone-left { left: 63%; transform: rotate(2deg); }
-    .cone-right { right: 14%; transform: rotate(-2deg); }
-
-    .fixture-spot {
-      position: absolute;
       top: 30px;
-      width: 32px;
-      height: 16px;
-      background: #1e293b;
-      border-radius: 4px;
-      box-shadow: 0 0 15px var(--fixture-glow);
+      width: 150px;
+      height: 80vh;
+      background: linear-gradient(180deg, var(--fixture-color) 0%, rgba(255, 153, 0, 0.25) 45%, rgba(0,0,0,0) 85%);
+      opacity: var(--ambient-dim);
+      filter: blur(32px);
+      transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
-    .fixture-spot::after {
+    .cone-1 { right: 26%; transform: rotate(1deg); }
+    .cone-2 { right: 10%; transform: rotate(-1deg); }
+
+    .fixture-hardware {
+      position: absolute;
+      top: 25px;
+      width: 36px;
+      height: 18px;
+      background: #1e2533;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+    .fixture-hardware::after {
       content: '';
       position: absolute;
       bottom: -6px;
-      left: 8px;
+      left: 10px;
       width: 16px;
       height: 16px;
       background: var(--fixture-color);
       border-radius: 50%;
-      box-shadow: 0 0 18px var(--fixture-glow);
+      box-shadow: 0 0 20px var(--fixture-glow);
     }
-    .spot-left { left: calc(63% + 44px); }
-    .spot-right { right: calc(14% + 44px); }
+    .fixture-1 { right: calc(26% + 55px); }
+    .fixture-2 { right: calc(10% + 55px); }
 
-    /* 4. HEADER */
+    /* 3. HEADER */
     header {
       position: relative;
       z-index: 10;
@@ -170,20 +130,27 @@
 
     .title-group h1 {
       font-family: 'Syncopate', sans-serif;
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       font-weight: 700;
-      letter-spacing: 5px;
+      letter-spacing: 6px;
       color: #ffffff;
-      text-shadow: 0 0 20px rgba(0,0,0,0.8);
+      text-shadow: 0 0 25px rgba(255,255,255,0.25);
     }
 
     .title-group p {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
       letter-spacing: 2px;
-      color: #e2e8f0;
-      margin-top: 4px;
-      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      color: #94a3b8;
+      margin-top: 5px;
+      text-transform: uppercase;
+    }
+
+    .status-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
     }
 
     .status-badge {
@@ -191,10 +158,10 @@
       font-size: 0.65rem;
       color: #cbd5e1;
       letter-spacing: 1px;
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.8);
       padding: 6px 12px;
       border-radius: 20px;
-      border: 1px solid var(--border-light);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -207,8 +174,14 @@
       border-radius: 50%;
       box-shadow: 0 0 8px var(--led-green);
     }
+    .rf-freq {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: #64748b;
+      letter-spacing: 1px;
+    }
 
-    /* 5. LUTRON PALLADIOM KEYPAD */
+    /* 4. LUTRON PALLADIOM KEYPAD */
     .workspace {
       position: relative;
       z-index: 10;
@@ -217,8 +190,8 @@
 
     .lutron-palladiom {
       width: 270px;
-      background: linear-gradient(145deg, rgba(22, 27, 39, 0.92), rgba(10, 13, 20, 0.96));
-      border: 1px solid var(--glass-border);
+      background: linear-gradient(145deg, rgba(20, 25, 38, 0.94), rgba(10, 13, 20, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
       padding: 16px 14px;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);
@@ -251,9 +224,10 @@
       color: #fff;
     }
     .keypad-btn.active {
-      background: linear-gradient(90deg, rgba(255, 170, 51, 0.18), rgba(255, 170, 51, 0.02));
+      background: linear-gradient(90deg, rgba(255, 153, 0, 0.18), rgba(255, 153, 0, 0.02));
       border-color: var(--amber-warm);
       color: #fff;
+      box-shadow: 0 0 15px rgba(255, 153, 0, 0.25);
     }
     .keypad-led {
       width: 5px;
@@ -266,7 +240,7 @@
       box-shadow: 0 0 8px var(--amber-warm);
     }
 
-    /* 6. FIXED BOTTOM PLAYER DECK */
+    /* 5. FIXED BOTTOM PLAYER CONSOLE */
     footer.player-deck-container {
       position: fixed !important;
       bottom: 20px !important;
@@ -274,19 +248,19 @@
       transform: translateX(-50%) !important;
       z-index: 9999 !important;
       width: 90% !important;
-      max-width: 880px !important;
+      max-width: 860px !important;
     }
 
     .player-deck {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid var(--glass-border);
+      background: rgba(18, 24, 38, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 14px;
-      padding: 10px 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
+      padding: 12px 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(20px);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .search-row {
@@ -296,10 +270,10 @@
 
     .search-input {
       flex: 1;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(8, 12, 20, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
-      padding: 8px 14px;
+      padding: 9px 14px;
       color: #fff;
       font-size: 0.85rem;
       outline: none;
@@ -309,15 +283,19 @@
     }
 
     .search-btn {
-      background: #f97316;
+      background: #f59e0b;
       color: #000;
       border: none;
       border-radius: 8px;
-      padding: 0 20px;
+      padding: 0 22px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       font-size: 0.75rem;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+    .search-btn:hover {
+      background: #fbbf24;
     }
 
     .controls-row {
@@ -336,13 +314,14 @@
     }
 
     .track-icon {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 6px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 1.1rem;
       flex-shrink: 0;
     }
 
@@ -353,7 +332,7 @@
     }
 
     .track-name {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 600;
       color: #fff;
       white-space: nowrap;
@@ -379,7 +358,7 @@
     .icon-btn {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #e2e8f0;
+      color: #cbd5e1;
       width: 32px;
       height: 32px;
       border-radius: 50%;
@@ -390,11 +369,11 @@
     }
 
     .play-btn {
-      background: #f97316;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
       border: none;
       color: #000;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -402,31 +381,35 @@
       cursor: pointer;
       font-size: 0.95rem;
       font-weight: bold;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
     }
 
     .playlist-toggle-btn {
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 6px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       color: #cbd5e1;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* 7. FIXED FLOATING PLAYLIST DRAWER */
+    /* 6. FLOATING PLAYLIST DRAWER */
     #playlistDrawer {
       position: fixed !important;
-      bottom: 105px !important;
-      right: calc(50% - 440px + 20px) !important;
+      bottom: 110px !important;
+      right: calc(50% - 430px + 15px) !important;
       width: 400px;
       max-height: 380px;
-      background: rgba(15, 23, 42, 0.98);
-      border: 1px solid var(--glass-border);
+      background: rgba(13, 18, 29, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.95);
       backdrop-filter: blur(20px);
       z-index: 10000 !important;
       display: none;
@@ -442,6 +425,13 @@
       overflow-y: auto;
       max-height: 290px;
       padding: 6px;
+    }
+    .playlist-scroll-area::-webkit-scrollbar {
+      width: 5px;
+    }
+    .playlist-scroll-area::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
     }
 
     .playlist-item {
@@ -462,9 +452,9 @@
       color: #fff;
     }
     .playlist-item.active-track {
-      background: rgba(249, 115, 22, 0.15);
-      border: 1px solid rgba(249, 115, 22, 0.4);
-      color: #f97316;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
     }
 
     #yt-player-container {
@@ -485,23 +475,14 @@
 </head>
 <body>
 
-  <!-- 1. Background Viewport: Mountains, Sun/Moon, Side Curtains, Lights -->
-  <div class="studio-viewport">
-    <div class="sky-canvas" id="sky"></div>
-    <div class="celestial-body" id="celestial"></div>
-    <div class="mountain-back"></div>
-    <div class="mountain-front"></div>
-
-    <!-- Theatrical Side Drapery (Opens Left & Right) -->
-    <div class="drapery-panel drapery-left" id="curtainL"></div>
-    <div class="drapery-panel drapery-right" id="curtainR"></div>
-
-    <!-- Lutron Spot Downlights -->
-    <div class="lighting-container">
-      <div class="light-cone cone-left"></div>
-      <div class="light-cone cone-right"></div>
-      <div class="fixture-spot spot-left"></div>
-      <div class="fixture-spot spot-right"></div>
+  <!-- 1. Theatrical Dark Drapery & Lutron Lighting Viewport -->
+  <div class="theatre-viewport">
+    <div class="curtain-wall" id="curtainWall"></div>
+    <div class="spotlight-container">
+      <div class="light-cone cone-1"></div>
+      <div class="light-cone cone-2"></div>
+      <div class="fixture-hardware fixture-1"></div>
+      <div class="fixture-hardware fixture-2"></div>
     </div>
   </div>
 
@@ -511,9 +492,12 @@
       <h1>LUTRON TECHNICIAN</h1>
       <p>System Programmer • Architectural Lighting & Motorized Drapery</p>
     </div>
-    <div class="status-badge">
-      <span class="status-dot"></span>
-      <span id="activeSceneText">SCENE 03: AMBIENT 2700K KELVIN</span>
+    <div class="status-group">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span id="activeSceneText">SCENE: DRAPERY CLOSED (ROOM PRIVACY)</span>
+      </div>
+      <span class="rf-freq">FREQ: 434 MHz [CLEAR-CONNECT]</span>
     </div>
   </header>
 
@@ -537,7 +521,7 @@
         <span class="keypad-led"></span>
       </button>
       <button class="keypad-btn" data-scene="drapery">
-        <span id="draperyBtnText">05 DRAPERY: OPEN</span>
+        <span id="draperyBtnText">05 DRAPERY: CLOSED</span>
         <span class="keypad-led"></span>
       </button>
       <button class="keypad-btn" data-scene="off">
@@ -562,7 +546,7 @@
           <div class="track-icon">🎵</div>
           <div class="track-details">
             <div class="track-name" id="currentTrackTitle">Pehle Bhi Main — Vishal Mishra</div>
-            <div class="track-artist" id="currentTrackArtist">Studio HD Master</div>
+            <div class="track-artist" id="currentTrackArtist">Full Track (YouTube)</div>
           </div>
         </div>
         <div class="transport-btns">
@@ -580,52 +564,28 @@
   </div>
 
   <script>
-    // --- 1. LUTRON LIGHTING & TIME OF DAY ENGINE ---
+    // --- 1. LUTRON LIGHTING SCENES ENGINE ---
     const root = document.documentElement;
     const sceneLabel = document.getElementById('activeSceneText');
     const draperyBtnLabel = document.getElementById('draperyBtnText');
-    const sky = document.getElementById('sky');
-    const celestial = document.getElementById('celestial');
-    let isDraperyClosed = false;
-
-    // Set time-based natural sky & celestial position
-    function initSkyByTime() {
-      const hour = new Date().getHours();
-      if (hour >= 6 && hour < 17) {
-        // Day / Afternoon
-        sky.style.background = 'linear-gradient(180deg, #1e3a8a 0%, #38bdf8 50%, #f59e0b 85%, #d97706 100%)';
-        celestial.style.background = 'radial-gradient(circle, #fffbeb 20%, #fde047 50%, #ea580c 100%)';
-        celestial.style.boxShadow = '0 0 50px rgba(251, 191, 36, 0.9)';
-      } else if (hour >= 17 && hour < 20) {
-        // Sunset
-        sky.style.background = 'linear-gradient(180deg, #311042 0%, #831843 45%, #ea580c 75%, #ca8a04 100%)';
-        celestial.style.background = 'radial-gradient(circle, #ffedd5 15%, #f97316 60%, #991b1b 100%)';
-        celestial.style.boxShadow = '0 0 60px rgba(249, 115, 22, 0.9)';
-      } else {
-        // Night / Moon
-        sky.style.background = 'linear-gradient(180deg, #020617 0%, #0f172a 60%, #1e1b4b 100%)';
-        celestial.style.background = 'radial-gradient(circle, #ffffff 40%, #cbd5e1 80%, #64748b 100%)';
-        celestial.style.boxShadow = '0 0 35px rgba(255, 255, 255, 0.85)';
-      }
-    }
-    initSkyByTime();
+    let isDraperyClosed = true;
 
     const scenes = {
       bright: {
         color: '#fff3d1',
         glow: 'rgba(255, 243, 209, 0.95)',
         dim: '1.0',
-        label: 'SCENE 01: FULL BRIGHT 100%'
+        label: 'SCENE 01: FULL BRIGHT ARCHITECTURAL'
       },
       dim: {
         color: '#e65100',
         glow: 'rgba(230, 81, 0, 0.7)',
         dim: '0.4',
-        label: 'SCENE 02: CINEMA DIM 15%'
+        label: 'SCENE 02: CINEMA DIM 15% WARM GLOW'
       },
       ambient: {
-        color: '#ffaa33',
-        glow: 'rgba(255, 170, 51, 0.8)',
+        color: '#ff9900',
+        glow: 'rgba(255, 153, 0, 0.85)',
         dim: '0.85',
         label: 'SCENE 03: AMBIENT 2700K KELVIN'
       },
@@ -646,10 +606,9 @@
     function applyLightingScene(sceneKey, btnElement) {
       if (sceneKey === 'drapery') {
         isDraperyClosed = !isDraperyClosed;
-        root.style.setProperty('--curtain-left-pos', isDraperyClosed ? '0%' : '-100%');
-        root.style.setProperty('--curtain-right-pos', isDraperyClosed ? '0%' : '100%');
+        root.style.setProperty('--drapery-opacity', isDraperyClosed ? '0.95' : '0.2');
         draperyBtnLabel.innerText = isDraperyClosed ? '05 DRAPERY: CLOSED' : '05 DRAPERY: OPEN';
-        sceneLabel.innerText = isDraperyClosed ? 'SCENE 05: MOTORIZED DRAPERY CLOSED' : 'SCENE 05: MOTORIZED DRAPERY OPEN';
+        sceneLabel.innerText = isDraperyClosed ? 'SCENE: DRAPERY CLOSED (ROOM PRIVACY)' : 'SCENE: DRAPERY OPEN (NATURAL LIGHT)';
         if (btnElement) btnElement.classList.toggle('active', isDraperyClosed);
         return;
       }
@@ -674,7 +633,7 @@
       });
     });
 
-    // --- 2. MULTI-PLAYLIST & FOLDER DELETE MANAGER ---
+    // --- 2. MULTI-FOLDER PLAYLIST & TRACK MANAGER ---
     let currentViewTab = 'search';
     let activePlaylistName = 'Mood';
     let currentTrackIndex = 0;
@@ -682,11 +641,14 @@
     let player = null;
 
     let songsList = [
-      { id: '1fueZCTYkpA', name: 'Pehle Bhi Main — Animal', artist: 'Vishal Mishra' },
+      { id: '1fueZCTYkpA', name: 'Pehle Bhi Main — Vishal Mishra', artist: 'Animal (2023)' },
       { id: '3v3b1Z1Kk8M', name: 'Dhundla — Official Audio', artist: 'Alvi Mahmud' },
-      { id: 'qYmXz7tM9vQ', name: 'Bairan — Official Song', artist: 'New Haryanvi' },
-      { id: '0qW0gTqYc4c', name: 'O Saathi — Atif Aslam', artist: 'Studio Live' },
-      { id: 'V7LwfY5U5WI', name: 'Tum Hi Ho — Arijit Singh', artist: 'Mithoon' }
+      { id: 'qYmXz7tM9vQ', name: 'Bairan — Official Song', artist: 'Haryanvi Studio' },
+      { id: '0qW0gTqYc4c', name: 'O Saathi — Atif Aslam', artist: 'Baaghi 2' },
+      { id: 'V7LwfY5U5WI', name: 'Tum Hi Ho — Arijit Singh', artist: 'Aashiqui 2' },
+      { id: 'hXh3s60v5fU', name: 'Kesariya — Arijit Singh', artist: 'Brahmastra' },
+      { id: 'YxWlaYCA8MU', name: 'Chaleya — Jawan', artist: 'Arijit Singh' },
+      { id: 'dZ0fwJojhrs', name: 'Bangles — Sanju Rathod', artist: 'Marathi Hit' }
     ];
 
     function getAllPlaylists() {
@@ -702,7 +664,7 @@
     }
 
     function createNewPlaylist() {
-      let name = prompt("Nayi Playlist ka naam enter karein (e.g. 90s, Romantic, Party):");
+      let name = prompt("Nayi Playlist ka naam daalo (e.g. 90s Hits, Romantic, Sad):");
       if (!name || !name.trim()) return;
       let cleanName = name.trim();
       let all = getAllPlaylists();
@@ -718,7 +680,7 @@
     }
 
     function deleteCurrentFolder() {
-      if (confirm(`Kya aap "${activePlaylistName}" playlist folder ko delete karna chahte hain?`)) {
+      if (confirm(`Kya aap "${activePlaylistName}" folder ko delete karna chahte hain?`)) {
         let all = getAllPlaylists();
         delete all[activePlaylistName];
         let remaining = Object.keys(all);
@@ -743,7 +705,7 @@
         saveAllPlaylists(all);
         alert(`"${song.name || song.title}" saved to [${activePlaylistName}]!`);
       } else {
-        alert(`Pehle se [${activePlaylistName}] playlist me hai!`);
+        alert(`Pehle se [${activePlaylistName}] me exist karta hai!`);
       }
     }
 
@@ -774,16 +736,16 @@
 
       playlistDrawer.innerHTML = `
         <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:4px;">
-          <button onclick="switchTab('search')" style="flex:1; padding:8px; background:${currentViewTab==='search'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='search'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">SEARCH RESULTS</button>
-          <button onclick="switchTab('my_playlists')" style="flex:1; padding:8px; background:${currentViewTab==='my_playlists'?'rgba(249,115,22,0.2)':'transparent'}; color:${currentViewTab==='my_playlists'?'#f97316':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">MY PLAYLISTS</button>
+          <button onclick="switchTab('search')" style="flex:1; padding:8px; background:${currentViewTab==='search'?'rgba(245,158,11,0.2)':'transparent'}; color:${currentViewTab==='search'?'#f59e0b':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">SEARCH RESULTS</button>
+          <button onclick="switchTab('my_playlists')" style="flex:1; padding:8px; background:${currentViewTab==='my_playlists'?'rgba(245,158,11,0.2)':'transparent'}; color:${currentViewTab==='my_playlists'?'#f59e0b':'#94a3b8'}; border:none; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:bold; cursor:pointer;">MY PLAYLISTS</button>
         </div>
 
         ${currentViewTab === 'my_playlists' ? `
-          <div style="display:flex; gap:6px; padding:6px 8px; align-items:center; background:rgba(0,0,0,0.35); border-bottom:1px solid rgba(255,255,255,0.08);">
-            <select onchange="activePlaylistName=this.value; renderPlaylistDrawer();" style="flex:1; background:#0f172a; color:#f97316; border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:4px 6px; font-size:10px; font-family:'JetBrains Mono',monospace; outline:none;">
+          <div style="display:flex; gap:6px; padding:6px 8px; align-items:center; background:rgba(0,0,0,0.4); border-bottom:1px solid rgba(255,255,255,0.08);">
+            <select onchange="activePlaylistName=this.value; renderPlaylistDrawer();" style="flex:1; background:#0f172a; color:#f59e0b; border:1px solid rgba(255,255,255,0.15); border-radius:4px; padding:4px 6px; font-size:10px; font-family:'JetBrains Mono',monospace; outline:none;">
               ${dropdownOptions}
             </select>
-            <button onclick="createNewPlaylist()" title="Create New Folder" style="background:#f97316; color:#000; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">+ NEW</button>
+            <button onclick="createNewPlaylist()" title="Create New Folder" style="background:#f59e0b; color:#000; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">+ NEW</button>
             <button onclick="deleteCurrentFolder()" title="Delete This Folder" style="background:#dc2626; color:#fff; border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:bold; font-family:'JetBrains Mono',monospace; cursor:pointer;">🗑️ DEL</button>
           </div>
         ` : ''}
@@ -797,7 +759,7 @@
       if (activeList.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.style.cssText = "padding:24px; text-align:center; color:#94a3b8; font-size:11px; font-family:'JetBrains Mono',monospace;";
-        emptyMsg.innerHTML = currentViewTab === 'search' ? "No tracks found." : `"${activePlaylistName}" folder is empty.<br>Search songs and click '+ ADD'!`;
+        emptyMsg.innerHTML = currentViewTab === 'search' ? "No tracks found." : `"${activePlaylistName}" is empty.<br>Search songs and click '+ ADD'!`;
         container.appendChild(emptyMsg);
         return;
       }
@@ -811,7 +773,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
             ${currentViewTab === 'search' ? `
-              <button onclick='event.stopPropagation(); addToSelectedPlaylist(${JSON.stringify(song)})' style="background:#f97316; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>
+              <button onclick='event.stopPropagation(); addToSelectedPlaylist(${JSON.stringify(song)})' style="background:#f59e0b; color:#000; border:none; border-radius:4px; padding:2px 6px; font-weight:bold; font-size:10px; cursor:pointer;">+ ADD</button>
             ` : `
               <button onclick='event.stopPropagation(); removeSongFromPlaylist("${song.id}")' title="Delete Song" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:10px; font-weight:bold; cursor:pointer;">✖</button>
             `}
@@ -883,7 +845,7 @@
       const current = track || songsList[currentTrackIndex];
       if (!current) return;
       document.getElementById('currentTrackTitle').innerText = current.name || current.title || 'Studio Audio Stream';
-      document.getElementById('currentTrackArtist').innerText = current.artist || 'YouTube HD Master Audio';
+      document.getElementById('currentTrackArtist').innerText = current.artist || 'Full Track (YouTube)';
     }
 
     const masterPlayBtn = document.getElementById('masterPlayBtn');
@@ -919,11 +881,7 @@
     document.getElementById('nextTrackBtn').addEventListener('click', playNextTrack);
     document.getElementById('prevTrackBtn').addEventListener('click', playPrevTrack);
 
-    // --- 4. MULTI-TRACK LIVE SEARCH ENGINE ---
-    const songQueryInput = document.getElementById('songQueryInput');
-    const searchSubmitBtn = document.getElementById('searchSubmitBtn');
-
-    // --- 4. 100% BULLETPROOF LIVE SEARCH ENGINE (NO CORS BLOCK) ---
+    // --- 4. 100% BULLETPROOF LIVE SEARCH ENGINE ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -938,26 +896,11 @@
         const data = await res.json();
 
         if (data && data.results && data.results.length > 0) {
-          songsList = data.results.map(item => {
-            return {
-              id: '1fueZCTYkpA',
-              searchQuery: `${item.trackName} ${item.artistName} Audio`,
-              name: `${item.trackName} — ${item.artistName}`,
-              artist: item.collectionName || 'Official Studio Audio'
-            };
-          });
-
-          const ytWorkerRes = await fetch(`https://pipedapi-libre.kavin.rocks/search?q=${cleanQuery}&filter=music_songs`).catch(()=>null);
-          if (ytWorkerRes && ytWorkerRes.ok) {
-            const ytData = await ytWorkerRes.json();
-            if (ytData.items && ytData.items.length > 0) {
-              songsList = ytData.items.slice(0, 15).map(v => ({
-                id: v.url.replace('/watch?v=', ''),
-                name: v.title,
-                artist: v.uploaderName || 'Official YouTube Audio'
-              }));
-            }
-          }
+          songsList = data.results.map(item => ({
+            id: '1fueZCTYkpA',
+            name: `${item.trackName} — ${item.artistName}`,
+            artist: item.collectionName || 'Official Studio Audio'
+          }));
         } else {
           throw new Error("No direct data");
         }
@@ -979,22 +922,6 @@
         songsList = fallbackHits.filter(s => s.name.toLowerCase().includes(lower) || s.artist.toLowerCase().includes(lower));
         if (songsList.length === 0) songsList = fallbackHits;
       }
-
-      currentViewTab = 'search';
-      currentTrackIndex = 0;
-      if (player && typeof player.loadVideoById === 'function') {
-        player.loadVideoById(songsList[0].id);
-      }
-      updateTrackInfo(songsList[0]);
-      renderPlaylistDrawer();
-      playlistDrawer.classList.add('open');
-      searchSubmitBtn.innerText = "SEARCH";
-    }
-
-    searchSubmitBtn.addEventListener('click', executeLiveSearch);
-    songQueryInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') executeLiveSearch();
-    });
 
       currentViewTab = 'search';
       currentTrackIndex = 0;
