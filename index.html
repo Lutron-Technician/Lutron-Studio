@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Wala Banda — Dual Motorized Drapery & Architectural Lighting</title>
+  <title>Lutron Technician — Dual Motorized Drapery & Architectural Lighting</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -269,7 +269,7 @@
     .quote-text.active { opacity: 1; transform: translateY(0); }
 
     /* PLAYER CONTROLS & GLASS SHELL */
-    .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 850px; z-index: 100; }
+    .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
 
     .search-box-row { display: flex; gap: 8px; width: 100%; }
@@ -286,9 +286,9 @@
     }
     .search-submit-btn:hover { background: #ffbe58; transform: scale(1.02); }
 
-    .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
-    .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 0; }
-    .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); }
+    .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+    .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 180px; }
+    .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); cursor: pointer; }
     .album-art img { width: 100%; height: 100%; object-fit: cover; }
     
     .track-details { display: flex; flex-direction: column; min-width: 0; }
@@ -301,6 +301,29 @@
     .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
     .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
+    /* VOLUME SLIDER CONTROL */
+    .volume-container {
+      display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px;
+    }
+    .volume-icon { font-size: 0.75rem; color: var(--amber-warm); cursor: pointer; }
+    .volume-slider {
+      -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px;
+      background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 11px; height: 11px;
+      border-radius: 50%; background: var(--amber-warm); cursor: pointer;
+    }
+
+    /* WATCH VIDEO POPUP BUTTON */
+    .video-toggle-btn {
+      background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green);
+      border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;
+    }
+    .video-toggle-btn:hover { background: var(--led-green); color: #000; }
+
     .stream-tv-btn {
       background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue);
       border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
@@ -312,7 +335,7 @@
     .playlist-toggle-btn:hover { background: var(--amber-warm); color: #000; }
 
     .playlist-drawer {
-      position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 300px; overflow-y: auto;
+      position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto;
       background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px);
       border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px;
       display: none; flex-direction: column; padding: 10px; gap: 6px; box-shadow: 0 15px 35px rgba(0,0,0,0.9);
@@ -329,7 +352,37 @@
     .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
     .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
 
-    #youtube-player-container { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+    /* ELEGANT GLASS VIDEO OVERLAY MODAL */
+    .video-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(15px);
+      z-index: 9999; display: none; align-items: center; justify-content: center;
+    }
+    .video-modal-overlay.open { display: flex; }
+    .video-modal-box {
+      width: 90%; max-width: 720px; background: #0f141f; border: 1px solid var(--glass-border);
+      border-radius: 16px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.95);
+      display: flex; flex-direction: column;
+    }
+    .video-modal-header {
+      display: flex; justify-content: space-between; align-items: center; padding: 12px 18px;
+      background: #151b29; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .video-modal-title { font-size: 0.85rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .video-close-btn {
+      background: #ef4444; color: #fff; border: none; border-radius: 6px;
+      padding: 4px 10px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
+    }
+    .video-stage-frame {
+      width: 100%; aspect-ratio: 16 / 9; background: #000; position: relative;
+    }
+
+    #yt-player { width: 100%; height: 100%; }
+
+    /* Hidden player container when video modal is closed */
+    #youtube-player-container {
+      position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden;
+    }
 
     @media (max-width: 768px) {
       .app-container { padding: 1.5rem 1.5rem 9.5rem 1.5rem; }
@@ -337,6 +390,7 @@
       .central-stage { align-items: center; }
       .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
+      .volume-container { display: none; }
     }
   </style>
 </head>
@@ -385,7 +439,7 @@
     </header>
 
     <div class="hero-header">
-      <h1 class="main-title">LUTRON WALA BANDA</h1>
+      <h1 class="main-title">Lutron Technician</h1>
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
@@ -409,7 +463,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       
-      <!-- REAL FULL-LENGTH YOUTUBE LIVE SEARCH -->
+      <!-- REAL FULL-LENGTH YOUTUBE LIVE SEARCH (STUDIO AUDIO FILTER) -->
       <div class="search-box-row">
         <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search ANY song (Lata Mangeshkar, Sharukh Khan, Dino James, Kishore, Arijit)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
@@ -419,12 +473,12 @@
 
       <div class="player-top-row">
         <div class="track-info">
-          <div class="album-art" id="albumArtContainer">
+          <div class="album-art" id="albumArtContainer" title="Click to watch video">
             <img id="albumImg" src="https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" alt="Art" />
           </div>
           <div class="track-details">
             <div class="track-title" id="trackTitle">Lag Jaa Gale — Lata Mangeshkar</div>
-            <div class="track-artist" id="trackArtist">Full HD Audio Stream (YouTube Official)</div>
+            <div class="track-artist" id="trackArtist">256 kbps Master Audio • YouTube Live</div>
           </div>
         </div>
 
@@ -436,12 +490,23 @@
           </button>
           <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
           
+          <!-- VOLUME CONTROL -->
+          <div class="volume-container">
+            <span class="volume-icon" id="volumeIcon">🔊</span>
+            <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
+          </div>
+
+          <!-- VIDEO POPUP BUTTON -->
+          <button class="video-toggle-btn" id="videoToggleBtn">
+            <span>📺</span> <span>WATCH VIDEO</span>
+          </button>
+
           <button class="stream-tv-btn" id="streamTvBtn">
-            <span>📺</span> <span>STREAM TV</span>
+            <span>📡</span> <span>STREAM TV</span>
           </button>
 
           <button class="playlist-toggle-btn" id="playlistToggleBtn">
-            <span>📋</span> <span>SONG LIST</span>
+            <span>📋</span> <span>SONGS</span>
           </button>
         </div>
       </div>
@@ -456,6 +521,20 @@
     </div>
   </div>
 
+  <!-- VIDEO OVERLAY MODAL -->
+  <div class="video-modal-overlay" id="videoModal">
+    <div class="video-modal-box">
+      <div class="video-modal-header">
+        <span class="video-modal-title" id="modalVideoTitle">Lag Jaa Gale — Lata Mangeshkar</span>
+        <button class="video-close-btn" id="closeVideoBtn">✖ CLOSE VIDEO</button>
+      </div>
+      <div class="video-stage-frame" id="videoStageSlot">
+        <!-- YouTube Player will be mounted here when open -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Background hidden slot for audio when modal is closed -->
   <div id="youtube-player-container">
     <div id="yt-player"></div>
   </div>
@@ -477,13 +556,14 @@
     let isPlaying = false;
     let progressTimer = null;
     let isCurtainOpen = false;
+    let isVideoOpen = false;
 
     // SITE QUOTES TICKER
     const quotes = [
       "\"DALI loops mapped, 2700K & 5000K scenes calibrated.\"",
       "\"Late night site testing with cold Chai and Palladiom Satin Nickel buttons.\"",
       "\"Keypad LEDs set to 15% night-level brightness.\"",
-      "\"Lutron Wala Banda — Engineering pure atmosphere.\""
+      "\"Lutron Technician — Engineering pure atmosphere.\""
     ];
 
     let currentQuoteIndex = 0;
@@ -512,14 +592,12 @@
       const hour = new Date().getHours();
       const isDayTime = (hour >= 6 && hour < 18);
 
-      // Automatic Time-Based Day/Night Sky & Mountains
       if (isDayTime) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
       } else {
         outdoorScenery.className = 'outdoor-scenery night-mode';
       }
 
-      // 2-Side Motorized Drapery Open / Close
       if (isCurtainOpen) {
         curtainContainer.classList.add('curtain-open');
         shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
@@ -598,7 +676,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // 100% REAL LIVE SEARCH ENGINE
+    // 100% REAL LIVE SEARCH ENGINE (Filtered for studio audio & least ads)
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -609,7 +687,8 @@
       searchSubmitBtn.textContent = "SEARCHING...";
 
       try {
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query + ' audio song')}&type=video&key=${YT_API_KEY}`;
+        const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -644,18 +723,26 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // FULL LENGTH YOUTUBE CONTROLLER & MEDIA SESSION
+    // FULL LENGTH YOUTUBE CONTROLLER & 256 KBPS HD AUDIO ENGINE
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-player', {
-        height: '100', width: '100',
+        height: '100%', width: '100%',
         videoId: songsList[0].id,
-        playerVars: { 'autoplay': 0, 'controls': 0, 'playsinline': 1 },
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { 
+          'autoplay': 0, 
+          'controls': 1, 
+          'playsinline': 1, 
+          'rel': 0, 
+          'vq': 'hd1080' // Lock 256kbps audio bitrate container
+        },
         events: {
-          'onReady': () => {
+          'onReady': (e) => {
+            if (e.target.setPlaybackQuality) e.target.setPlaybackQuality('hd1080');
             renderPlaylistDrawer();
             updateTrackInfo();
           },
@@ -672,7 +759,10 @@
       renderPlaylistDrawer();
       updateTrackInfo();
       if (player && player.loadVideoById) {
-        player.loadVideoById(track.id);
+        player.loadVideoById({
+          videoId: track.id,
+          suggestedQuality: 'hd1080'
+        });
       }
     }
 
@@ -685,6 +775,7 @@
         isPlaying = true;
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
+        if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
       } else if (event.data === YT.PlayerState.ENDED) {
         currentTrackIndex = (currentTrackIndex + 1) % songsList.length;
@@ -701,14 +792,14 @@
       const track = songsList[currentTrackIndex];
       if (track) {
         document.getElementById('trackTitle').textContent = track.name;
-        document.getElementById('trackArtist').textContent = "Full Track (Official YouTube Stream)";
+        document.getElementById('trackArtist').textContent = "256 kbps Master Audio • YouTube Live";
+        document.getElementById('modalVideoTitle').textContent = track.name;
         if (track.img) document.getElementById('albumImg').src = track.img;
 
-        // Background & Screen-Off Playback MediaSession
         if ('mediaSession' in navigator) {
           navigator.mediaSession.metadata = new MediaMetadata({
             title: track.name,
-            artist: "Lutron Wala Banda",
+            artist: "Lutron Technician",
             artwork: [{ src: track.img || '', sizes: '512x512', type: 'image/jpeg' }]
           });
           navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
@@ -773,6 +864,45 @@
         if (dur > 0) player.seekTo(dur * pos, true);
       }
     });
+
+    // VOLUME SLIDER LISTENER
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeIcon = document.getElementById('volumeIcon');
+    volumeSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      if (player && player.setVolume) {
+        player.setVolume(val);
+      }
+      if (val === 0) volumeIcon.textContent = "🔇";
+      else if (val < 50) volumeIcon.textContent = "🔉";
+      else volumeIcon.textContent = "🔊";
+    });
+
+    // VIDEO MODAL TOGGLE (Watch Video Feature)
+    const videoModal = document.getElementById('videoModal');
+    const videoToggleBtn = document.getElementById('videoToggleBtn');
+    const closeVideoBtn = document.getElementById('closeVideoBtn');
+    const albumArtContainer = document.getElementById('albumArtContainer');
+    const videoStageSlot = document.getElementById('videoStageSlot');
+    const hiddenPlayerContainer = document.getElementById('youtube-player-container');
+
+    function openVideoModal() {
+      const iframe = document.getElementById('yt-player');
+      if (iframe) videoStageSlot.appendChild(iframe);
+      videoModal.classList.add('open');
+      isVideoOpen = true;
+    }
+
+    function closeVideoModal() {
+      const iframe = document.getElementById('yt-player');
+      if (iframe) hiddenPlayerContainer.appendChild(iframe);
+      videoModal.classList.remove('open');
+      isVideoOpen = false;
+    }
+
+    videoToggleBtn.addEventListener('click', openVideoModal);
+    albumArtContainer.addEventListener('click', openVideoModal);
+    closeVideoBtn.addEventListener('click', closeVideoModal);
 
     // CHROMECAST / STREAM TV TRIGGER
     document.getElementById('streamTvBtn').addEventListener('click', () => {
