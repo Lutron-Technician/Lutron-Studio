@@ -634,7 +634,7 @@
         processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
       } else {
         if (lastDirection === 'OPEN') {
-          curtainMotionState = 'OPENING';
+          curtainMotionState === 'OPENING';
         } else {
           curtainMotionState = 'CLOSING';
         }
@@ -773,7 +773,7 @@
       player = new YT.Player('yt-player', {
         height: '100%', width: '100%',
         videoId: songsList[0].id,
-        host: 'https://www.youtube-nocookie.com',
+        host: 'https://www.youtube.com',
         playerVars: { 
           'autoplay': 0, 
           'controls': 1, 
@@ -786,6 +786,7 @@
             if (e.target.setPlaybackQuality) e.target.setPlaybackQuality('hd1080');
             renderPlaylistDrawer();
             updateTrackInfo();
+            updateTimeDisplay();
           },
           'onStateChange': onPlayerStateChange
         }
@@ -812,6 +813,7 @@
     const pauseIcon = document.getElementById('pauseIcon');
 
     function onPlayerStateChange(event) {
+      updateTimeDisplay();
       if (event.data === YT.PlayerState.PLAYING) {
         isPlaying = true;
         playIcon.style.display = 'none';
@@ -858,29 +860,34 @@
     }
 
     function formatTime(sec) {
-      if (!sec || isNaN(sec)) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
+      if (!sec || isNaN(sec) || sec <= 0) return "0:00";
+      const totalSec = Math.floor(sec);
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
       return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function updateTimeDisplay() {
+      if (player && typeof player.getDuration === 'function') {
+        const cur = player.getCurrentTime() || 0;
+        const dur = player.getDuration() || 0;
+        document.getElementById('currentTime').textContent = formatTime(cur);
+        if (dur > 0) {
+          document.getElementById('totalTime').textContent = formatTime(dur);
+          document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
+        }
+      }
     }
 
     function startTimer() {
       stopTimer();
-      progressTimer = setInterval(() => {
-        if (player && player.getCurrentTime) {
-          const cur = player.getCurrentTime();
-          const dur = player.getDuration();
-          document.getElementById('currentTime').textContent = formatTime(cur);
-          document.getElementById('totalTime').textContent = formatTime(dur);
-          if (dur > 0) {
-            document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
-          }
-        }
-      }, 400);
+      updateTimeDisplay();
+      progressTimer = setInterval(updateTimeDisplay, 500);
     }
 
     function stopTimer() {
       if (progressTimer) clearInterval(progressTimer);
+      updateTimeDisplay();
     }
 
     playPauseBtn.addEventListener('click', () => {
@@ -902,7 +909,10 @@
         const rect = e.currentTarget.getBoundingClientRect();
         const pos = (e.clientX - rect.left) / rect.width;
         const dur = player.getDuration();
-        if (dur > 0) player.seekTo(dur * pos, true);
+        if (dur > 0) {
+          player.seekTo(dur * pos, true);
+          updateTimeDisplay();
+        }
       }
     });
 
