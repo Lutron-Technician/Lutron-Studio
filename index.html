@@ -298,7 +298,7 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* MINI TV */
+    /* MINI TV WITH TOUCH SHIELD TO PREVENT EXTERNAL YOUTUBE REDIRECT */
     .mini-tv-dock {
       position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
       background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
@@ -313,6 +313,11 @@
     .mini-tv-close:hover { color: #fff; }
 
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
+    
+    /* Shield layer over iframe recommendations to keep playback inside dashboard */
+    .mini-tv-shield {
+      position: absolute; inset: 0; z-index: 5; pointer-events: none;
+    }
 
     /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
@@ -485,13 +490,14 @@
     </main>
   </div>
 
-  <!-- MINI TV -->
+  <!-- MINI TV WITH TOUCH SHIELD -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
       <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
     </div>
     <div class="mini-tv-frame" id="miniTvSlot">
+      <div class="mini-tv-shield"></div>
       <div id="youtube-player-container">
         <div id="yt-player"></div>
       </div>
@@ -678,16 +684,17 @@
 
     renderCurtainPosition();
 
-    // --- SMART LIVE WEATHER & STRICT SUNSET/NIGHT OVERRIDE ---
+    // --- SMART LOCAL TIME & LIVE WEATHER ENGINE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
       const currentHour = new Date().getHours();
-      // Strict Override: If time is 7 PM (19:00) or later, force Night Mode so Moon appears immediately
+      
+      // Strict Local Clock Override for Night (7 PM / 19:00 onwards)
       if (currentHour >= 19 || currentHour < 6) {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${currentHour}:00)`;
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${currentHour}:00 LOCAL)`;
         return;
       }
 
@@ -703,9 +710,9 @@
             if (data && data.current_weather) {
               const temp = Math.round(data.current_weather.temperature);
               const code = data.current_weather.weathercode;
-              const isDay = data.current_weather.is_day;
+              const liveHour = new Date().getHours();
 
-              if (new Date().getHours() >= 19) {
+              if (liveHour >= 19 || liveHour < 6) {
                 outdoorScenery.className = 'outdoor-scenery night-mode';
                 liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT ${temp}°C`;
               } else if (code >= 50 && code <= 99) {
@@ -715,13 +722,8 @@
                 outdoorScenery.className = 'outdoor-scenery cloudy-mode';
                 liveWeatherStatus.textContent = `LIVE WEATHER: CLOUDY ${temp}°C`;
               } else {
-                if (isDay) {
-                  outdoorScenery.className = 'outdoor-scenery day-mode';
-                  liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY ${temp}°C`;
-                } else {
-                  outdoorScenery.className = 'outdoor-scenery night-mode';
-                  liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT ${temp}°C`;
-                }
+                outdoorScenery.className = 'outdoor-scenery day-mode';
+                liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY ${temp}°C`;
               }
             }
           } catch (e) {
@@ -739,10 +741,10 @@
       const hour = new Date().getHours();
       if (hour >= 6 && hour < 19) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
-        liveWeatherStatus.textContent = "LIVE WEATHER: SUNNY (TIME SYNC)";
+        liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY (${hour}:00)`;
       } else {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = "LIVE WEATHER: NIGHT (TIME SYNC)";
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${hour}:00)`;
       }
     }
 
@@ -821,7 +823,6 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        // Extended search limit set to 25 songs for a rich playlist
         const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
@@ -855,7 +856,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE API CONTROLLER WITH IFRAME CLICK INTERCEPTION
+    // YOUTUBE API CONTROLLER
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -1040,7 +1041,7 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // --- STABLE MINI TV & IFRAME CLICK INTERCEPTION (NO EXTERNAL TAB REDIRECT) ---
+    // --- MINI TV & SHIELD TOGGLE SYSTEM ---
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
     const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
@@ -1060,17 +1061,6 @@
 
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
-
-    // Intercept clicks on suggested videos inside iframe to play locally
-    window.addEventListener('blur', () => {
-      setTimeout(() => {
-        const activeElement = document.activeElement;
-        if (activeElement && activeElement.tagName === 'IFRAME') {
-          // If focus shifted to iframe, check if a new video was triggered or let user stay inside dashboard
-          console.log("Iframe interaction detected");
-        }
-      }, 100);
-    });
 
     document.getElementById('streamTvBtn').addEventListener('click', () => {
       if (navigator.presentation && navigator.presentation.defaultRequest) {
