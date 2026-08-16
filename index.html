@@ -298,7 +298,7 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* MINI TV WITH FULL CLICK-SHIELD BLOCKER */
+    /* MINI TV */
     .mini-tv-dock {
       position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
       background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
@@ -313,14 +313,6 @@
     .mini-tv-close:hover { color: #fff; }
 
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
-    
-    /* Strict Shield: Blocks external youtube recommendation clicks completely */
-    .mini-tv-shield {
-      position: absolute; inset: 0; z-index: 10; background: transparent;
-      pointer-events: none; /* Allows playing/pausing main video, but blocks external navigation */
-    }
-    /* When expanded or hovered, shield can intercept accidental external redirects */
-    .mini-tv-frame:hover .mini-tv-shield { pointer-events: auto; }
 
     /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
@@ -493,14 +485,13 @@
     </main>
   </div>
 
-  <!-- MINI TV WITH TOUCH SHIELD -->
+  <!-- MINI TV (CLEAN UNBLOCKED FRAME FOR FULL ADS/FULLSCREEN CONTROL) -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
       <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
     </div>
     <div class="mini-tv-frame" id="miniTvSlot">
-      <div class="mini-tv-shield" id="miniTvShield"></div>
       <div id="youtube-player-container">
         <div id="yt-player"></div>
       </div>
@@ -511,7 +502,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata, Dhurandhar)... (25+ Songs Playlist)" />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (30 Songs Playlist Mode)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -687,17 +678,19 @@
 
     renderCurtainPosition();
 
-    // --- STRICT LOCAL SYSTEM CLOCK & WEATHER ENGINE ---
+    // --- REAL SYSTEM CLOCK & LIVE WEATHER ENGINE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
-      // Direct Local Device Time Check (Strict Rule: 7 PM / 19:00 onwards is Night)
-      const currentHour = new Date().getHours();
-      
+      // Direct Live Device Clock (Strict Rule: 7 PM / 19:00 onwards is Night)
+      const now = new Date();
+      const currentHour = now.getHours();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
       if (currentHour >= 19 || currentHour < 6) {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${currentHour}:00 LOCAL)`;
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeString})`;
         return;
       }
 
@@ -730,24 +723,26 @@
               }
             }
           } catch (e) {
-            applyLocalTimeSync();
+            applySystemTimeSync();
           }
         }, () => {
-          applyLocalTimeSync();
+          applySystemTimeSync();
         }, { timeout: 5000 });
       } else {
-        applyLocalTimeSync();
+        applySystemTimeSync();
       }
     }
 
-    function applyLocalTimeSync() {
-      const hour = new Date().getHours();
+    function applySystemTimeSync() {
+      const now = new Date();
+      const hour = now.getHours();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       if (hour >= 6 && hour < 19) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY (${hour}:00)`;
+        liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY (${timeStr})`;
       } else {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${hour}:00)`;
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeStr})`;
       }
     }
 
@@ -814,7 +809,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // --- EXTENDED YOUTUBE SEARCH (25+ SONGS) ---
+    // --- EXTENDED YOUTUBE SEARCH (30 SONGS ROUND FIGURE) ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -826,7 +821,8 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
+        // Search limit set to 30 songs (Round figure)
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -1044,7 +1040,7 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // --- MINI TV & CLICK SHIELD BLOCKER ---
+    // --- MINI TV TOGGLE SYSTEM (UNBLOCKED FOR FULL CONTROLS) ---
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
     const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
@@ -1064,15 +1060,6 @@
 
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
-
-    // Prevent external youtube navigation by capturing clicks on mini tv shield
-    const miniTvShield = document.getElementById('miniTvShield');
-    if (miniTvShield) {
-      miniTvShield.addEventListener('click', (e) => {
-        // If user clicks recommendations, catch it and prevent opening external youtube page
-        e.stopPropagation();
-      });
-    }
 
     document.getElementById('streamTvBtn').addEventListener('click', () => {
       if (navigator.presentation && navigator.presentation.defaultRequest) {
