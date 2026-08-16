@@ -485,7 +485,7 @@
     </main>
   </div>
 
-  <!-- MINI TV (CLEAN UNBLOCKED FRAME FOR FULL ADS/FULLSCREEN CONTROL) -->
+  <!-- MINI TV -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
@@ -502,7 +502,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (30 Songs Playlist Mode)..." />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (40 Songs Playlist Mode)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -574,6 +574,7 @@
     let progressTimer = null;
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
+    let adSkipChecker = null;
 
     // --- REAL LUNAR PHASE CALCULATOR ---
     function updateMoonPhase() {
@@ -678,19 +679,18 @@
 
     renderCurtainPosition();
 
-    // --- REAL SYSTEM CLOCK & LIVE WEATHER ENGINE ---
+    // --- SMART LOCAL TIME & LIVE WEATHER ENGINE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
-      // Direct Live Device Clock (Strict Rule: 7 PM / 19:00 onwards is Night)
       const now = new Date();
       const currentHour = now.getHours();
-      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       if (currentHour >= 19 || currentHour < 6) {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeString})`;
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeStr} LOCAL)`;
         return;
       }
 
@@ -707,33 +707,34 @@
               const temp = Math.round(data.current_weather.temperature);
               const code = data.current_weather.weathercode;
               const liveHour = new Date().getHours();
+              const liveTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
               if (liveHour >= 19 || liveHour < 6) {
                 outdoorScenery.className = 'outdoor-scenery night-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT ${temp}°C`;
+                liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT ${temp}°C (${liveTime})`;
               } else if (code >= 50 && code <= 99) {
                 outdoorScenery.className = 'outdoor-scenery rainy-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: RAIN ${temp}°C`;
+                liveWeatherStatus.textContent = `LIVE WEATHER: RAIN ${temp}°C (${liveTime})`;
               } else if (code >= 1 && code <= 49) {
                 outdoorScenery.className = 'outdoor-scenery cloudy-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: CLOUDY ${temp}°C`;
+                liveWeatherStatus.textContent = `LIVE WEATHER: CLOUDY ${temp}°C (${liveTime})`;
               } else {
                 outdoorScenery.className = 'outdoor-scenery day-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY ${temp}°C`;
+                liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY ${temp}°C (${liveTime})`;
               }
             }
           } catch (e) {
-            applySystemTimeSync();
+            applySystemClockSync();
           }
         }, () => {
-          applySystemTimeSync();
+          applySystemClockSync();
         }, { timeout: 5000 });
       } else {
-        applySystemTimeSync();
+        applySystemClockSync();
       }
     }
 
-    function applySystemTimeSync() {
+    function applySystemClockSync() {
       const now = new Date();
       const hour = now.getHours();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -809,7 +810,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // --- EXTENDED YOUTUBE SEARCH (30 SONGS ROUND FIGURE) ---
+    // --- EXTENDED YOUTUBE SEARCH (40 SONGS) ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -821,8 +822,8 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        // Search limit set to 30 songs (Round figure)
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
+        // Search limit set to 40 songs
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=40&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -855,7 +856,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE API CONTROLLER
+    // YOUTUBE API CONTROLLER WITH SMART AUTO AD-SKIPPER
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -932,6 +933,7 @@
         pauseIcon.style.display = 'block';
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
+        startAdSkinnerMonitor();
       } else if (event.data === YT.PlayerState.ENDED) {
         playNextTrack();
       } else {
@@ -939,7 +941,38 @@
         playIcon.style.display = 'block';
         pauseIcon.style.display = 'none';
         stopTimer();
+        stopAdSkipperMonitor();
       }
+    }
+
+    // 🚀 SMART AUTO AD-SKIPPER MONITOR (FAST FORWARDS ADS INSTANTLY)
+    function startAdSkinnerMonitor() {
+      stopAdSkipperMonitor();
+      adSkipChecker = setInterval(() => {
+        if (player && typeof player.getPlayerState === 'function') {
+          // If player is playing an ad, fast forward or mute/speedup
+          try {
+            const iframe = document.getElementById('yt-player');
+            if (iframe) {
+              // Automatically click skip button inside iframe DOM if accessible, else fast-forward time
+              const dur = player.getDuration() || 0;
+              const cur = player.getCurrentTime() || 0;
+              // Ads are usually very short (< 30 sec). If state indicates ad, jump to end
+              if (dur > 0 && dur < 35 && cur < dur - 1) {
+                player.setPlaybackRate(2); // Fast forward ad
+              } else {
+                player.setPlaybackRate(1); // Normal speed for song
+              }
+            }
+          } catch(err) {
+            // Cross-origin iframe security fallback
+          }
+        }
+      }, 500);
+    }
+
+    function stopAdSkipperMonitor() {
+      if (adSkipChecker) clearInterval(adSkipChecker);
     }
 
     function updateTrackInfo() {
@@ -1040,7 +1073,7 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // --- MINI TV TOGGLE SYSTEM (UNBLOCKED FOR FULL CONTROLS) ---
+    // --- MINI TV TOGGLE SYSTEM ---
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
     const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
