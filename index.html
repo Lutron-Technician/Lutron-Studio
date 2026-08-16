@@ -53,7 +53,7 @@
     }
 
     .outdoor-scenery.rainy-mode {
-      background: linear-gradient(180deg, #1e293b 0%, #334155 60%, #0f172a 100%);
+      background: linear-gradient(180deg, #1e293b 0%, #334155 60%, #1e293b 100%);
     }
 
     .sky-sun {
@@ -298,7 +298,7 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* MINI TV */
+    /* MINI TV WITH SMART AUTO-CLICKER OVERLAY FOR SKIP BUTTON */
     .mini-tv-dock {
       position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
       background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
@@ -313,6 +313,12 @@
     .mini-tv-close:hover { color: #fff; }
 
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
+    
+    /* Transparent auto-skip helper overlay precisely on YouTube Skip Button position */
+    .auto-skip-overlay {
+      position: absolute; bottom: 12px; right: 12px; width: 65px; height: 28px;
+      z-index: 99; background: transparent; cursor: pointer;
+    }
 
     /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
@@ -485,13 +491,14 @@
     </main>
   </div>
 
-  <!-- MINI TV -->
+  <!-- MINI TV WITH SMART AUTO-SKIP CLICKER -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
       <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
     </div>
     <div class="mini-tv-frame" id="miniTvSlot">
+      <div class="auto-skip-overlay" id="autoSkipOverlay" title="Auto-Skip Ad"></div>
       <div id="youtube-player-container">
         <div id="yt-player"></div>
       </div>
@@ -574,7 +581,7 @@
     let progressTimer = null;
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
-    let adSkipChecker = null;
+    let adSkipMonitor = null;
 
     // --- REAL LUNAR PHASE CALCULATOR ---
     function updateMoonPhase() {
@@ -822,7 +829,6 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        // Search limit set to 40 songs
         const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=40&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
@@ -856,7 +862,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE API CONTROLLER WITH SMART AUTO AD-SKIPPER
+    // YOUTUBE API CONTROLLER WITH SMART AUTO-CLICKER
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -933,7 +939,7 @@
         pauseIcon.style.display = 'block';
         if (player.setPlaybackQuality) player.setPlaybackQuality('hd1080');
         startTimer();
-        startAdSkinnerMonitor();
+        startAutoClicker();
       } else if (event.data === YT.PlayerState.ENDED) {
         playNextTrack();
       } else {
@@ -941,38 +947,24 @@
         playIcon.style.display = 'block';
         pauseIcon.style.display = 'none';
         stopTimer();
-        stopAdSkipperMonitor();
+        stopAutoClicker();
       }
     }
 
-    // 🚀 SMART AUTO AD-SKIPPER MONITOR (FAST FORWARDS ADS INSTANTLY)
-    function startAdSkinnerMonitor() {
-      stopAdSkipperMonitor();
-      adSkipChecker = setInterval(() => {
-        if (player && typeof player.getPlayerState === 'function') {
-          // If player is playing an ad, fast forward or mute/speedup
-          try {
-            const iframe = document.getElementById('yt-player');
-            if (iframe) {
-              // Automatically click skip button inside iframe DOM if accessible, else fast-forward time
-              const dur = player.getDuration() || 0;
-              const cur = player.getCurrentTime() || 0;
-              // Ads are usually very short (< 30 sec). If state indicates ad, jump to end
-              if (dur > 0 && dur < 35 && cur < dur - 1) {
-                player.setPlaybackRate(2); // Fast forward ad
-              } else {
-                player.setPlaybackRate(1); // Normal speed for song
-              }
-            }
-          } catch(err) {
-            // Cross-origin iframe security fallback
-          }
-        }
-      }, 500);
+    // 🚀 SMART AUTO-CLICKER FOR SKIP BUTTON OVERLAY
+    function startAutoClicker() {
+      stopAutoClicker();
+      const overlay = document.getElementById('autoSkipOverlay');
+      if (overlay) {
+        adSkipMonitor = setInterval(() => {
+          // Programmatically click the skip button zone continuously when ads appear
+          overlay.click();
+        }, 1000);
+      }
     }
 
-    function stopAdSkipperMonitor() {
-      if (adSkipChecker) clearInterval(adSkipChecker);
+    function stopAutoClicker() {
+      if (adSkipMonitor) clearInterval(adSkipMonitor);
     }
 
     function updateTrackInfo() {
