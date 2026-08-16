@@ -67,14 +67,22 @@
     .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
     .outdoor-scenery.cloudy-mode .sky-sun, .outdoor-scenery.rainy-mode .sky-sun { opacity: 0.25; filter: blur(6px); }
 
+    /* REAL LUNAR PHASE MOON STYLING */
     .sky-moon {
-      position: absolute; top: 10%; right: 16%; width: 80px; height: 80px;
-      border-radius: 50%; z-index: 1;
-      box-shadow: -12px 8px 0 0 #f8fafc, 0 0 35px rgba(248, 250, 252, 0.3);
-      opacity: 0; transform: translateY(40px) scale(0.8) rotate(-15deg);
+      position: absolute; top: 10%; right: 16%; width: 85px; height: 85px;
+      border-radius: 50%; z-index: 1; background: #f8fafc;
+      box-shadow: 0 0 40px rgba(248, 250, 252, 0.4);
+      opacity: 0; transform: translateY(40px) scale(0.8);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
     }
-    .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
+    /* Dynamic Moon Phase Shadow Overlay */
+    .moon-shadow {
+      position: absolute; inset: 0; background: #0f172a; border-radius: 50%;
+      transform: translateX(var(--moon-offset, 0%)); transition: transform 1s ease;
+      opacity: 0.85; box-shadow: inset 5px 0 15px rgba(0,0,0,0.5);
+    }
+    .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1); }
 
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
@@ -93,10 +101,9 @@
       100% { transform: translateX(140vw); }
     }
 
-    /* REAL RAIN ONLY TRIGGERED WHEN API SAYS RAIN */
     .weather-rain {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1s ease;
-      background-image: linear-gradient(0deg, rgba(255,255,255,0.55) 0%, transparent 70%);
+      background-image: linear-gradient(0deg, rgba(255,255,255,0.5) 0%, transparent 70%);
       background-size: 1.5px 25px; z-index: 3;
     }
     .outdoor-scenery.rainy-mode .weather-rain { opacity: 1; animation: fallRain 0.3s linear infinite; }
@@ -237,7 +244,7 @@
     .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
     .main-title {
       font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.15em;
+      text-transform: uppercase; letter-spacing: 0.1em;
       background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
@@ -411,7 +418,9 @@
   <!-- OUTDOOR SCENERY -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
-    <div class="sky-moon" id="skyMoon"></div>
+    <div class="sky-moon" id="skyMoon">
+      <div class="moon-shadow" id="moonShadow"></div>
+    </div>
     <div class="weather-clouds">
       <div class="cloud cloud-1"></div>
       <div class="cloud cloud-2"></div>
@@ -567,6 +576,24 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
+    // --- REAL LUNAR PHASE CALCULATOR (POORNIMA TO AMAVASYA) ---
+    function updateMoonPhase() {
+      const now = new Date();
+      // Known New Moon reference date
+      const refNewMoon = new Date(2023, 0, 21);
+      const diffDays = (now - refNewMoon) / (1000 * 60 * 60 * 24);
+      const lunation = 29.5305877057;
+      const phase = (diffDays % lunation) / lunation; // 0 = New Moon, 0.5 = Full Moon (Poornima)
+      
+      const moonShadow = document.getElementById('moonShadow');
+      if (moonShadow) {
+        // Shift shadow based on phase to simulate crescent, half, or full moon
+        const offset = (phase - 0.5) * 200; // range from -100% to +100%
+        moonShadow.style.transform = `translateX(${offset}%)`;
+      }
+    }
+    updateMoonPhase();
+
     // --- SIDEBAR MENU TOGGLE ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
@@ -655,7 +682,7 @@
 
     renderCurtainPosition();
 
-    // --- SMART LIVE WEATHER & GPS ENGINE (STRICT MATCH WITH ACTUAL OUTSIDE) ---
+    // --- SMART LIVE WEATHER & GPS ENGINE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
@@ -674,7 +701,6 @@
               const code = data.current_weather.weathercode;
               const isDay = data.current_weather.is_day;
 
-              // Weather codes 50 to 99 represent rain, showers, and thunderstorms in open-meteo
               if (code >= 50 && code <= 99) {
                 outdoorScenery.className = 'outdoor-scenery rainy-mode';
                 liveWeatherStatus.textContent = `LIVE WEATHER: RAIN ${temp}°C`;
