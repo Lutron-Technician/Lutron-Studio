@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (REAL LIVE WEATHER ENGINE) */
+    /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -76,7 +76,6 @@
     }
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
 
-    /* REALISTIC MOVING CLOUDS */
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
     }
@@ -129,7 +128,7 @@
     .outdoor-scenery.rainy-mode .mountain-front { fill: #0f172a; }
     .outdoor-scenery.night-mode .mountain-front { fill: #020617; }
 
-    /* 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM */
+    /* CURTAINS */
     .curtain-container {
       position: absolute; inset: 0; z-index: 3; pointer-events: none;
       display: flex; width: 100%; height: 100%; overflow: hidden;
@@ -164,7 +163,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;
     }
 
-    /* ARCHITECTURAL LIGHTING */
     .blueprint-grid { 
       position: absolute; inset: 0; 
       background-image: linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px); 
@@ -209,7 +207,7 @@
     .app-container {
       position: relative; z-index: 10; width: 100vw; height: 100vh;
       display: flex; flex-direction: column; justify-content: space-between;
-      padding: 1.5rem 4vw 9.5rem 4vw;
+      padding: 1.8rem 4vw 9.5rem 4vw; /* Proper top padding so header is fully visible */
     }
 
     .top-header {
@@ -224,6 +222,16 @@
 
     .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
 
+    .weather-switcher {
+      display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.4);
+      padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-light);
+    }
+    .weather-btn {
+      background: transparent; border: none; color: var(--text-muted); font-size: 0.68rem;
+      font-family: 'JetBrains Mono', monospace; cursor: pointer; padding: 2px 6px; border-radius: 10px; transition: all 0.2s;
+    }
+    .weather-btn.active { background: var(--amber-warm); color: #000; font-weight: bold; }
+
     .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
     .main-title {
       font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
@@ -233,17 +241,19 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* FLIPBOARD STYLE SIDEBAR DRAWER (100% HIDDEN INSIDE, SMOOTH SLIDE) */
+    /* FLIPBOARD STYLE SIDEBAR DRAWER (100% HIDDEN INSIDE, ONLY TAB SHOWS) */
     .central-stage {
       display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
     }
 
     .sidebar-drawer {
-      position: absolute; left: -272px; top: 50%; transform: translateY(-50%);
+      position: absolute; 
+      left: -284px; /* Fully hidden inside border */
+      top: 50%; transform: translateY(-50%);
       display: flex; align-items: center; z-index: 40; 
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sidebar-drawer.open { transform: translateY(-50%) translateX(272px); }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(284px); }
 
     .palladiom-frame {
       width: 260px; height: 380px;
@@ -280,7 +290,7 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* 📺 MINI STUDIO TV WINDOW */
+    /* MINI TV */
     .mini-tv-dock {
       position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
       background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
@@ -296,7 +306,7 @@
 
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
 
-    /* PLAYER CONTROLS & GLASS SHELL */
+    /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
 
@@ -386,7 +396,7 @@
     }
 
     @media (max-width: 768px) {
-      .app-container { padding: 1.2rem 1.2rem 10.5rem 1.2rem; }
+      .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; }
       .hero-header { text-align: center; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
@@ -396,7 +406,7 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY (REAL LIVE WEATHER ENGINE) -->
+  <!-- OUTDOOR SCENERY -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon"></div>
@@ -412,7 +422,7 @@
     </svg>
   </div>
 
-  <!-- 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM -->
+  <!-- CURTAINS -->
   <div class="curtain-track-rod"></div>
   <div class="curtain-container" id="curtainContainer">
     <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
@@ -422,7 +432,7 @@
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
-  <!-- ARCHITECTURAL LIGHTING -->
+  <!-- LIGHTING -->
   <div class="lighting-fixtures-layer">
     <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
     <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
@@ -434,8 +444,13 @@
         <span class="led-dot"></span>
         <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <div id="liveWeatherLabel" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--amber-warm);">
-        LIVE WEATHER: DETECTING...
+      <!-- WEATHER SWITCHER -->
+      <div class="weather-switcher">
+        <span style="font-size:0.65rem; color:var(--amber-warm);">WEATHER:</span>
+        <button class="weather-btn active" onclick="setWeatherMode('sunny', this)">SUNNY</button>
+        <button class="weather-btn" onclick="setWeatherMode('cloudy', this)">CLOUDY</button>
+        <button class="weather-btn" onclick="setWeatherMode('rainy', this)">RAINY</button>
+        <button class="weather-btn" onclick="setWeatherMode('night', this)">NIGHT</button>
       </div>
     </header>
 
@@ -444,7 +459,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- MAIN CENTRAL STAGE WITH HIDDEN FLIPBOARD SIDEBAR DRAWER -->
+    <!-- SIDEBAR DRAWER (100% HIDDEN UNLESS CLICKED) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -464,7 +479,7 @@
     </main>
   </div>
 
-  <!-- 📺 MINI STUDIO TV WINDOW -->
+  <!-- MINI TV -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
@@ -477,11 +492,9 @@
     </div>
   </div>
 
-  <!-- LUXURY GLASS PLAYER -->
+  <!-- PLAYER -->
   <div class="player-wrapper">
     <div class="glass-player">
-      
-      <!-- REAL YOUTUBE LIVE SEARCH -->
       <div class="search-box-row">
         <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata, Dhurandhar)... (Gaana rukega nahi!)" />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
@@ -508,13 +521,11 @@
           </button>
           <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
           
-          <!-- VOLUME CONTROL -->
           <div class="volume-container">
             <span class="volume-icon" id="volumeIcon">🔊</span>
             <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
           </div>
 
-          <!-- 📺 MINI TV TOGGLE BUTTON -->
           <button class="mini-tv-btn" id="miniTvBtn">
             <span>📺</span> <span>MINI TV</span>
           </button>
@@ -558,7 +569,7 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
-    // --- FLIPBOARD STYLE SIDEBAR DRAWER TOGGLE (100% HIDDEN UNLESS CLICKED) ---
+    // --- SIDEBAR MENU TOGGLE ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
 
@@ -571,7 +582,7 @@
       }
     });
 
-    // --- REAL LUTRON 4-STEP DRAPERY CONTROLLER ---
+    // --- DRAPERY MOTOR CONTROLLER ---
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
@@ -644,54 +655,25 @@
 
     renderCurtainPosition();
 
-    // --- AUTOMATIC REAL LIVE WEATHER SYNC (OPENWEATHERMAP API) ---
+    // --- WEATHER SWITCHER ---
     const outdoorScenery = document.getElementById('outdoorScenery');
-    const liveWeatherLabel = document.getElementById('liveWeatherLabel');
 
-    async function fetchAutomaticLiveWeather() {
-      try {
-        // Fetch real-time weather based on IP / Default location (Mumbai / India)
-        const apiKey = "b1b15e88fa797225412429c1c50c122a1";
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=Mumbai&units=metric&appid=${apiKey}`;
-        const res = await fetch(url);
-        const data = await res.json();
+    function setWeatherMode(mode, btn) {
+      document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-        if (data && data.weather) {
-          const condition = data.weather[0].main.toLowerCase();
-          const temp = Math.round(data.main.temp);
-          const desc = data.weather[0].description;
-
-          if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunderstorm')) {
-            outdoorScenery.className = 'outdoor-scenery rainy-mode';
-            liveWeatherLabel.textContent = `LIVE WEATHER: ${desc.toUpperCase()} (${temp}°C)`;
-          } else if (condition.includes('cloud') || condition.includes('mist') || condition.includes('haze') || condition.includes('fog')) {
-            outdoorScenery.className = 'outdoor-scenery cloudy-mode';
-            liveWeatherLabel.textContent = `LIVE WEATHER: ${desc.toUpperCase()} (${temp}°C)`;
-          } else {
-            const hour = new Date().getHours();
-            if (hour >= 6 && hour < 18) {
-              outdoorScenery.className = 'outdoor-scenery day-mode';
-              liveWeatherLabel.textContent = `LIVE WEATHER: SUNNY & CLEAR (${temp}°C)`;
-            } else {
-              outdoorScenery.className = 'outdoor-scenery night-mode';
-              liveWeatherLabel.textContent = `LIVE WEATHER: CLEAR NIGHT (${temp}°C)`;
-            }
-          }
-        }
-      } catch (err) {
-        // Fallback to time-based sync if offline
-        const hour = new Date().getHours();
-        if (hour >= 6 && hour < 18) {
-          outdoorScenery.className = 'outdoor-scenery day-mode';
-          liveWeatherLabel.textContent = "LIVE WEATHER: SUNNY (AUTO TIME)";
-        } else {
-          outdoorScenery.className = 'outdoor-scenery night-mode';
-          liveWeatherLabel.textContent = "LIVE WEATHER: NIGHT (AUTO TIME)";
-        }
+      if (mode === 'sunny') {
+        outdoorScenery.className = 'outdoor-scenery day-mode';
+      } else if (mode === 'cloudy') {
+        outdoorScenery.className = 'outdoor-scenery cloudy-mode';
+      } else if (mode === 'rainy') {
+        outdoorScenery.className = 'outdoor-scenery rainy-mode';
+      } else if (mode === 'night') {
+        outdoorScenery.className = 'outdoor-scenery night-mode';
       }
     }
 
-    // SCENE LIGHTING CONFIG
+    // SCENES CONFIG
     const keypadButtons = document.querySelectorAll('.keypad-btn');
     const root = document.documentElement;
 
@@ -727,7 +709,7 @@
       });
     });
 
-    // PLAYLIST DRAWER
+    // PLAYLIST
     const playlistDrawer = document.getElementById('playlistDrawer');
     const playlistToggleBtn = document.getElementById('playlistToggleBtn');
 
@@ -754,7 +736,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // 100% BACKGROUND SEARCH ENGINE
+    // SEARCH
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -799,7 +781,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE API CONTROLLER
+    // YOUTUBE
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -974,27 +956,22 @@
       }
     });
 
-    // VOLUME SLIDER LISTENER
     const volumeSlider = document.getElementById('volumeSlider');
     const volumeIcon = document.getElementById('volumeIcon');
     volumeSlider.addEventListener('input', (e) => {
       const val = parseInt(e.target.value);
-      if (player && player.setVolume) {
-        player.setVolume(val);
-      }
+      if (player && player.setVolume) player.setVolume(val);
       if (val === 0) volumeIcon.textContent = "🔇";
       else if (val < 50) volumeIcon.textContent = "🔉";
       else volumeIcon.textContent = "🔊";
     });
 
-    // 📺 STABLE MINI TV TOGGLE SYSTEM
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
     const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
 
     function toggleMiniTv() {
       isMiniTvOpen = !isMiniTvOpen;
-
       if (isMiniTvOpen) {
         miniTvDock.classList.add('open');
         miniTvBtn.style.background = "var(--led-green)";
@@ -1009,7 +986,6 @@
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
 
-    // CHROMECAST / STREAM TV TRIGGER
     document.getElementById('streamTvBtn').addEventListener('click', () => {
       if (navigator.presentation && navigator.presentation.defaultRequest) {
         navigator.presentation.defaultRequest.start().catch(e => console.log('Cast handled'));
@@ -1018,7 +994,6 @@
       }
     });
 
-    fetchAutomaticLiveWeather();
     renderPlaylistDrawer();
   </script>
 </body>
