@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (AUTOMATIC TIME ENGINE) */
+    /* OUTDOOR WINDOW SCENERY LAYER (REAL LIVE GPS WEATHER) */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -50,6 +50,10 @@
 
     .outdoor-scenery.cloudy-mode {
       background: linear-gradient(180deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
+    }
+
+    .outdoor-scenery.rainy-mode {
+      background: linear-gradient(180deg, #0f172a 0%, #334155 60%, #1e293b 100%);
     }
 
     .sky-sun {
@@ -75,19 +79,31 @@
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
     }
-    .outdoor-scenery.cloudy-mode .weather-clouds { opacity: 0.7; }
+    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.8; }
     
     .cloud {
-      position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 100px; filter: blur(8px);
+      position: absolute; background: rgba(255, 255, 255, 0.45); border-radius: 100px; filter: blur(8px);
       animation: driftCloud 45s linear infinite;
     }
     .cloud-1 { top: 10%; right: 10%; width: 280px; height: 75px; animation-duration: 50s; }
-    .cloud-2 { top: 20%; right: 30%; width: 380px; height: 95px; animation-duration: 70s; animation-delay: -10s; opacity: 0.6; }
+    .cloud-2 { top: 20%; right: 30%; width: 380px; height: 95px; animation-duration: 70s; animation-delay: -10s; opacity: 0.7; }
 
     @keyframes driftCloud {
       0% { transform: translateX(50px); }
       50% { transform: translateX(-100px); }
       100% { transform: translateX(50px); }
+    }
+
+    .weather-rain {
+      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1s ease;
+      background-image: linear-gradient(0deg, rgba(255,255,255,0.7) 0%, transparent 70%);
+      background-size: 2px 30px; z-index: 3;
+    }
+    .outdoor-scenery.rainy-mode .weather-rain { opacity: 1; animation: fallRain 0.18s linear infinite; }
+
+    @keyframes fallRain {
+      0% { background-position: 0 0; }
+      100% { background-position: -15px 45px; }
     }
 
     .sky-stars {
@@ -112,6 +128,7 @@
     }
     .outdoor-scenery.day-mode .mountain-back { fill: #047857; opacity: 0.6; }
     .outdoor-scenery.cloudy-mode .mountain-back { fill: #475569; opacity: 0.5; }
+    .outdoor-scenery.rainy-mode .mountain-back { fill: #1e293b; opacity: 0.7; }
     .outdoor-scenery.night-mode .mountain-back { fill: #0f172a; }
 
     .mountain-front {
@@ -120,6 +137,7 @@
     }
     .outdoor-scenery.day-mode .mountain-front { fill: #065f46; }
     .outdoor-scenery.cloudy-mode .mountain-front { fill: #334155; }
+    .outdoor-scenery.rainy-mode .mountain-front { fill: #0f172a; }
     .outdoor-scenery.night-mode .mountain-front { fill: #020617; }
 
     /* CURTAINS */
@@ -225,14 +243,14 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* FLIPBOARD STYLE SIDEBAR DRAWER (100% HIDDEN INSIDE, ONLY TAB SHOWS) */
+    /* FLIPBOARD STYLE SIDEBAR DRAWER (100% HIDDEN INSIDE, ONLY ORANGE TAB SHOWS) */
     .central-stage {
       display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
     }
 
     .sidebar-drawer {
       position: absolute; 
-      left: -294px; /* 100% tucked inside border */
+      left: -294px; /* 100% hidden inside */
       top: 50%; transform: translateY(-50%);
       display: flex; align-items: center; z-index: 40; 
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -428,8 +446,8 @@
         <span class="led-dot"></span>
         <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <div id="weatherStatusText" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--amber-warm);">
-        AUTOMATIC ATMOSPHERE SYNC [ACTIVE]
+      <div id="liveWeatherStatus" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--amber-warm);">
+        LIVE WEATHER: GPS SYNC...
       </div>
     </header>
 
@@ -438,7 +456,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER (100% HIDDEN INSIDE) -->
+    <!-- SIDEBAR DRAWER (100% HIDDEN INSIDE, ONLY ORANGE TAB SHOWS) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -561,7 +579,7 @@
       }
     });
 
-    // --- DRAPERY MOTOR CONTROLLER ---
+    // --- DRAPERY MOTOR CONTROLLER + AUTOMATIC LIGHTS OFF ---
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
@@ -624,6 +642,8 @@
         if (nextTarget === 'OPEN') {
           curtainMotionState = 'OPENING';
           shadesBtn.classList.add('active');
+          // 🔥 AUTOMATIC LIGHTS OFF WHEN OPENING CURTAINS
+          applyScene('off', document.querySelector('[data-scene="off"]'));
         } else {
           curtainMotionState = 'CLOSING';
         }
@@ -634,17 +654,62 @@
 
     renderCurtainPosition();
 
-    // --- AUTOMATIC TIME-BASED ATMOSPHERE SYNC ---
+    // --- REAL LIVE GPS & WEATHER API ENGINE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
+    const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
-    function updateAtmosphere() {
+    function fetchRealLiveWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          try {
+            const apiKey = "b1b15e88fa797225412429c1c50c122a1";
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data && data.weather) {
+              const condition = data.weather[0].main.toLowerCase();
+              const temp = Math.round(data.main.temp);
+              const cityName = data.name;
+
+              if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunderstorm')) {
+                outdoorScenery.className = 'outdoor-scenery rainy-mode';
+                liveWeatherStatus.textContent = `LIVE WEATHER (${cityName}): RAIN ${temp}°C`;
+              } else if (condition.includes('cloud') || condition.includes('mist') || condition.includes('haze')) {
+                outdoorScenery.className = 'outdoor-scenery cloudy-mode';
+                liveWeatherStatus.textContent = `LIVE WEATHER (${cityName}): CLOUDY ${temp}°C`;
+              } else {
+                const hour = new Date().getHours();
+                if (hour >= 6 && hour < 18) {
+                  outdoorScenery.className = 'outdoor-scenery day-mode';
+                  liveWeatherStatus.textContent = `LIVE WEATHER (${cityName}): SUNNY ${temp}°C`;
+                } else {
+                  outdoorScenery.className = 'outdoor-scenery night-mode';
+                  liveWeatherStatus.textContent = `LIVE WEATHER (${cityName}): CLEAR NIGHT ${temp}°C`;
+                }
+              }
+            }
+          } catch (e) {
+            fallbackTimeWeather();
+          }
+        }, () => {
+          fallbackTimeWeather();
+        });
+      } else {
+        fallbackTimeWeather();
+      }
+    }
+
+    function fallbackTimeWeather() {
       const hour = new Date().getHours();
       if (hour >= 6 && hour < 18) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
-      } else if (hour >= 18 && hour < 20) {
-        outdoorScenery.className = 'outdoor-scenery cloudy-mode';
+        liveWeatherStatus.textContent = "LIVE WEATHER: SUNNY (LOCAL TIME)";
       } else {
         outdoorScenery.className = 'outdoor-scenery night-mode';
+        liveWeatherStatus.textContent = "LIVE WEATHER: NIGHT (LOCAL TIME)";
       }
     }
 
@@ -969,7 +1034,7 @@
       }
     });
 
-    updateAtmosphere();
+    fetchRealLiveWeather();
     renderPlaylistDrawer();
   </script>
 </body>
