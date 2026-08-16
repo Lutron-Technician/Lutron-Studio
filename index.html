@@ -76,7 +76,7 @@
     }
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
 
-    /* REALISTIC MOVING CLOUDS (COVERS SUN/MOON WHEN CLOUDY) */
+    /* REALISTIC MOVING CLOUDS */
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease;
       z-index: 2;
@@ -114,8 +114,7 @@
       position: absolute; inset: 0;
       background-image: 
         radial-gradient(1.5px 1.5px at 35px 50px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 110px 170px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(1.5px 1.5px at 190px 80px, #e0e1dd, rgba(0,0,0,0));
+        radial-gradient(2px 2px at 110px 170px, #ffffff, rgba(0,0,0,0));
       background-size: 850px 450px;
       opacity: 0; transition: opacity 2s ease;
     }
@@ -240,6 +239,17 @@
 
     .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
 
+    /* WEATHER MODE SWITCHER IN HEADER */
+    .weather-switcher {
+      display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.4);
+      padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-light);
+    }
+    .weather-btn {
+      background: transparent; border: none; color: var(--text-muted); font-size: 0.68rem;
+      font-family: 'JetBrains Mono', monospace; cursor: pointer; padding: 2px 6px; border-radius: 10px; transition: all 0.2s;
+    }
+    .weather-btn.active { background: var(--amber-warm); color: #000; font-weight: bold; }
+
     .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
     .main-title {
       font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
@@ -249,16 +259,16 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* FLIPBOARD-STYLE SLIDE-OUT SIDEBAR MENU */
+    /* FLIPBOARD STYLE SLIDE-OUT SIDEBAR MENU (FULLY HIDDEN BY DEFAULT) */
     .central-stage {
       display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
     }
 
     .sidebar-drawer {
-      position: absolute; left: -280px; top: 50%; transform: translateY(-50%);
+      position: absolute; left: -262px; top: 50%; transform: translateY(-50%);
       display: flex; align-items: center; z-index: 40; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sidebar-drawer.open { transform: translateY(-50%) translateX(280px); }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(262px); }
 
     .palladiom-frame {
       width: 260px; height: 380px;
@@ -403,7 +413,6 @@
     @media (max-width: 768px) {
       .app-container { padding: 1.2rem 1.2rem 10.5rem 1.2rem; }
       .hero-header { text-align: center; }
-      .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
       .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; }
@@ -412,7 +421,7 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY (LIVE WEATHER & CLOUD ENGINE) -->
+  <!-- OUTDOOR SCENERY (LIVE WEATHER ENGINE) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon"></div>
@@ -452,7 +461,14 @@
         <span class="led-dot"></span>
         <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <div id="weatherStatusLabel">LIVE WEATHER: SYNCING...</div>
+      <!-- WEATHER SWITCHER FOR INSTANT LIVE DEMO -->
+      <div class="weather-switcher">
+        <span style="font-size:0.65rem; color:var(--amber-warm);">WEATHER:</span>
+        <button class="weather-btn active" onclick="setWeatherMode('sunny', this)">SUNNY</button>
+        <button class="weather-btn" onclick="setWeatherMode('cloudy', this)">CLOUDY</button>
+        <button class="weather-btn" onclick="setWeatherMode('rainy', this)">RAINY</button>
+        <button class="weather-btn" onclick="setWeatherMode('night', this)">NIGHT</button>
+      </div>
     </header>
 
     <div class="hero-header">
@@ -460,7 +476,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- MAIN CENTRAL STAGE WITH FLIPBOARD SIDEBAR DRAWER -->
+    <!-- MAIN CENTRAL STAGE WITH FLIPBOARD SIDEBAR DRAWER (HIDDEN BY DEFAULT) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -474,7 +490,7 @@
           </div>
         </div>
         <button class="sidebar-trigger-tab" id="sidebarTriggerBtn">
-          <span>◀</span> <span>SCENES</span>
+          <span>▶</span> <span>SCENES</span>
         </button>
       </div>
     </main>
@@ -574,16 +590,16 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
-    // --- FLIPBOARD STYLE SIDEBAR DRAWER TOGGLE ---
+    // --- FLIPBOARD STYLE SIDEBAR DRAWER TOGGLE (COMPLETELY HIDDEN) ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
 
     sidebarTriggerBtn.addEventListener('click', () => {
       sidebarDrawer.classList.toggle('open');
       if (sidebarDrawer.classList.contains('open')) {
-        sidebarTriggerBtn.innerHTML = '<span>▶</span> <span>CLOSE</span>';
+        sidebarTriggerBtn.innerHTML = '<span>◀</span> <span>CLOSE</span>';
       } else {
-        sidebarTriggerBtn.innerHTML = '<span>◀</span> <span>SCENES</span>';
+        sidebarTriggerBtn.innerHTML = '<span>▶</span> <span>SCENES</span>';
       }
     });
 
@@ -660,47 +676,21 @@
 
     renderCurtainPosition();
 
-    // --- REAL LIVE WEATHER API (OPENWEATHERMAP WITH CLOUD / SUN / RAIN SYNC) ---
+    // --- INTERACTIVE WEATHER ENGINE (SUNNY, CLOUDY, RAINY, NIGHT MODES) ---
     const outdoorScenery = document.getElementById('outdoorScenery');
-    const weatherStatusLabel = document.getElementById('weatherStatusLabel');
 
-    async function fetchLiveWeather() {
-      try {
-        const apiKey = "b1b15e88fa797225412429c1c50c122a1"; // OpenWeather Public Key
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=Mumbai&units=metric&appid=${apiKey}`;
-        const res = await fetch(url);
-        const data = await res.json();
+    function setWeatherMode(mode, btn) {
+      document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-        if (data && data.weather) {
-          const condition = data.weather[0].main.toLowerCase();
-          const temp = Math.round(data.main.temp);
-          
-          if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunderstorm')) {
-            outdoorScenery.className = 'outdoor-scenery rainy-mode';
-            weatherStatusLabel.textContent = `LIVE WEATHER: RAIN (${temp}°C)`;
-          } else if (condition.includes('cloud') || condition.includes('mist') || condition.includes('haze') || condition.includes('fog')) {
-            outdoorScenery.className = 'outdoor-scenery cloudy-mode';
-            weatherStatusLabel.textContent = `LIVE WEATHER: CLOUDY / OVERCAST (${temp}°C)`;
-          } else {
-            const hour = new Date().getHours();
-            if (hour >= 6 && hour < 18) {
-              outdoorScenery.className = 'outdoor-scenery day-mode';
-              weatherStatusLabel.textContent = `LIVE WEATHER: SUNNY & CLEAR (${temp}°C)`;
-            } else {
-              outdoorScenery.className = 'outdoor-scenery night-mode';
-              weatherStatusLabel.textContent = `LIVE WEATHER: CLEAR NIGHT (${temp}°C)`;
-            }
-          }
-        }
-      } catch (err) {
-        const hour = new Date().getHours();
-        if (hour >= 6 && hour < 18) {
-          outdoorScenery.className = 'outdoor-scenery day-mode';
-          weatherStatusLabel.textContent = "LIVE WEATHER: SUNNY (LOCAL)";
-        } else {
-          outdoorScenery.className = 'outdoor-scenery night-mode';
-          weatherStatusLabel.textContent = "LIVE WEATHER: CLEAR NIGHT (LOCAL)";
-        }
+      if (mode === 'sunny') {
+        outdoorScenery.className = 'outdoor-scenery day-mode';
+      } else if (mode === 'cloudy') {
+        outdoorScenery.className = 'outdoor-scenery cloudy-mode';
+      } else if (mode === 'rainy') {
+        outdoorScenery.className = 'outdoor-scenery rainy-mode';
+      } else if (mode === 'night') {
+        outdoorScenery.className = 'outdoor-scenery night-mode';
       }
     }
 
@@ -1031,7 +1021,6 @@
       }
     });
 
-    fetchLiveWeather();
     renderPlaylistDrawer();
   </script>
 </body>
