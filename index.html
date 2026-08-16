@@ -65,7 +65,7 @@
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
-    .outdoor-scenery.cloudy-mode .sky-sun { opacity: 0.45; filter: blur(3px); }
+    .outdoor-scenery.cloudy-mode .sky-sun { opacity: 0.35; filter: blur(4px); }
 
     .sky-moon {
       position: absolute; top: 10%; right: 16%; width: 85px; height: 85px;
@@ -76,35 +76,38 @@
     }
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
 
-    /* DYNAMIC CLOUDS LAYER */
+    /* REALISTIC MOVING CLOUDS (COVERS SUN/MOON WHEN CLOUDY) */
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease;
+      z-index: 2;
     }
-    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.8; }
+    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.9; }
     
     .cloud {
-      position: absolute; background: rgba(255, 255, 255, 0.35); border-radius: 100px; filter: blur(18px);
-      animation: driftCloud 40s linear infinite;
+      position: absolute; background: rgba(255, 255, 255, 0.5); border-radius: 120px; filter: blur(12px);
+      animation: driftCloud 30s linear infinite;
     }
-    .cloud-1 { top: 12%; width: 350px; height: 95px; animation-duration: 45s; }
-    .cloud-2 { top: 25%; width: 500px; height: 130px; animation-duration: 65s; animation-delay: -12s; opacity: 0.3; }
+    .cloud-1 { top: 8%; right: 10%; width: 320px; height: 100px; animation-duration: 35s; }
+    .cloud-2 { top: 15%; right: 25%; width: 450px; height: 140px; animation-duration: 50s; animation-delay: -8s; opacity: 0.8; }
+    .cloud-3 { top: 22%; right: 5%; width: 380px; height: 110px; animation-duration: 40s; animation-delay: -15s; }
 
     @keyframes driftCloud {
-      0% { transform: translateX(-400px); }
-      100% { transform: translateX(calc(100vw + 400px)); }
+      0% { transform: translateX(100px); }
+      50% { transform: translateX(-150px); }
+      100% { transform: translateX(100px); }
     }
 
     /* RAIN DROPLETS LAYER */
     .weather-rain {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1s ease;
-      background-image: linear-gradient(0deg, rgba(255,255,255,0.5) 0%, transparent 70%);
-      background-size: 2px 35px;
+      background-image: linear-gradient(0deg, rgba(255,255,255,0.6) 0%, transparent 70%);
+      background-size: 2px 30px; z-index: 3;
     }
-    .outdoor-scenery.rainy-mode .weather-rain { opacity: 1; animation: fallRain 0.25s linear infinite; }
+    .outdoor-scenery.rainy-mode .weather-rain { opacity: 1; animation: fallRain 0.2s linear infinite; }
 
     @keyframes fallRain {
       0% { background-position: 0 0; }
-      100% { background-position: -15px 50px; }
+      100% { background-position: -15px 45px; }
     }
 
     .sky-stars {
@@ -246,34 +249,32 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* CENTRAL STAGE & SIDEBAR TOGGLE */
+    /* FLIPBOARD-STYLE SLIDE-OUT SIDEBAR MENU */
     .central-stage {
-      display: flex; flex-direction: column; align-items: flex-start;
-      position: relative; flex-grow: 1; width: 100%; gap: 12px; justify-content: center;
+      display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
     }
 
-    .sidebar-toggle-btn {
-      background: rgba(255, 170, 51, 0.12); border: 1px solid var(--amber-warm); color: var(--amber-warm);
-      padding: 0.5rem 1rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-      cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    .sidebar-drawer {
+      position: absolute; left: -280px; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; z-index: 40; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sidebar-toggle-btn:hover { background: var(--amber-warm); color: #000; }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(280px); }
 
     .palladiom-frame {
       width: 260px; height: 380px;
       background: linear-gradient(145deg, #2a2f3d, #12151f);
       border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
-      position: relative; border: 1px solid rgba(255, 255, 255, 0.08);
-      display: none; /* Hidden by default, toggled via sidebar button */
-      animation: fadeInSlide 0.3s ease forwards;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .palladiom-frame.open { display: block; }
 
-    @keyframes fadeInSlide {
-      0% { opacity: 0; transform: translateY(-10px); }
-      100% { opacity: 1; transform: translateY(0); }
+    .sidebar-trigger-tab {
+      background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
+      color: var(--amber-warm); padding: 1.2rem 0.5rem; border-radius: 0 10px 10px 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
+      writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
+      box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px); transition: all 0.2s ease;
     }
+    .sidebar-trigger-tab:hover { background: var(--amber-warm); color: #000; }
 
     .palladiom-faceplate {
       width: 100%; height: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%);
@@ -402,7 +403,6 @@
     @media (max-width: 768px) {
       .app-container { padding: 1.2rem 1.2rem 10.5rem 1.2rem; }
       .hero-header { text-align: center; }
-      .central-stage { align-items: center; }
       .lighting-fixtures-layer { display: none; }
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
@@ -412,13 +412,14 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY (LIVE WEATHER ENGINE) -->
+  <!-- OUTDOOR SCENERY (LIVE WEATHER & CLOUD ENGINE) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon"></div>
     <div class="weather-clouds">
       <div class="cloud cloud-1"></div>
       <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
     </div>
     <div class="weather-rain"></div>
     <div class="sky-stars" id="skyStars"></div>
@@ -451,7 +452,7 @@
         <span class="led-dot"></span>
         <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <div id="weatherStatusLabel">LIVE WEATHER: FETCHING...</div>
+      <div id="weatherStatusLabel">LIVE WEATHER: SYNCING...</div>
     </header>
 
     <div class="hero-header">
@@ -459,21 +460,22 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- MAIN CENTRAL STAGE WITH SIDEBAR TOGGLE -->
+    <!-- MAIN CENTRAL STAGE WITH FLIPBOARD SIDEBAR DRAWER -->
     <main class="central-stage">
-      <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
-        <span>⚡</span> <span id="sidebarBtnText">OPEN SCENES MENU</span>
-      </button>
-
-      <div class="palladiom-frame" id="keypadFrame">
-        <div class="palladiom-faceplate">
-          <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
+      <div class="sidebar-drawer" id="sidebarDrawer">
+        <div class="palladiom-frame">
+          <div class="palladiom-faceplate">
+            <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
+          </div>
         </div>
+        <button class="sidebar-trigger-tab" id="sidebarTriggerBtn">
+          <span>◀</span> <span>SCENES</span>
+        </button>
       </div>
     </main>
   </div>
@@ -572,17 +574,16 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
-    // --- SIDEBAR MENU TOGGLE ---
-    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-    const keypadFrame = document.getElementById('keypadFrame');
-    const sidebarBtnText = document.getElementById('sidebarBtnText');
+    // --- FLIPBOARD STYLE SIDEBAR DRAWER TOGGLE ---
+    const sidebarDrawer = document.getElementById('sidebarDrawer');
+    const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
 
-    sidebarToggleBtn.addEventListener('click', () => {
-      keypadFrame.classList.toggle('open');
-      if (keypadFrame.classList.contains('open')) {
-        sidebarBtnText.textContent = "CLOSE SCENES MENU";
+    sidebarTriggerBtn.addEventListener('click', () => {
+      sidebarDrawer.classList.toggle('open');
+      if (sidebarDrawer.classList.contains('open')) {
+        sidebarTriggerBtn.innerHTML = '<span>▶</span> <span>CLOSE</span>';
       } else {
-        sidebarBtnText.textContent = "OPEN SCENES MENU";
+        sidebarTriggerBtn.innerHTML = '<span>◀</span> <span>SCENES</span>';
       }
     });
 
@@ -659,14 +660,13 @@
 
     renderCurtainPosition();
 
-    // --- LIVE WEATHER FETCH ENGINE (OPENWEATHERMAP API) ---
+    // --- REAL LIVE WEATHER API (OPENWEATHERMAP WITH CLOUD / SUN / RAIN SYNC) ---
     const outdoorScenery = document.getElementById('outdoorScenery');
     const weatherStatusLabel = document.getElementById('weatherStatusLabel');
 
     async function fetchLiveWeather() {
       try {
-        // Free OpenWeather API call for India / Global coordinates or IP fallback
-        const apiKey = "b1b15e88fa797225412429c1c50c122a1"; // OpenWeather Public Demo Key
+        const apiKey = "b1b15e88fa797225412429c1c50c122a1"; // OpenWeather Public Key
         const url = `https://api.openweathermap.org/data/2.5/weather?q=Mumbai&units=metric&appid=${apiKey}`;
         const res = await fetch(url);
         const data = await res.json();
@@ -675,17 +675,17 @@
           const condition = data.weather[0].main.toLowerCase();
           const temp = Math.round(data.main.temp);
           
-          if (condition.includes('rain') || condition.includes('drizzle')) {
+          if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunderstorm')) {
             outdoorScenery.className = 'outdoor-scenery rainy-mode';
             weatherStatusLabel.textContent = `LIVE WEATHER: RAIN (${temp}°C)`;
-          } else if (condition.includes('cloud') || condition.includes('mist') || condition.includes('haze')) {
+          } else if (condition.includes('cloud') || condition.includes('mist') || condition.includes('haze') || condition.includes('fog')) {
             outdoorScenery.className = 'outdoor-scenery cloudy-mode';
-            weatherStatusLabel.textContent = `LIVE WEATHER: CLOUDY (${temp}°C)`;
+            weatherStatusLabel.textContent = `LIVE WEATHER: CLOUDY / OVERCAST (${temp}°C)`;
           } else {
             const hour = new Date().getHours();
             if (hour >= 6 && hour < 18) {
               outdoorScenery.className = 'outdoor-scenery day-mode';
-              weatherStatusLabel.textContent = `LIVE WEATHER: SUNNY (${temp}°C)`;
+              weatherStatusLabel.textContent = `LIVE WEATHER: SUNNY & CLEAR (${temp}°C)`;
             } else {
               outdoorScenery.className = 'outdoor-scenery night-mode';
               weatherStatusLabel.textContent = `LIVE WEATHER: CLEAR NIGHT (${temp}°C)`;
@@ -693,7 +693,6 @@
           }
         }
       } catch (err) {
-        // Fallback to local time simulation if API block
         const hour = new Date().getHours();
         if (hour >= 6 && hour < 18) {
           outdoorScenery.className = 'outdoor-scenery day-mode';
