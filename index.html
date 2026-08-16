@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (REAL LIVE WEATHER ENGINE) */
+    /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -56,42 +56,44 @@
       background: linear-gradient(180deg, #0f172a 0%, #334155 60%, #1e293b 100%);
     }
 
+    /* SUN PLACED BEHIND CLOUDS */
     .sky-sun {
       position: absolute; top: 12%; right: 18%; width: 110px; height: 110px;
-      border-radius: 50%;
+      border-radius: 50%; z-index: 1;
       background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
       box-shadow: 0 0 60px #eab308, 0 0 120px rgba(234, 179, 8, 0.5);
       opacity: 0; transform: translateY(40px) scale(0.8);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
-    .outdoor-scenery.cloudy-mode .sky-sun { opacity: 0.4; filter: blur(3px); }
+    .outdoor-scenery.cloudy-mode .sky-sun { opacity: 0.35; filter: blur(5px); }
 
     .sky-moon {
       position: absolute; top: 10%; right: 16%; width: 80px; height: 80px;
-      border-radius: 50%;
+      border-radius: 50%; z-index: 1;
       box-shadow: -12px 8px 0 0 #f8fafc, 0 0 35px rgba(248, 250, 252, 0.3);
       opacity: 0; transform: translateY(40px) scale(0.8) rotate(-15deg);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
 
+    /* CLOUDS PLACED ABOVE SUN FOR REALISTIC OCCLUSION */
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
     }
-    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.8; }
+    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.85; }
     
     .cloud {
-      position: absolute; background: rgba(255, 255, 255, 0.45); border-radius: 100px; filter: blur(8px);
-      animation: driftCloud 45s linear infinite;
+      position: absolute; background: rgba(255, 255, 255, 0.55); border-radius: 120px; filter: blur(10px);
+      animation: driftCloud 45s linear infinite; mix-blend-mode: overlay;
     }
-    .cloud-1 { top: 10%; right: 10%; width: 280px; height: 75px; animation-duration: 50s; }
-    .cloud-2 { top: 20%; right: 30%; width: 380px; height: 95px; animation-duration: 70s; animation-delay: -10s; opacity: 0.7; }
+    .cloud-1 { top: 10%; right: 10%; width: 320px; height: 85px; animation-duration: 50s; }
+    .cloud-2 { top: 18%; right: 25%; width: 420px; height: 110px; animation-duration: 65s; animation-delay: -10s; opacity: 0.75; }
 
     @keyframes driftCloud {
-      0% { transform: translateX(50px); }
-      50% { transform: translateX(-100px); }
-      100% { transform: translateX(50px); }
+      0% { transform: translateX(80px); }
+      50% { transform: translateX(-120px); }
+      100% { transform: translateX(80px); }
     }
 
     .weather-rain {
@@ -107,7 +109,7 @@
     }
 
     .sky-stars {
-      position: absolute; inset: 0;
+      position: absolute; inset: 0; z-index: 1;
       background-image: 
         radial-gradient(1.5px 1.5px at 35px 50px, #ffffff, rgba(0,0,0,0)),
         radial-gradient(2px 2px at 110px 170px, #ffffff, rgba(0,0,0,0));
@@ -119,7 +121,7 @@
     @keyframes twinkleStars { 0% { opacity: 0.35; } 100% { opacity: 0.95; } }
 
     .mountain-layer {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; pointer-events: none;
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; pointer-events: none; z-index: 3;
     }
 
     .mountain-back {
@@ -142,7 +144,7 @@
 
     /* CURTAINS */
     .curtain-container {
-      position: absolute; inset: 0; z-index: 3; pointer-events: none;
+      position: absolute; inset: 0; z-index: 4; pointer-events: none;
       display: flex; width: 100%; height: 100%; overflow: hidden;
     }
 
@@ -172,13 +174,13 @@
     .curtain-track-rod {
       position: absolute; top: 0; left: 0; width: 100%; height: 8px;
       background: linear-gradient(180deg, #374151, #111827);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 4;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 5;
     }
 
     .blueprint-grid { 
       position: absolute; inset: 0; 
       background-image: linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px); 
-      background-size: 35px 35px; pointer-events: none; z-index: 4; 
+      background-size: 35px 35px; pointer-events: none; z-index: 5; 
     }
     
     .ambient-glow {
@@ -186,11 +188,11 @@
       width: 850px; height: 850px;
       background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 65%);
       border-radius: 50%; filter: blur(95px);
-      transition: all 0.8s ease-in-out; z-index: 5; pointer-events: none; opacity: var(--beam-opacity);
+      transition: all 0.8s ease-in-out; z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
     }
 
     .lighting-fixtures-layer {
-      position: absolute; top: 0; right: 10vw; z-index: 6; pointer-events: none; display: flex; gap: 8vw;
+      position: absolute; top: 0; right: 10vw; z-index: 7; pointer-events: none; display: flex; gap: 8vw;
     }
 
     .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
@@ -250,7 +252,7 @@
 
     .sidebar-drawer {
       position: absolute; 
-      left: -310px; /* 100% hidden inside, only orange tab visible */
+      left: -310px; 
       top: 50%; transform: translateY(-50%);
       display: flex; align-items: center; z-index: 40; 
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -665,7 +667,6 @@
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           try {
-            // Using a secure CORS-friendly weather fetch via open-meteo (No strict API key blocking)
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
             const res = await fetch(url);
             const data = await res.json();
