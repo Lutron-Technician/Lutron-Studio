@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER */
+    /* OUTDOOR WINDOW SCENERY LAYER (AUTOMATIC TIME ENGINE) */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -50,10 +50,6 @@
 
     .outdoor-scenery.cloudy-mode {
       background: linear-gradient(180deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
-    }
-
-    .outdoor-scenery.rainy-mode {
-      background: linear-gradient(180deg, #0f172a 0%, #334155 60%, #1e293b 100%);
     }
 
     .sky-sun {
@@ -79,7 +75,7 @@
     .weather-clouds {
       position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
     }
-    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.7; }
+    .outdoor-scenery.cloudy-mode .weather-clouds { opacity: 0.7; }
     
     .cloud {
       position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 100px; filter: blur(8px);
@@ -116,7 +112,6 @@
     }
     .outdoor-scenery.day-mode .mountain-back { fill: #047857; opacity: 0.6; }
     .outdoor-scenery.cloudy-mode .mountain-back { fill: #475569; opacity: 0.5; }
-    .outdoor-scenery.rainy-mode .mountain-back { fill: #1e293b; opacity: 0.7; }
     .outdoor-scenery.night-mode .mountain-back { fill: #0f172a; }
 
     .mountain-front {
@@ -125,7 +120,6 @@
     }
     .outdoor-scenery.day-mode .mountain-front { fill: #065f46; }
     .outdoor-scenery.cloudy-mode .mountain-front { fill: #334155; }
-    .outdoor-scenery.rainy-mode .mountain-front { fill: #0f172a; }
     .outdoor-scenery.night-mode .mountain-front { fill: #020617; }
 
     /* CURTAINS */
@@ -207,7 +201,7 @@
     .app-container {
       position: relative; z-index: 10; width: 100vw; height: 100vh;
       display: flex; flex-direction: column; justify-content: space-between;
-      padding: 1.8rem 4vw 9.5rem 4vw; /* Proper top padding so header is fully visible */
+      padding: 1.8rem 4vw 9.5rem 4vw;
     }
 
     .top-header {
@@ -221,16 +215,6 @@
     }
 
     .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
-
-    .weather-switcher {
-      display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.4);
-      padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-light);
-    }
-    .weather-btn {
-      background: transparent; border: none; color: var(--text-muted); font-size: 0.68rem;
-      font-family: 'JetBrains Mono', monospace; cursor: pointer; padding: 2px 6px; border-radius: 10px; transition: all 0.2s;
-    }
-    .weather-btn.active { background: var(--amber-warm); color: #000; font-weight: bold; }
 
     .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
     .main-title {
@@ -248,12 +232,12 @@
 
     .sidebar-drawer {
       position: absolute; 
-      left: -284px; /* Fully hidden inside border */
+      left: -294px; /* 100% tucked inside border */
       top: 50%; transform: translateY(-50%);
       display: flex; align-items: center; z-index: 40; 
       transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .sidebar-drawer.open { transform: translateY(-50%) translateX(284px); }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(294px); }
 
     .palladiom-frame {
       width: 260px; height: 380px;
@@ -444,13 +428,8 @@
         <span class="led-dot"></span>
         <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <!-- WEATHER SWITCHER -->
-      <div class="weather-switcher">
-        <span style="font-size:0.65rem; color:var(--amber-warm);">WEATHER:</span>
-        <button class="weather-btn active" onclick="setWeatherMode('sunny', this)">SUNNY</button>
-        <button class="weather-btn" onclick="setWeatherMode('cloudy', this)">CLOUDY</button>
-        <button class="weather-btn" onclick="setWeatherMode('rainy', this)">RAINY</button>
-        <button class="weather-btn" onclick="setWeatherMode('night', this)">NIGHT</button>
+      <div id="weatherStatusText" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--amber-warm);">
+        AUTOMATIC ATMOSPHERE SYNC [ACTIVE]
       </div>
     </header>
 
@@ -459,7 +438,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER (100% HIDDEN UNLESS CLICKED) -->
+    <!-- SIDEBAR DRAWER (100% HIDDEN INSIDE) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -655,20 +634,16 @@
 
     renderCurtainPosition();
 
-    // --- WEATHER SWITCHER ---
+    // --- AUTOMATIC TIME-BASED ATMOSPHERE SYNC ---
     const outdoorScenery = document.getElementById('outdoorScenery');
 
-    function setWeatherMode(mode, btn) {
-      document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      if (mode === 'sunny') {
+    function updateAtmosphere() {
+      const hour = new Date().getHours();
+      if (hour >= 6 && hour < 18) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
-      } else if (mode === 'cloudy') {
+      } else if (hour >= 18 && hour < 20) {
         outdoorScenery.className = 'outdoor-scenery cloudy-mode';
-      } else if (mode === 'rainy') {
-        outdoorScenery.className = 'outdoor-scenery rainy-mode';
-      } else if (mode === 'night') {
+      } else {
         outdoorScenery.className = 'outdoor-scenery night-mode';
       }
     }
@@ -994,6 +969,7 @@
       }
     });
 
+    updateAtmosphere();
     renderPlaylistDrawer();
   </script>
 </body>
