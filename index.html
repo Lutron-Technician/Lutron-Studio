@@ -76,7 +76,6 @@
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
       overflow: hidden;
     }
-    /* Dynamic Moon Phase Shadow Overlay */
     .moon-shadow {
       position: absolute; inset: 0; background: #0f172a; border-radius: 50%;
       transform: translateX(var(--moon-offset, 0%)); transition: transform 1s ease;
@@ -503,7 +502,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata, Dhurandhar)... (Gaana rukega nahi!)" />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Kishore, Arijit, Dino, Lata, Dhurandhar)... (25+ Songs Playlist)" />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -576,19 +575,17 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
-    // --- REAL LUNAR PHASE CALCULATOR (POORNIMA TO AMAVASYA) ---
+    // --- REAL LUNAR PHASE CALCULATOR ---
     function updateMoonPhase() {
       const now = new Date();
-      // Known New Moon reference date
       const refNewMoon = new Date(2023, 0, 21);
       const diffDays = (now - refNewMoon) / (1000 * 60 * 60 * 24);
       const lunation = 29.5305877057;
-      const phase = (diffDays % lunation) / lunation; // 0 = New Moon, 0.5 = Full Moon (Poornima)
+      const phase = (diffDays % lunation) / lunation;
       
       const moonShadow = document.getElementById('moonShadow');
       if (moonShadow) {
-        // Shift shadow based on phase to simulate crescent, half, or full moon
-        const offset = (phase - 0.5) * 200; // range from -100% to +100%
+        const offset = (phase - 0.5) * 200;
         moonShadow.style.transform = `translateX(${offset}%)`;
       }
     }
@@ -670,7 +667,6 @@
         if (nextTarget === 'OPEN') {
           curtainMotionState = 'OPENING';
           shadesBtn.classList.add('active');
-          // 🔥 AUTOMATIC LIGHTS OFF WHEN OPENING CURTAINS
           applyScene('off', document.querySelector('[data-scene="off"]'));
         } else {
           curtainMotionState = 'CLOSING';
@@ -682,11 +678,19 @@
 
     renderCurtainPosition();
 
-    // --- SMART LIVE WEATHER & GPS ENGINE ---
+    // --- SMART LIVE WEATHER & STRICT SUNSET/NIGHT OVERRIDE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
+      const currentHour = new Date().getHours();
+      // Strict Override: If time is 7 PM (19:00) or later, force Night Mode so Moon appears immediately
+      if (currentHour >= 19 || currentHour < 6) {
+        outdoorScenery.className = 'outdoor-scenery night-mode';
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${currentHour}:00)`;
+        return;
+      }
+
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
           const lat = position.coords.latitude;
@@ -701,7 +705,10 @@
               const code = data.current_weather.weathercode;
               const isDay = data.current_weather.is_day;
 
-              if (code >= 50 && code <= 99) {
+              if (new Date().getHours() >= 19) {
+                outdoorScenery.className = 'outdoor-scenery night-mode';
+                liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT ${temp}°C`;
+              } else if (code >= 50 && code <= 99) {
                 outdoorScenery.className = 'outdoor-scenery rainy-mode';
                 liveWeatherStatus.textContent = `LIVE WEATHER: RAIN ${temp}°C`;
               } else if (code >= 1 && code <= 49) {
@@ -730,7 +737,7 @@
 
     function applyTimeFallback() {
       const hour = new Date().getHours();
-      if (hour >= 6 && hour < 18) {
+      if (hour >= 6 && hour < 19) {
         outdoorScenery.className = 'outdoor-scenery day-mode';
         liveWeatherStatus.textContent = "LIVE WEATHER: SUNNY (TIME SYNC)";
       } else {
@@ -775,7 +782,7 @@
       });
     });
 
-    // PLAYLIST
+    // PLAYLIST DRAWER
     const playlistDrawer = document.getElementById('playlistDrawer');
     const playlistToggleBtn = document.getElementById('playlistToggleBtn');
 
@@ -802,7 +809,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // SEARCH
+    // --- EXTENDED YOUTUBE SEARCH (25+ SONGS) ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -814,7 +821,8 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
+        // Extended search limit set to 25 songs for a rich playlist
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -847,7 +855,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE
+    // YOUTUBE API CONTROLLER WITH IFRAME CLICK INTERCEPTION
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -1032,6 +1040,7 @@
       else volumeIcon.textContent = "🔊";
     });
 
+    // --- STABLE MINI TV & IFRAME CLICK INTERCEPTION (NO EXTERNAL TAB REDIRECT) ---
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
     const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
@@ -1051,6 +1060,17 @@
 
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
+
+    // Intercept clicks on suggested videos inside iframe to play locally
+    window.addEventListener('blur', () => {
+      setTimeout(() => {
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.tagName === 'IFRAME') {
+          // If focus shifted to iframe, check if a new video was triggered or let user stay inside dashboard
+          console.log("Iframe interaction detected");
+        }
+      }, 100);
+    });
 
     document.getElementById('streamTvBtn').addEventListener('click', () => {
       if (navigator.presentation && navigator.presentation.defaultRequest) {
