@@ -34,80 +34,65 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (LIVE WEATHER ENGINE) */
+    /* OUTDOOR WINDOW SCENERY LAYER (CLEAN & REALISTIC WEATHER) */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
     }
 
     .outdoor-scenery.day-mode {
-      background: linear-gradient(180deg, #2b7fff 0%, #70b5ff 40%, #ffd166 80%, #f77f00 100%);
+      background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 50%, #fde047 100%);
     }
 
     .outdoor-scenery.night-mode {
-      background: radial-gradient(circle at 78% 22%, #1a2a47 0%, #0c1222 45%, #04060d 100%);
+      background: radial-gradient(circle at 78% 22%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
     }
 
     .outdoor-scenery.cloudy-mode {
-      background: linear-gradient(180deg, #475569 0%, #64748b 50%, #94a3b8 100%);
+      background: linear-gradient(180deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
     }
 
     .outdoor-scenery.rainy-mode {
-      background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #0f172a 100%);
+      background: linear-gradient(180deg, #0f172a 0%, #334155 60%, #1e293b 100%);
     }
 
     .sky-sun {
-      position: absolute; top: 12%; right: 18%; width: 125px; height: 125px;
+      position: absolute; top: 12%; right: 18%; width: 110px; height: 110px;
       border-radius: 50%;
-      background: radial-gradient(circle, #ffffff 15%, #ffe66d 45%, #ff9f1c 75%, rgba(255, 159, 28, 0) 100%);
-      box-shadow: 0 0 90px #ff9f1c, 0 0 180px rgba(255, 159, 28, 0.6);
+      background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
+      box-shadow: 0 0 60px #eab308, 0 0 120px rgba(234, 179, 8, 0.5);
       opacity: 0; transform: translateY(40px) scale(0.8);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
-    .outdoor-scenery.cloudy-mode .sky-sun { opacity: 0.35; filter: blur(4px); }
+    .outdoor-scenery.cloudy-mode .sky-sun { opacity: 0.5; filter: blur(2px); }
 
     .sky-moon {
-      position: absolute; top: 10%; right: 16%; width: 85px; height: 85px;
+      position: absolute; top: 10%; right: 16%; width: 80px; height: 80px;
       border-radius: 50%;
-      box-shadow: -15px 10px 0 0 #f4f1de, 0 0 40px rgba(244, 241, 222, 0.45);
+      box-shadow: -12px 8px 0 0 #f8fafc, 0 0 35px rgba(248, 250, 252, 0.3);
       opacity: 0; transform: translateY(40px) scale(0.8) rotate(-15deg);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1) rotate(-15deg); }
 
-    /* REALISTIC MOVING CLOUDS */
+    /* CLEAN SUBTLE CLOUDS */
     .weather-clouds {
-      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease;
-      z-index: 2;
+      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
     }
-    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.9; }
+    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.7; }
     
     .cloud {
-      position: absolute; background: rgba(255, 255, 255, 0.5); border-radius: 120px; filter: blur(12px);
-      animation: driftCloud 30s linear infinite;
+      position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 100px; filter: blur(8px);
+      animation: driftCloud 45s linear infinite;
     }
-    .cloud-1 { top: 8%; right: 10%; width: 320px; height: 100px; animation-duration: 35s; }
-    .cloud-2 { top: 15%; right: 25%; width: 450px; height: 140px; animation-duration: 50s; animation-delay: -8s; opacity: 0.8; }
-    .cloud-3 { top: 22%; right: 5%; width: 380px; height: 110px; animation-duration: 40s; animation-delay: -15s; }
+    .cloud-1 { top: 10%; right: 10%; width: 280px; height: 75px; animation-duration: 50s; }
+    .cloud-2 { top: 20%; right: 30%; width: 380px; height: 95px; animation-duration: 70s; animation-delay: -10s; opacity: 0.6; }
 
     @keyframes driftCloud {
-      0% { transform: translateX(100px); }
-      50% { transform: translateX(-150px); }
-      100% { transform: translateX(100px); }
-    }
-
-    /* RAIN DROPLETS LAYER */
-    .weather-rain {
-      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1s ease;
-      background-image: linear-gradient(0deg, rgba(255,255,255,0.6) 0%, transparent 70%);
-      background-size: 2px 30px; z-index: 3;
-    }
-    .outdoor-scenery.rainy-mode .weather-rain { opacity: 1; animation: fallRain 0.2s linear infinite; }
-
-    @keyframes fallRain {
-      0% { background-position: 0 0; }
-      100% { background-position: -15px 45px; }
+      0% { transform: translateX(50px); }
+      50% { transform: translateX(-100px); }
+      100% { transform: translateX(50px); }
     }
 
     .sky-stars {
@@ -128,21 +113,21 @@
 
     .mountain-back {
       position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
-      fill: #0c1524; transition: fill 2s ease;
+      fill: #1e3a8a; opacity: 0.3; transition: fill 2s ease;
     }
-    .outdoor-scenery.day-mode .mountain-back { fill: #588157; opacity: 0.75; }
-    .outdoor-scenery.cloudy-mode .mountain-back { fill: #475569; opacity: 0.65; }
-    .outdoor-scenery.rainy-mode .mountain-back { fill: #1e293b; opacity: 0.8; }
-    .outdoor-scenery.night-mode .mountain-back { fill: #0b1320; }
+    .outdoor-scenery.day-mode .mountain-back { fill: #047857; opacity: 0.6; }
+    .outdoor-scenery.cloudy-mode .mountain-back { fill: #475569; opacity: 0.5; }
+    .outdoor-scenery.rainy-mode .mountain-back { fill: #1e293b; opacity: 0.7; }
+    .outdoor-scenery.night-mode .mountain-back { fill: #0f172a; }
 
     .mountain-front {
       position: absolute; bottom: 0; left: 0; width: 100%; height: 75%;
-      fill: #050a12; transition: fill 2s ease;
+      fill: #0f172a; transition: fill 2s ease;
     }
-    .outdoor-scenery.day-mode .mountain-front { fill: #344e41; }
+    .outdoor-scenery.day-mode .mountain-front { fill: #065f46; }
     .outdoor-scenery.cloudy-mode .mountain-front { fill: #334155; }
     .outdoor-scenery.rainy-mode .mountain-front { fill: #0f172a; }
-    .outdoor-scenery.night-mode .mountain-front { fill: #04070d; }
+    .outdoor-scenery.night-mode .mountain-front { fill: #020617; }
 
     /* 2-SIDE MOTORIZED CENTER-SPLIT DRAPERY SYSTEM */
     .curtain-container {
@@ -259,16 +244,17 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* FLIPBOARD STYLE SLIDE-OUT SIDEBAR MENU (FULLY HIDDEN BY DEFAULT) */
+    /* FLIPBOARD STYLE SLIDE-OUT SIDEBAR MENU (100% HIDDEN UNLESS CLICKED, SMOOTH SPEED) */
     .central-stage {
       display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
     }
 
     .sidebar-drawer {
-      position: absolute; left: -262px; top: 50%; transform: translateY(-50%);
-      display: flex; align-items: center; z-index: 40; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: absolute; left: -260px; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; z-index: 40; 
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Bohot smooth aur slow speed */
     }
-    .sidebar-drawer.open { transform: translateY(-50%) translateX(262px); }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(260px); }
 
     .palladiom-frame {
       width: 260px; height: 380px;
@@ -279,7 +265,7 @@
 
     .sidebar-trigger-tab {
       background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
-      color: var(--amber-warm); padding: 1.2rem 0.5rem; border-radius: 0 10px 10px 0;
+      color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 0 10px 10px 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
       writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
       box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px); transition: all 0.2s ease;
@@ -421,16 +407,14 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY (LIVE WEATHER ENGINE) -->
+  <!-- OUTDOOR SCENERY (CLEAN WEATHER ENGINE) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon"></div>
     <div class="weather-clouds">
       <div class="cloud cloud-1"></div>
       <div class="cloud cloud-2"></div>
-      <div class="cloud cloud-3"></div>
     </div>
-    <div class="weather-rain"></div>
     <div class="sky-stars" id="skyStars"></div>
 
     <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
@@ -461,7 +445,7 @@
         <span class="led-dot"></span>
         <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
       </div>
-      <!-- WEATHER SWITCHER FOR INSTANT LIVE DEMO -->
+      <!-- WEATHER SWITCHER -->
       <div class="weather-switcher">
         <span style="font-size:0.65rem; color:var(--amber-warm);">WEATHER:</span>
         <button class="weather-btn active" onclick="setWeatherMode('sunny', this)">SUNNY</button>
@@ -590,7 +574,7 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
 
-    // --- FLIPBOARD STYLE SIDEBAR DRAWER TOGGLE (COMPLETELY HIDDEN) ---
+    // --- FLIPBOARD STYLE SIDEBAR DRAWER TOGGLE (SMOOTH & HIDDEN) ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
 
@@ -676,7 +660,7 @@
 
     renderCurtainPosition();
 
-    // --- INTERACTIVE WEATHER ENGINE (SUNNY, CLOUDY, RAINY, NIGHT MODES) ---
+    // --- CLEAN WEATHER ENGINE ---
     const outdoorScenery = document.getElementById('outdoorScenery');
 
     function setWeatherMode(mode, btn) {
