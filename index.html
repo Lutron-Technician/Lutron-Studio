@@ -22,7 +22,7 @@
       --glass-border: rgba(255, 255, 255, 0.15);
 
       --fixture-color: #ffaa00;
-      --fixture-glow: rgba(255, 170, 0, 0.6);
+      --fixture-glow: rgba(255, 170, 0, 0.65);
       --beam-opacity: 0.85;
     }
 
@@ -34,7 +34,7 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (SUBTLE & CLEAN) */
+    /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
@@ -45,11 +45,11 @@
     .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); }
 
     .sky-sun {
-      position: absolute; top: 12%; right: 18%; width: 110px; height: 110px;
+      position: absolute; top: 12%; right: 28%; width: 100px; height: 100px;
       border-radius: 50%; z-index: 1;
       background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
       box-shadow: 0 0 40px #eab308;
-      opacity: 0.3; transform: translateY(0) scale(1);
+      opacity: 0.35; transform: translateY(0) scale(1);
     }
 
     .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; pointer-events: none; z-index: 3; }
@@ -78,23 +78,37 @@
       background-size: 35px 35px; pointer-events: none; z-index: 5; 
     }
     
-    /* WIDE SPREAD AMBIENT GLOW (FIXED CENTRAL CONCENTRATION) */
+    /* RIGHT CORNER AMBIENT GLOW */
     .ambient-glow {
-      position: absolute; top: 35%; left: 50%; transform: translate(-50%, -30%);
-      width: 100vw; height: 700px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 75%);
-      border-radius: 50%; filter: blur(120px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
+      position: absolute; top: 40%; right: 10vw; transform: translate(30%, -20%);
+      width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%);
+      border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
     }
 
-    .lighting-fixtures-layer { position: absolute; top: 0; right: 12vw; z-index: 7; pointer-events: none; display: flex; gap: 12vw; }
+    /* RIGHT CORNER STAGGERED LIGHTING FIXTURES (ONE HIGH, ONE LOW) */
+    .lighting-fixtures-layer { 
+      position: absolute; top: 0; right: 7vw; z-index: 7; pointer-events: none; display: flex; gap: 7vw; 
+    }
     .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
-    .pendant-wire { width: 2px; height: 140px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
-    .pendant-shade { width: 50px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; }
-    .pendant-bulb { width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; }
     
-    /* WIDE SPREAD LIGHT BEAM (NO PILE-UP IN MIDDLE) */
+    /* Pendant 1: Higher / Shorter Wire */
+    .pendant-1 .pendant-wire { width: 2px; height: 110px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
+    
+    /* Pendant 2: Lower / Longer Wire (Staggered Drop) */
+    .pendant-2 .pendant-wire { width: 2px; height: 175px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
+
+    .pendant-shade { 
+      width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); 
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; 
+    }
+    .pendant-bulb { 
+      width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); 
+      box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; 
+    }
+    
     .light-beam {
-      width: 320px; height: 550px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
-      clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%); filter: blur(20px); opacity: var(--beam-opacity);
+      width: 220px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
+      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity);
     }
 
     .app-container {
@@ -147,7 +161,7 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* CLEAN TRANSPARENT SLIDE-DOWN TUMBLER (NO NUMBERS) */
+    /* CLEAN TRANSPARENT SLIDE-DOWN TUMBLER */
     .kelvin-inline-tumbler {
       max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
       background: rgba(10, 14, 22, 0.75); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
@@ -228,6 +242,7 @@
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
       .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; }
+      .lighting-fixtures-layer { right: 4vw; gap: 6vw; }
     }
   </style>
 </head>
@@ -252,10 +267,22 @@
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
-  <!-- LIGHTING FIXTURES -->
+  <!-- RIGHT CORNER STAGGERED PENDANTS (ONE HIGH, ONE LOW) -->
   <div class="lighting-fixtures-layer">
-    <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
-    <div class="pendant-light"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
+    <!-- Pendant 1 (Higher) -->
+    <div class="pendant-light pendant-1">
+      <div class="pendant-wire"></div>
+      <div class="pendant-shade"></div>
+      <div class="pendant-bulb"></div>
+      <div class="light-beam"></div>
+    </div>
+    <!-- Pendant 2 (Lower Staggered Drop) -->
+    <div class="pendant-light pendant-2">
+      <div class="pendant-wire"></div>
+      <div class="pendant-shade"></div>
+      <div class="pendant-bulb"></div>
+      <div class="light-beam"></div>
+    </div>
   </div>
 
   <div class="app-container">
@@ -283,9 +310,9 @@
             <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
             
-            <!-- TRANSPARENT INLINE SLIDER (NO NUMBERS, WARM TO BLUE SPECTRUM) -->
+            <!-- TRANSPARENT INLINE SLIDERS (CLEAN, NO NUMBERS) -->
             <div class="kelvin-inline-tumbler" id="kelvinTumbler">
-              <div class="tumbler-row"><span>KELVIN TEMPERATURE</span></div>
+              <div class="tumbler-row"><span>KELVIN SPECTRUM</span></div>
               <input type="range" min="1000" max="12000" step="200" value="3000" class="horizontal-slider" id="kelvinRange">
               
               <div class="tumbler-row" style="margin-top:4px;"><span>INTENSITY LEVEL</span></div>
@@ -414,27 +441,27 @@
     kelvinRange.addEventListener('input', (e) => {
       const k = parseInt(e.target.value);
       let hexColor = "#ffaa00";
-      let glowColor = "rgba(255, 170, 0, 0.6)";
+      let glowColor = "rgba(255, 170, 0, 0.65)";
 
       if (k <= 2000) {
         hexColor = "#ff6600"; // Deep Warm Amber/Yellow
-        glowColor = "rgba(255, 102, 0, 0.6)";
+        glowColor = "rgba(255, 102, 0, 0.65)";
       } else if (k > 2000 && k <= 5000) {
         hexColor = "#ffddaa"; // Warm to Neutral White
-        glowColor = "rgba(255, 221, 170, 0.65)";
+        glowColor = "rgba(255, 221, 170, 0.7)";
       } else if (k > 5000 && k <= 8000) {
-        hexColor = "#ffffff"; // Pure White at 5000K-6000K
-        glowColor = "rgba(255, 255, 255, 0.75)";
+        hexColor = "#ffffff"; // Pure White
+        glowColor = "rgba(255, 255, 255, 0.85)";
       } else {
-        hexColor = "#3b82f6"; // Ice Blue at 12000K
-        glowColor = "rgba(59, 130, 246, 0.75)";
+        hexColor = "#3b82f6"; // Ice Blue (High Kelvin)
+        glowColor = "rgba(59, 130, 246, 0.85)";
       }
 
       root.style.setProperty('--fixture-color', hexColor);
       root.style.setProperty('--fixture-glow', glowColor);
     });
 
-    // Accurate Dimming Logic: 0% = Completely Off, 100% = Full Bright
+    // Dimming Logic: 0% = Completely Off, 100% = Full Bright
     dimRange.addEventListener('input', (e) => {
       const d = parseInt(e.target.value);
       const opacityVal = d / 100;
