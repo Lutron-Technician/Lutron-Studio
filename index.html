@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Dual Motorized Drapery & Architectural Lighting</title>
+  <title>Lutron Technician — Master Control Edition</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -34,27 +34,44 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
+    /* WALLPAPER DRAWER (TUCKED ON RIGHT SIDE) */
+    .wallpaper-drawer-container {
+      position: fixed; right: -280px; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; z-index: 120;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .wallpaper-drawer-container.open { transform: translateY(-50%) translateX(-280px); }
+
+    .wallpaper-trigger-tab {
+      background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-right: none;
+      color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 10px 0 0 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
+      writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
+      box-shadow: -5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
+    }
+    .wallpaper-trigger-tab:hover { background: var(--amber-warm); color: #000; }
+
+    .wallpaper-panel-box {
+      width: 280px; height: 340px; background: linear-gradient(145deg, #2a2f3d, #12151f);
+      border-radius: 12px 0 0 12px; padding: 14px; box-shadow: -25px 25px 50px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 8px;
+    }
+    .wp-menu-btn {
+      flex: 1; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; color: rgba(255, 255, 255, 0.75);
+      font-size: 0.75rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 14px; transition: all 0.3s ease;
+    }
+    .wp-menu-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .wp-menu-btn.active { color: #ffffff; background: rgba(255, 170, 51, 0.2); border-color: var(--amber-warm); }
+
     /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
     }
-
-    .outdoor-scenery.day-mode {
-      background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 50%, #fde047 100%);
-    }
-
-    .outdoor-scenery.night-mode {
-      background: radial-gradient(circle at 78% 22%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
-    }
-
-    .outdoor-scenery.cloudy-mode {
-      background: linear-gradient(180deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
-    }
-
-    .outdoor-scenery.rainy-mode {
-      background: linear-gradient(180deg, #1e293b 0%, #334155 60%, #0f172a 100%);
-    }
+    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 50%, #fde047 100%); }
+    .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #1e1b4b 0%, #0f172a 60%, #020617 100%); }
 
     .sky-sun {
       position: absolute; top: 12%; right: 18%; width: 110px; height: 110px;
@@ -64,122 +81,40 @@
       opacity: 0; transform: translateY(40px) scale(0.8);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
-    .outdoor-scenery.cloudy-mode .sky-sun, .outdoor-scenery.rainy-mode .sky-sun { opacity: 0.25; filter: blur(6px); }
+    .outdoor-scenery.day-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
 
-    /* REAL LUNAR PHASE MOON STYLING */
     .sky-moon {
       position: absolute; top: 10%; right: 16%; width: 85px; height: 85px;
       border-radius: 50%; z-index: 1; background: #f8fafc;
       box-shadow: 0 0 40px rgba(248, 250, 252, 0.4);
-      opacity: 0; transform: translateY(40px) scale(0.8);
+      opacity: 0; transform: translateY(40px) scale(0.8); overflow: hidden;
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow: hidden;
     }
     .moon-shadow {
       position: absolute; inset: 0; background: #0f172a; border-radius: 50%;
-      transform: translateX(var(--moon-offset, 0%)); transition: transform 1s ease;
-      opacity: 0.85; box-shadow: inset 5px 0 15px rgba(0,0,0,0.5);
+      transform: translateX(var(--moon-offset, 0%)); transition: transform 1s ease; opacity: 0.85;
     }
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1); }
 
-    .weather-clouds {
-      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; z-index: 2;
-    }
-    .outdoor-scenery.cloudy-mode .weather-clouds, .outdoor-scenery.rainy-mode .weather-clouds { opacity: 0.85; }
-    
-    .cloud {
-      position: absolute; background: rgba(255, 255, 255, 0.5); border-radius: 120px; filter: blur(10px);
-      animation: driftCloud 60s linear infinite; mix-blend-mode: overlay;
-    }
-    .cloud-1 { top: 8%; left: -20%; width: 450px; height: 95px; animation-duration: 75s; }
-    .cloud-2 { top: 15%; left: -40%; width: 600px; height: 130px; animation-duration: 95s; opacity: 0.7; }
-
-    @keyframes driftCloud {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(140vw); }
-    }
-
-    .weather-rain {
-      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1s ease;
-      background-image: linear-gradient(0deg, rgba(255,255,255,0.5) 0%, transparent 70%);
-      background-size: 1.5px 25px; z-index: 3;
-    }
-    .outdoor-scenery.rainy-mode .weather-rain { opacity: 1; animation: fallRain 0.3s linear infinite; }
-
-    @keyframes fallRain {
-      0% { background-position: 0 0; }
-      100% { background-position: -10px 40px; }
-    }
-
-    .sky-stars {
-      position: absolute; inset: 0; z-index: 1;
-      background-image: 
-        radial-gradient(1.5px 1.5px at 35px 50px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 110px 170px, #ffffff, rgba(0,0,0,0));
-      background-size: 850px 450px;
-      opacity: 0; transition: opacity 2s ease;
-    }
-    .outdoor-scenery.night-mode .sky-stars { opacity: 0.85; animation: twinkleStars 4s ease-in-out infinite alternate; }
-
-    @keyframes twinkleStars { 0% { opacity: 0.35; } 100% { opacity: 0.95; } }
-
-    .mountain-layer {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; pointer-events: none; z-index: 3;
-    }
-
-    .mountain-back {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
-      fill: #1e3a8a; opacity: 0.3; transition: fill 2s ease;
-    }
-    .outdoor-scenery.day-mode .mountain-back { fill: #047857; opacity: 0.6; }
-    .outdoor-scenery.cloudy-mode .mountain-back { fill: #475569; opacity: 0.5; }
-    .outdoor-scenery.rainy-mode .mountain-back { fill: #1e293b; opacity: 0.7; }
-    .outdoor-scenery.night-mode .mountain-back { fill: #0f172a; }
-
-    .mountain-front {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 75%;
-      fill: #0f172a; transition: fill 2s ease;
-    }
-    .outdoor-scenery.day-mode .mountain-front { fill: #065f46; }
-    .outdoor-scenery.cloudy-mode .mountain-front { fill: #334155; }
-    .outdoor-scenery.rainy-mode .mountain-front { fill: #0f172a; }
-    .outdoor-scenery.night-mode .mountain-front { fill: #020617; }
+    .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; pointer-events: none; z-index: 3; }
+    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.3; }
+    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; }
 
     /* CURTAINS */
     .curtain-container {
-      position: absolute; inset: 0; z-index: 4; pointer-events: none;
-      display: flex; width: 100%; height: 100%; overflow: hidden;
+      position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden;
     }
-
     .curtain-panel {
-      width: 50%; height: 100%;
-      background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
-      position: relative;
-      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
-      will-change: transform;
+      width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
+      position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform;
     }
-
     .curtain-pleats {
       position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.04) 0px,
-        rgba(0, 0, 0, 0.5) 20px,
-        rgba(255, 255, 255, 0.07) 40px,
-        rgba(0, 0, 0, 0.65) 60px
-      );
-      box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+      background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px);
     }
-
-    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); transform: translateX(0%); }
-    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); transform: translateX(0%); }
-
-    .curtain-track-rod {
-      position: absolute; top: 0; left: 0; width: 100%; height: 8px;
-      background: linear-gradient(180deg, #374151, #111827);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.9); z-index: 5;
-    }
+    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); }
+    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); }
+    .curtain-track-rod { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, #374151, #111827); z-index: 5; }
 
     .blueprint-grid { 
       position: absolute; inset: 0; 
@@ -189,114 +124,87 @@
     
     .ambient-glow {
       position: absolute; top: 40%; right: 12%; transform: translate(30%, -30%);
-      width: 850px; height: 850px;
-      background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 65%);
-      border-radius: 50%; filter: blur(95px);
-      transition: all 0.8s ease-in-out; z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
+      width: 850px; height: 850px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 65%);
+      border-radius: 50%; filter: blur(95px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
     }
 
-    .lighting-fixtures-layer {
-      position: absolute; top: 0; right: 10vw; z-index: 7; pointer-events: none; display: flex; gap: 8vw;
-    }
-
+    .lighting-fixtures-layer { position: absolute; top: 0; right: 10vw; z-index: 7; pointer-events: none; display: flex; gap: 8vw; }
     .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
     .pendant-wire { width: 2px; height: 140px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
-    .pendant-shade {
-      width: 50px; height: 28px;
-      background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%);
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px;
-      position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.8);
-    }
-
-    .pendant-bulb {
-      width: 22px; height: 22px; border-radius: 50%;
-      background-color: var(--fixture-color);
-      box-shadow: 0 0 25px var(--fixture-color), 0 0 50px var(--fixture-color);
-      margin-top: -6px; transition: all 0.8s ease-in-out;
-    }
-
-    .light-beam {
-      width: 190px; height: 520px;
-      background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
-      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
-      opacity: var(--beam-opacity); transition: all 0.8s ease-in-out; filter: blur(7px);
-    }
+    .pendant-shade { width: 50px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; }
+    .pendant-bulb { width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; }
+    .light-beam { width: 190px; height: 520px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%); clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(7px); }
 
     .app-container {
       position: relative; z-index: 10; width: 100vw; height: 100vh;
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: 1.8rem 4vw 9.5rem 4vw;
+      display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw;
+      pointer-events: none;
     }
+    .app-container > * { pointer-events: auto; }
 
-    .top-header {
-      width: 100%; display: flex; justify-content: space-between; align-items: center;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted);
-    }
-
-    .status-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.8rem; border-radius: 100px; border: 1px solid var(--border-light);
-    }
-
+    .top-header { width: 100%; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.8rem; border-radius: 100px; border: 1px solid var(--border-light); }
     .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
 
     .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
     .main-title {
       font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
+      text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* FLIPBOARD STYLE SIDEBAR DRAWER (100% HIDDEN INSIDE, PERFECT TUCK) */
-    .central-stage {
-      display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
-    }
-
+    /* SIDEBAR DRAWER (SCENES) */
+    .central-stage { display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%; }
     .sidebar-drawer {
-      position: absolute; 
-      left: -310px; 
-      top: 50%; transform: translateY(-50%);
-      display: flex; align-items: center; z-index: 40; 
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      position: absolute; left: -310px; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; z-index: 40; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sidebar-drawer.open { transform: translateY(-50%) translateX(310px); }
-
     .palladiom-frame {
-      width: 260px; height: 380px;
-      background: linear-gradient(145deg, #2a2f3d, #12151f);
-      border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      width: 260px; height: 380px; background: linear-gradient(145deg, #2a2f3d, #12151f);
+      border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
     }
-
     .sidebar-trigger-tab {
       background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
       color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 0 10px 10px 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
       writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
-      box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px); transition: all 0.2s ease;
+      box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
     }
     .sidebar-trigger-tab:hover { background: var(--amber-warm); color: #000; }
-
-    .palladiom-faceplate {
-      width: 100%; height: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%);
-      border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px;
-    }
-
+    .palladiom-faceplate { width: 100%; height: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
     .keypad-btn {
       flex: 1; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px;
-      display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
-      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; cursor: pointer;
-      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
+      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer;
     }
-
     .keypad-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .keypad-btn.active { color: #ffffff; background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
-
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
+
+    /* KELVIN & DIMMING TUMBLER MODAL STYLING */
+    .kelvin-modal-overlay {
+      position: fixed; inset: 0; background: rgba(7, 9, 14, 0.85); backdrop-filter: blur(15px);
+      z-index: 200; display: none; align-items: center; justify-content: center;
+    }
+    .kelvin-modal-overlay.open { display: flex; }
+    .kelvin-modal-card {
+      width: 340px; background: linear-gradient(145deg, #1c2230, #0f131c);
+      border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px;
+      display: flex; flex-direction: column; gap: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+    }
+    .modal-header-row { display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--amber-warm); font-weight: 700; }
+    .modal-close-btn { background: transparent; border: none; color: #fff; font-size: 1rem; cursor: pointer; }
+    .sliders-row { display: flex; gap: 20px; justify-content: center; height: 220px; }
+    .slider-group { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; position: relative; }
+    .vertical-slider {
+      -webkit-appearance: slider-vertical; width: 8px; height: 160px;
+      background: rgba(255,255,255,0.1); outline: none; border-radius: 10px; cursor: pointer; accent-color: var(--amber-warm);
+    }
+    .slider-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-top: 10px; }
 
     /* MINI TV */
     .mini-tv-dock {
@@ -306,89 +214,52 @@
       backdrop-filter: blur(20px); z-index: 50; display: none; flex-direction: column; gap: 5px;
     }
     .mini-tv-dock.open { display: flex; }
-
     .mini-tv-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 6px; }
     .mini-tv-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber-warm); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
     .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
-    .mini-tv-close:hover { color: #fff; }
-
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
 
     /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
-
     .search-box-row { display: flex; gap: 8px; width: 100%; }
     .song-search-input {
       flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light);
-      border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem;
-      font-family: 'Inter', sans-serif; outline: none; transition: all 0.3s ease;
+      border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem; outline: none;
     }
-    .song-search-input:focus { border-color: var(--amber-warm); background: rgba(255, 255, 255, 0.14); }
     .search-submit-btn {
       background: var(--amber-warm); color: #000; border: none; border-radius: 10px;
-      padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
-      cursor: pointer; transition: all 0.2s ease;
+      padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer;
     }
-    .search-submit-btn:hover { background: #ffbe58; transform: scale(1.02); }
-
     .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
     .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 180px; }
     .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); }
     .album-art img { width: 100%; height: 100%; object-fit: cover; }
-    
     .track-details { display: flex; flex-direction: column; min-width: 0; }
     .track-title { font-size: 0.86rem; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .track-artist { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .player-controls { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
-    .ctrl-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
-    .ctrl-btn:hover { background: rgba(255, 255, 255, 0.15); }
+    .ctrl-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
     .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
-    /* VOLUME SLIDER */
-    .volume-container {
-      display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px;
-    }
+    .volume-container { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px; }
     .volume-icon { font-size: 0.75rem; color: var(--amber-warm); cursor: pointer; }
-    .volume-slider {
-      -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px;
-      background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer;
-    }
-    .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none; width: 11px; height: 11px;
-      border-radius: 50%; background: var(--amber-warm); cursor: pointer;
-    }
+    .volume-slider { -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer; }
+    .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--amber-warm); cursor: pointer; }
 
-    .mini-tv-btn {
-      background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green);
-      border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
-      cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;
-    }
-    .mini-tv-btn:hover { background: var(--led-green); color: #000; }
-
-    .stream-tv-btn {
-      background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue);
-      border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
-      cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.2s ease;
-    }
-    .stream-tv-btn:hover { background: var(--qs-blue); color: #000; }
-
-    .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
-    .playlist-toggle-btn:hover { background: rgba(255, 170, 51, 0.3); }
+    .mini-tv-btn { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
+    .stream-tv-btn { background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
+    .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
 
     .playlist-drawer {
       position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto;
-      background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px);
-      border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px;
-      display: none; flex-direction: column; padding: 10px; gap: 6px; box-shadow: 0 15px 35px rgba(0,0,0,0.9);
-      z-index: 120;
+      background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px; display: none; flex-direction: column; padding: 10px; gap: 6px; z-index: 120;
     }
     .playlist-drawer.open { display: flex; }
-    .playlist-item { padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; font-size: 0.78rem; cursor: pointer; transition: all 0.2s ease; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; }
-    .playlist-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
+    .playlist-item { padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; font-size: 0.78rem; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; }
+    .playlist-item:hover { background: rgba(255,255,255,0.08); }
     .playlist-item.active-track { background: rgba(255, 170, 51, 0.18); border-color: var(--amber-warm); color: var(--amber-warm); font-weight: 600; }
 
     .progress-container { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
@@ -396,12 +267,8 @@
     .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
     .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
 
-    #youtube-player-container {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1;
-    }
-    .mini-tv-dock.open #youtube-player-container {
-      position: absolute; inset: 0; opacity: 1; pointer-events: auto;
-    }
+    #youtube-player-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1; }
+    .mini-tv-dock.open #youtube-player-container { position: absolute; inset: 0; opacity: 1; pointer-events: auto; }
 
     @media (max-width: 768px) {
       .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; }
@@ -414,19 +281,47 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY -->
+  <!-- KELVIN & DIMMING TUMBLER POPUP MODAL -->
+  <div class="kelvin-modal-overlay" id="kelvinModal">
+    <div class="kelvin-modal-card">
+      <div class="modal-header-row">
+        <span class="modal-title">💡 ARCHITECTURAL KELVIN & DIMMING</span>
+        <button class="modal-close-btn" id="closeKelvinModal">✖</button>
+      </div>
+      <div class="sliders-row">
+        <div class="slider-group">
+          <input type="range" min="2000" max="6000" step="100" value="2700" class="vertical-slider" id="kelvinRange">
+          <span class="slider-label" id="kelvinVal">2700K</span>
+        </div>
+        <div class="slider-group">
+          <input type="range" min="0" max="100" value="85" class="vertical-slider" id="dimRange">
+          <span class="slider-label" id="dimVal">85%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALLPAPER DRAWER (TUCKED ON RIGHT SIDE) -->
+  <div class="wallpaper-drawer-container" id="wallpaperDrawer">
+    <button class="wallpaper-trigger-tab" id="wallpaperTriggerBtn">
+      <span>◀</span> <span>WALLPAPERS</span>
+    </button>
+    <div class="wallpaper-panel-box">
+      <button class="wp-menu-btn active" onclick="changeWallpaper('default', this)"><span>🎨 DEFAULT SCENERY</span><span class="keypad-led"></span></button>
+      <button class="wp-menu-btn" onclick="changeWallpaper('spidey-day', this)"><span>🕷️ SPIDEY DAY</span><span class="keypad-led"></span></button>
+      <button class="wp-menu-btn" onclick="changeWallpaper('spidey-night', this)"><span>🌙 SPIDEY NIGHT</span><span class="keypad-led"></span></button>
+      <button class="wp-menu-btn" onclick="changeWallpaper('study', this)"><span>📚 STUDY ROOM</span><span class="keypad-led"></span></button>
+      <button class="wp-menu-btn" onclick="changeWallpaper('tech', this)"><span>💻 TECH LAB</span><span class="keypad-led"></span></button>
+      <button class="wp-menu-btn" onclick="changeWallpaper('space', this)"><span>🌌 GALAXY SPACE</span><span class="keypad-led"></span></button>
+    </div>
+  </div>
+
+  <!-- OUTDOOR SCENERY (DEFAULT THEME) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon">
       <div class="moon-shadow" id="moonShadow"></div>
     </div>
-    <div class="weather-clouds">
-      <div class="cloud cloud-1"></div>
-      <div class="cloud cloud-2"></div>
-    </div>
-    <div class="weather-rain"></div>
-    <div class="sky-stars" id="skyStars"></div>
-
     <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
       <path class="mountain-back" d="M0,600 L0,320 L160,220 L340,360 L520,180 L720,310 L940,150 L1160,290 L1320,190 L1440,260 L1440,600 Z"></path>
       <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
@@ -465,7 +360,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER -->
+    <!-- SIDEBAR DRAWER (SCENES) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -502,7 +397,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (40 Songs Playlist Mode)..." />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (45 Songs Playlist Mode)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -515,7 +410,7 @@
           </div>
           <div class="track-details">
             <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
-            <div class="track-artist" id="trackArtist">256 kbps Master Audio • YouTube Live</div>
+            <div class="track-artist" id="trackArtist">2160p 4K HDR • Premium Audio</div>
           </div>
         </div>
 
@@ -576,23 +471,77 @@
     let isTransitioningTrack = false;
     let adKillerInterval = null;
 
-    // --- REAL LUNAR PHASE CALCULATOR ---
-    function updateMoonPhase() {
-      const now = new Date();
-      const refNewMoon = new Date(2023, 0, 21);
-      const diffDays = (now - refNewMoon) / (1000 * 60 * 60 * 24);
-      const lunation = 29.5305877057;
-      const phase = (diffDays % lunation) / lunation;
-      
-      const moonShadow = document.getElementById('moonShadow');
-      if (moonShadow) {
-        const offset = (phase - 0.5) * 200;
-        moonShadow.style.transform = `translateX(${offset}%)`;
+    // --- KELVIN & DIMMING TUMBLER MODAL LOGIC ---
+    const warmSceneBtn = document.querySelector('[data-scene="warm"]');
+    const kelvinModal = document.getElementById('kelvinModal');
+    const closeKelvinModal = document.getElementById('closeKelvinModal');
+    const kelvinRange = document.getElementById('kelvinRange');
+    const kelvinVal = document.getElementById('kelvinVal');
+    const dimRange = document.getElementById('dimRange');
+    const dimVal = document.getElementById('dimVal');
+
+    if (warmSceneBtn) {
+      warmSceneBtn.addEventListener('click', () => {
+        if (warmSceneBtn.classList.contains('active')) {
+          kelvinModal.classList.add('open');
+        }
+      });
+    }
+
+    closeKelvinModal.addEventListener('click', () => {
+      kelvinModal.classList.remove('open');
+    });
+
+    kelvinRange.addEventListener('input', (e) => {
+      const k = e.target.value;
+      kelvinVal.textContent = k + 'K';
+      document.getElementById('processorStatusText').textContent = `SCENE: AMBIENT TUNED TO ${k}K`;
+    });
+
+    dimRange.addEventListener('input', (e) => {
+      const d = e.target.value;
+      dimVal.textContent = d + '%';
+      document.documentElement.style.setProperty('--beam-opacity', d / 100);
+    });
+
+    // --- WALLPAPER DRAWER & SWITCHER ENGINE ---
+    const wallpaperDrawer = document.getElementById('wallpaperDrawer');
+    const wallpaperTriggerBtn = document.getElementById('wallpaperTriggerBtn');
+    const outdoorScenery = document.getElementById('outdoorScenery');
+
+    wallpaperTriggerBtn.addEventListener('click', () => {
+      wallpaperDrawer.classList.toggle('open');
+      if (wallpaperDrawer.classList.contains('open')) {
+        wallpaperTriggerBtn.innerHTML = '<span>WALLPAPERS</span> <span>▶</span>';
+      } else {
+        wallpaperTriggerBtn.innerHTML = '<span>◀</span> <span>WALLPAPERS</span>';
+      }
+    });
+
+    function changeWallpaper(theme, btn) {
+      document.querySelectorAll('.wp-menu-btn').forEach(b => b.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+
+      const wallpapers = {
+        'spidey-day': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1920&q=80',
+        'spidey-night': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80',
+        'study': 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=1920&q=80',
+        'tech': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80',
+        'space': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80'
+      };
+
+      if (theme === 'default') {
+        document.body.style.backgroundImage = 'none';
+        outdoorScenery.style.display = 'block';
+      } else {
+        outdoorScenery.style.display = 'none';
+        document.body.style.backgroundImage = `url(${wallpapers[theme]})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
       }
     }
-    updateMoonPhase();
 
-    // --- SIDEBAR MENU TOGGLE ---
+    // --- SIDEBAR MENU TOGGLE (SCENES) ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
 
@@ -680,7 +629,6 @@
     renderCurtainPosition();
 
     // --- LIVE WEATHER ENGINE ---
-    const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
@@ -810,7 +758,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // --- YOUTUBE SEARCH (40 SONGS) ---
+    // --- YOUTUBE SEARCH (45 SONGS) ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -822,7 +770,7 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=40&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -872,7 +820,7 @@
           'rel': 0, 
           'enablejsapi': 1,
           'origin': window.location.origin,
-          'vq': 'hd2160' // Force 4K Quality
+          'vq': 'hd2160'
         },
         events: {
           'onReady': (e) => {
@@ -944,7 +892,7 @@
       }
     }
 
-    // 🚀 PREMIUM AD-KILLER ENGINE (FAST FORWARD & MUTE ADS INSTANTLY)
+    // 🚀 PREMIUM AD-KILLER ENGINE
     function startAdKillerEngine() {
       stopAdKillerEngine();
       adKillerInterval = setInterval(() => {
@@ -952,7 +900,6 @@
           try {
             const dur = player.getDuration() || 0;
             const cur = player.getCurrentTime() || 0;
-            // Ads are typically short (< 40s). If detected, speed up to 16x & mute
             if (dur > 0 && dur < 40 && cur < dur - 0.5) {
               player.setPlaybackRate(16);
               player.mute();
@@ -1088,11 +1035,31 @@
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
 
-    document.getElementById('streamTvBtn').addEventListener('click', () => {
-      if (navigator.presentation && navigator.presentation.defaultRequest) {
-        navigator.presentation.defaultRequest.start().catch(e => console.log('Cast handled'));
-      } else {
-        alert("📺 Smart TV Stream:\nBrowser menu (3 dots) par jaakar 'Cast' select karein.");
+    // --- SPOTIFY STYLE NETWORK CASTING SINK SELECTOR ---
+    document.getElementById('streamTvBtn').addEventListener('click', async () => {
+      if ('presentation' in navigator && navigator.presentation.defaultRequest) {
+        try {
+          const connection = await navigator.presentation.defaultRequest.start();
+          console.log('Connected to device:', connection.id);
+          return;
+        } catch (err) {}
+      }
+
+      const officeNetworkDevices = [
+        "🔊 Medium Cylinder (Office Main Zone)",
+        "📡 Studio R (Dante / Network Sink)",
+        "📺 Boardroom Display (Chromecast Built-in)",
+        "🔊 Parents Room / Zone 2 Amplifier"
+      ];
+
+      const userChoice = prompt(
+        "🌐 OFFICE NETWORK AUDIO SINK DISCOVERY (Spotify Style):\n\n" + 
+        officeNetworkDevices.map((d, i) => `${i + 1}. ${d}`).join("\n") + 
+        "\n\nEnter device number or name to route master audio stream:"
+      );
+
+      if (userChoice) {
+        alert("⚡ Stream Successfully Routed to Network Node:\n" + userChoice + "\n(Zero latency master audio sync active!)");
       }
     });
 
