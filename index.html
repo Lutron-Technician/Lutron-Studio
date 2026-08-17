@@ -4,235 +4,87 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lutron Technician — Professional Master Edition</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
   <style>
-    :root {
-      --bg-dark: #07090e;
-      --bg-card: rgba(18, 22, 33, 0.92);
-      --amber-warm: #ffaa33;
-      --qs-blue: #00d2ff;
-      --led-green: #10b981;
-      --text-main: #f3f4f6;
-      --text-muted: #8a94a6;
-      --border-light: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.15);
-
-      --fixture-color: #ffaa00;
-      --fixture-glow: rgba(255, 170, 0, 0.65);
-      --beam-opacity: 0.85;
-    }
-
+    :root { --bg-dark: #07090e; --bg-card: rgba(18, 22, 33, 0.92); --amber-warm: #ffaa33; --qs-blue: #00d2ff; --led-green: #10b981; --text-main: #f3f4f6; --text-muted: #8a94a6; --border-light: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15); --fixture-color: #ffaa00; --fixture-glow: rgba(255, 170, 0, 0.65); --beam-opacity: 0.85; }
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-
-    body, html {
-      width: 100%; height: 100%; overflow: hidden;
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-dark); color: var(--text-main); position: relative;
-    }
-
-    /* OUTDOOR WINDOW SCENERY LAYER */
-    .outdoor-scenery {
-      position: absolute; inset: 0; z-index: 1; overflow: hidden;
-      transition: background 2s ease-in-out;
-    }
+    body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); position: relative; }
+    .outdoor-scenery { position: absolute; inset: 0; z-index: 1; overflow: hidden; transition: background 2s ease-in-out; }
     .outdoor-scenery.day-mode { background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 50%, #0f172a 100%); }
     .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
     .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #334155 0%, #1e293b 100%); }
     .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); }
-
-    /* SUN FOR DAY MODE */
-    .sky-sun {
-      position: absolute; top: 12%; right: 28%; width: 100px; height: 100px;
-      border-radius: 50%; z-index: 1;
-      background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
-      box-shadow: 0 0 50px #facc15;
-      opacity: 0.55; display: block;
-    }
-
-    /* DYNAMIC GROWING MOON FOR NIGHT MODE ('C' TO FULL MOON) */
-    .sky-moon {
-      position: absolute; top: 12%; right: 28%; width: 60px; height: 60px;
-      border-radius: 50%; z-index: 1; display: none;
-      box-shadow: -15px 5px 0 0 #fef08a; background: transparent;
-      filter: drop-shadow(0 0 20px rgba(254, 240, 138, 0.4));
-      transition: all 0.5s ease;
-    }
+    .sky-sun { position: absolute; top: 12%; right: 28%; width: 100px; height: 100px; border-radius: 50%; z-index: 1; background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%); box-shadow: 0 0 50px #facc15; opacity: 0.55; display: block; }
+    .sky-moon { position: absolute; top: 12%; right: 28%; width: 60px; height: 60px; border-radius: 50%; z-index: 1; display: none; box-shadow: -15px 5px 0 0 #fef08a; background: transparent; filter: drop-shadow(0 0 20px rgba(254, 240, 138, 0.4)); transition: all 0.5s ease; }
     .outdoor-scenery.night-mode .sky-sun { display: none; }
     .outdoor-scenery.night-mode .sky-moon { display: block; }
-
     .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; pointer-events: none; z-index: 3; }
     .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.25; }
     .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; opacity: 0.65; }
-
-    /* MOTORIZED DRAPERY CURTAINS */
-    .curtain-container {
-      position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden;
-    }
-    .curtain-panel {
-      width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
-      position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform;
-    }
-    .curtain-pleats {
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px);
-    }
+    .curtain-container { position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden; }
+    .curtain-panel { width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%); position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform; }
+    .curtain-pleats { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px); }
     .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); }
     .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); }
     .curtain-track-rod { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, #374151, #111827); z-index: 5; }
-
-    .blueprint-grid { 
-      position: absolute; inset: 0; 
-      background-image: linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px); 
-      background-size: 35px 35px; pointer-events: none; z-index: 5; 
-    }
-    
-    /* RIGHT CORNER AMBIENT GLOW */
-    .ambient-glow {
-      position: absolute; top: 40%; right: 8vw; transform: translate(20%, -20%);
-      width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%);
-      border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
-    }
-
-    /* RIGHT CORNER STAGGERED PENDANTS */
-    .lighting-fixtures-layer { 
-      position: absolute; top: 0; right: 6vw; z-index: 7; pointer-events: none; display: flex; gap: 5vw; 
-    }
+    .blueprint-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px); background-size: 35px 35px; pointer-events: none; z-index: 5; }
+    .ambient-glow { position: absolute; top: 40%; right: 8vw; transform: translate(20%, -20%); width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%); border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity); }
+    .lighting-fixtures-layer { position: absolute; top: 0; right: 6vw; z-index: 7; pointer-events: none; display: flex; gap: 5vw; }
     .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
-    
     .pendant-1 .pendant-wire { width: 2px; height: 110px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
     .pendant-2 .pendant-wire { width: 2px; height: 175px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
-
-    .pendant-shade { 
-      width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); 
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; 
-    }
-    .pendant-bulb { 
-      width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); 
-      box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; 
-    }
-    
-    .light-beam {
-      width: 200px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
-      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity);
-    }
-
-    .app-container {
-      position: relative; z-index: 10; width: 100vw; height: 100vh;
-      display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw;
-      pointer-events: none;
-    }
+    .pendant-shade { width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; }
+    .pendant-bulb { width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; }
+    .light-beam { width: 200px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%); clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity); }
+    .app-container { position: relative; z-index: 10; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw; pointer-events: none; }
     .app-container > * { pointer-events: auto; }
-
     .top-header { width: 100%; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
     .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.8rem; border-radius: 100px; border: 1px solid var(--border-light); }
     .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
-
     .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
-    .main-title {
-      font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+    .main-title { font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
-
-    /* SIDEBAR DRAWER (SCENES) */
     .central-stage { display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%; }
-    .sidebar-drawer {
-      position: absolute; left: -310px; top: 50%; transform: translateY(-50%);
-      display: flex; align-items: center; z-index: 40; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    .sidebar-drawer { position: absolute; left: -310px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; z-index: 40; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .sidebar-drawer.open { transform: translateY(-50%) translateX(310px); }
-    .palladiom-frame {
-      width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f);
-      border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .sidebar-trigger-tab {
-      background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
-      color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 0 10px 10px 0;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
-      writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
-      box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
-    }
+    .palladiom-frame { width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f); border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 8px; }
+    .sidebar-trigger-tab { background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none; color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 0 10px 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700; writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px; box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px); }
     .sidebar-trigger-tab:hover { background: var(--amber-warm); color: #000; }
     .palladiom-faceplate { width: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
-    .keypad-btn {
-      height: 42px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
-      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer; width: 100%;
-    }
+    .keypad-btn { height: 42px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer; width: 100%; }
     .keypad-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .keypad-btn.active { color: #ffffff; background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
-
-    /* CLEAN TRANSPARENT SLIDE-DOWN TUMBLER */
-    .kelvin-inline-tumbler {
-      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
-      background: rgba(10, 14, 22, 0.75); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
-    }
+    .kelvin-inline-tumbler { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; background: rgba(10, 14, 22, 0.75); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent; }
     .kelvin-inline-tumbler.open { max-height: 100px; padding: 10px; border-color: rgba(255,255,255,0.1); }
     .tumbler-row { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--amber-warm); }
-    .horizontal-slider {
-      -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--amber-warm);
-    }
-
-    /* MINI TV */
-    .mini-tv-dock {
-      position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
-      background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
-      border-radius: 12px; padding: 6px; box-shadow: 0 20px 45px rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px); z-index: 50; display: none; flex-direction: column; gap: 5px;
-    }
+    .horizontal-slider { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--amber-warm); }
+    .mini-tv-dock { position: fixed; bottom: 7.8rem; right: 3vw; width: 270px; background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border); border-radius: 12px; padding: 6px; box-shadow: 0 20px 45px rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 50; display: none; flex-direction: column; gap: 5px; }
     .mini-tv-dock.open { display: flex; }
     .mini-tv-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 6px; }
     .mini-tv-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber-warm); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
     .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
-
-    /* SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV) */
-    .spotify-connect-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px);
-      z-index: 300; display: none; align-items: flex-end; justify-content: center;
-    }
+    .spotify-connect-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
     .spotify-connect-overlay.open { display: flex; }
-    .spotify-connect-sheet {
-      width: 100%; max-width: 500px; background: #121622; border-top: 1px solid var(--glass-border);
-      border-radius: 24px 24px 0 0; padding: 20px 24px 35px 24px; display: flex; flex-direction: column; gap: 16px;
-      box-shadow: 0 -20px 50px rgba(0,0,0,0.9); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    .spotify-connect-sheet { width: 100%; max-width: 500px; background: #121622; border-top: 1px solid var(--glass-border); border-radius: 24px 24px 0 0; padding: 20px 24px 35px 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -20px 50px rgba(0,0,0,0.9); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; align-self: center; margin-bottom: 4px; }
     .sheet-title { font-family: 'Syncopate', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; }
-    .active-device-box {
-      background: rgba(16, 185, 129, 0.1); border: 1px solid var(--led-green); border-radius: 14px; padding: 14px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    .active-device-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--led-green); border-radius: 14px; padding: 14px; display: flex; align-items: center; justify-content: space-between; }
     .device-info-left { display: flex; align-items: center; gap: 12px; }
     .device-icon-wrap { width: 38px; height: 38px; background: rgba(16, 185, 129, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--led-green); font-size: 1.1rem; }
     .device-list-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
-    .device-item {
-      display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; cursor: pointer; transition: all 0.2s ease;
-    }
+    .device-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }
     .device-item:hover { background: rgba(255,255,255,0.08); border-color: var(--amber-warm); }
-
-    /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
     .search-box-row { display: flex; gap: 8px; width: 100%; }
-    .song-search-input {
-      flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light);
-      border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem; outline: none;
-    }
-    .search-submit-btn {
-      background: var(--amber-warm); color: #000; border: none; border-radius: 10px;
-      padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer;
-    }
+    .song-search-input { flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light); border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem; outline: none; }
+    .search-submit-btn { background: var(--amber-warm); color: #000; border: none; border-radius: 10px; padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; }
     .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
     .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 180px; }
     .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); }
@@ -240,51 +92,32 @@
     .track-details { display: flex; flex-direction: column; min-width: 0; }
     .track-title { font-size: 0.86rem; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .track-artist { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
     .player-controls { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
     .ctrl-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
     .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
-
     .volume-container { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px; }
     .volume-icon { font-size: 0.75rem; color: var(--amber-warm); cursor: pointer; }
     .volume-slider { -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer; }
     .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--amber-warm); cursor: pointer; }
-
     .mini-tv-btn { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
     .stream-tv-btn { background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
     .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
-
-    .playlist-drawer {
-      position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto;
-      background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px; display: none; flex-direction: column; padding: 10px; gap: 6px; z-index: 120;
-    }
+    .playlist-drawer { position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto; background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px; display: none; flex-direction: column; padding: 10px; gap: 6px; z-index: 120; }
     .playlist-drawer.open { display: flex; }
     .playlist-item { padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; font-size: 0.78rem; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; }
     .playlist-item:hover { background: rgba(255,255,255,0.08); }
     .playlist-item.active-track { background: rgba(255, 170, 51, 0.18); border-color: var(--amber-warm); color: var(--amber-warm); font-weight: 600; }
-
     .progress-container { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
     .time-stamp { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 35px; }
     .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
     .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
-
     #youtube-player-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1; }
     .mini-tv-dock.open #youtube-player-container { position: absolute; inset: 0; opacity: 1; pointer-events: auto; }
-
-    @media (max-width: 768px) {
-      .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; }
-      .hero-header { text-align: center; }
-      .playlist-drawer { width: 100%; right: 0; }
-      .volume-container { display: none; }
-      .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; }
-      .lighting-fixtures-layer { right: 6vw; gap: 5vw; }
-    }
+    @media (max-width: 768px) { .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; } .hero-header { text-align: center; } .playlist-drawer { width: 100%; right: 0; } .volume-container { display: none; } .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; } .lighting-fixtures-layer { right: 6vw; gap: 5vw; } }
   </style>
 </head>
 <body>
-
-  <!-- SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV) -->
   <div class="spotify-connect-overlay" id="connectOverlay">
     <div class="spotify-connect-sheet">
       <div class="sheet-handle"></div>
@@ -292,26 +125,16 @@
         <span class="sheet-title">Connect to a device</span>
         <button id="closeSheetBtn" style="background:transparent; border:none; color:#94a3b8; font-size:1.1rem; cursor:pointer;">✖</button>
       </div>
-
-      <!-- Active Device (This Phone) -->
       <div class="active-device-box" id="activePhoneDevice" style="cursor:pointer;">
-        <div class="device-info-left">
-          <div class="device-icon-wrap">📱</div>
-          <div>
-            <div style="font-size:0.85rem; font-weight:700; color:#fff;">This phone</div>
-            <div id="currentActiveSongLabel" style="font-size:0.7rem; color:var(--led-green); margin-top:2px;">Tu Hi Haqeeqat — Javed Ali</div>
-          </div>
+        <div class="device-info-left"><div class="device-icon-wrap">📱</div>
+          <div><div style="font-size:0.85rem; font-weight:700; color:#fff;">This phone</div><div id="currentActiveSongLabel" style="font-size:0.7rem; color:var(--led-green); margin-top:2px;">Tu Hi Haqeeqat — Javed Ali</div></div>
         </div>
         <div style="width:10px; height:10px; background:var(--led-green); border-radius:50%; box-shadow:0 0 10px var(--led-green);"></div>
       </div>
-
       <div class="device-list-title" id="networkStatusHeader">CHECKING NETWORK...</div>
-      
       <div id="networkDeviceListContainer"></div>
     </div>
   </div>
-
-  <!-- OUTDOOR SCENERY (WITH DYNAMIC GROWING MOON FOR NIGHT MODE) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun"></div>
     <div class="sky-moon" id="skyMoon"></div>
@@ -320,35 +143,26 @@
       <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
     </svg>
   </div>
-
-  <!-- MOTORIZED DRAPERY CURTAINS -->
   <div class="curtain-track-rod"></div>
   <div class="curtain-container" id="curtainContainer">
     <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
     <div class="curtain-panel curtain-right" id="curtainRight"><div class="curtain-pleats"></div></div>
   </div>
-
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
-
-  <!-- RIGHT CORNER STAGGERED PENDANTS -->
   <div class="lighting-fixtures-layer">
     <div class="pendant-light pendant-1"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
     <div class="pendant-light pendant-2"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
   </div>
-
   <div class="app-container">
     <header class="top-header">
       <div class="status-badge"><span class="led-dot"></span><span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span></div>
       <div id="liveWeatherStatus" style="font-family:'JetBrains Mono',monospace; color:var(--amber-warm);">LIVE WEATHER: SYNCING...</div>
     </header>
-
     <div class="hero-header">
       <h1 class="main-title">LUTRON TECHNICIAN</h1>
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
-
-    <!-- SIDEBAR DRAWER (SCENES) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -356,14 +170,12 @@
             <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
-            
             <div class="kelvin-inline-tumbler" id="kelvinTumbler">
               <div class="tumbler-row"><span>KELVIN SPECTRUM</span></div>
               <input type="range" min="1000" max="12000" step="200" value="3000" class="horizontal-slider" id="kelvinRange">
               <div class="tumbler-row" style="margin-top:4px;"><span>INTENSITY LEVEL</span></div>
               <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
             </div>
-
             <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
@@ -373,37 +185,25 @@
       </div>
     </main>
   </div>
-
-  <!-- MINI TV -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
       <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
     </div>
-    <div class="mini-tv-frame" id="miniTvSlot">
-      <div id="youtube-player-container"><div id="yt-player"></div></div>
-    </div>
+    <div class="mini-tv-frame" id="miniTvSlot"><div id="youtube-player-container"><div id="yt-player"></div></div></div>
   </div>
-
-  <!-- PLAYER -->
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
         <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (45 Songs Playlist Mode)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
-
       <div class="playlist-drawer" id="playlistDrawer"></div>
-
       <div class="player-top-row">
         <div class="track-info">
           <div class="album-art"><img id="albumImg" src="https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" alt="Art"></div>
-          <div class="track-details">
-            <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
-            <div class="track-artist" id="trackArtist">2160p 4K HDR • Studio HD Master Audio</div>
-          </div>
+          <div class="track-details"><div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div><div class="track-artist" id="trackArtist">2160p 4K HDR • Studio HD Master Audio</div></div>
         </div>
-
         <div class="player-controls">
           <button class="ctrl-btn" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
           <button class="ctrl-btn play-btn" id="playPauseBtn">
@@ -411,406 +211,79 @@
             <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           </button>
           <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-          
-          <div class="volume-container">
-            <span class="volume-icon" id="volumeIcon">🔊</span>
-            <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
-          </div>
-
+          <div class="volume-container"><span class="volume-icon" id="volumeIcon">🔊</span><input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume"></div>
           <button class="mini-tv-btn" id="miniTvBtn"><span>📺</span> <span>MINI TV</span></button>
           <button class="stream-tv-btn" id="streamTvBtn"><span>📡</span> <span>STREAM TV</span></button>
           <button class="playlist-toggle-btn" id="playlistToggleBtn"><span>📋</span> <span>SONGS</span></button>
         </div>
       </div>
-
-      <div class="progress-container">
-        <span class="time-stamp" id="currentTime">0:00</span>
-        <div class="progress-bar-bg" id="progressBarBg"><div class="progress-bar-fill" id="progressBarFill"></div></div>
-        <span class="time-stamp" id="totalTime">0:00</span>
-      </div>
+      <div class="progress-container"><span class="time-stamp" id="currentTime">0:00</span><div class="progress-bar-bg" id="progressBarBg"><div class="progress-bar-fill" id="progressBarFill"></div></div><span class="time-stamp" id="totalTime">0:00</span></div>
     </div>
   </div>
-
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
-    let songsList = [
-      { id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" },
-      { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
-      { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" }
-    ];
+    let songsList = [{ id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" }, { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" }, { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" }];
     let currentTrackIndex = 0, player, isPlaying = false, progressTimer = null;
-
-    // --- DYNAMIC GROWING MOON PHASE LOGIC ---
-    function updateMoonPhase() {
-      const today = new Date();
-      const startDate = new Date("2026-08-17"); // Base date: Crescent
-      const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-      const moon = document.getElementById('skyMoon');
-      if(moon) {
-        // Growth calculation as days progress
-        const shadowOffset = Math.max(2, 18 - (diffDays * 1.5));
-        moon.style.boxShadow = `-${shadowOffset}px 4px 0 0 #fef08a`;
-      }
-    }
-    updateMoonPhase();
-
-    // --- KELVIN SPECTRUM & DIMMING ENGINE ---
-    const warmBtn = document.querySelector('[data-scene="warm"]');
-    const tumbler = document.getElementById('kelvinTumbler');
-    warmBtn.addEventListener('click', () => { if(warmBtn.classList.contains('active')) tumbler.classList.toggle('open'); });
-
+    function updateMoonPhase() { const today = new Date(); const startDate = new Date("2026-08-17"); const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)); const moon = document.getElementById('skyMoon'); if(moon) { const shadowOffset = Math.max(2, 18 - (diffDays * 1.5)); moon.style.boxShadow = `-${shadowOffset}px 4px 0 0 #fef08a`; } } updateMoonPhase();
+    const warmBtn = document.querySelector('[data-scene="warm"]'); const tumbler = document.getElementById('kelvinTumbler'); warmBtn.addEventListener('click', () => { if(warmBtn.classList.contains('active')) tumbler.classList.toggle('open'); });
     const root = document.documentElement;
-    document.getElementById('kelvinRange').addEventListener('input', (e) => {
-      const k = parseInt(e.target.value);
-      let hexColor = k <= 2000 ? "#ff6600" : (k <= 5000 ? "#ffddaa" : (k <= 8000 ? "#ffffff" : "#3b82f6"));
-      root.style.setProperty('--fixture-color', hexColor);
-      root.style.setProperty('--fixture-glow', hexColor);
-    });
-    document.getElementById('dimRange').addEventListener('input', (e) => {
-      const d = parseInt(e.target.value);
-      root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100);
-    });
-
-    // --- SIDEBAR DRAWER ---
-    document.getElementById('sidebarTriggerBtn').addEventListener('click', () => {
-      document.getElementById('sidebarDrawer').classList.toggle('open');
-    });
-
-    // --- LIVE NATURAL WEATHER & TIME SYNC ---
-    async function fetchWeather() {
-      try {
-        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
-        const data = await res.json();
-        const code = data.current_weather.weathercode;
-        const temp = Math.round(data.current_weather.temperature);
-        const scenery = document.getElementById('outdoorScenery');
-        
-        const hour = new Date().getHours();
-        if (hour >= 19 || hour < 6) {
-          scenery.className = 'outdoor-scenery night-mode';
-          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: NIGHT ${temp}°C`;
-        } else if (code >= 50 && code <= 99) {
-          scenery.className = 'outdoor-scenery rainy-mode';
-          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: RAIN ${temp}°C`;
-        } else if (code >= 1 && code <= 49) {
-          scenery.className = 'outdoor-scenery cloudy-mode';
-          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: CLOUDY ${temp}°C`;
-        } else {
-          scenery.className = 'outdoor-scenery day-mode';
-          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: CLEAR SUNNY ${temp}°C`;
-        }
-      } catch(e) {
-        document.getElementById('outdoorScenery').className = 'outdoor-scenery day-mode';
-        document.getElementById('liveWeatherStatus').innerText = "LIVE WEATHER: ONLINE";
-      }
-    }
-    fetchWeather();
-
-    // --- YOUTUBE API EMBED CONTROLLER ---
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('yt-player', {
-        height: '100%', width: '100%',
-        videoId: songsList[0].id,
-        host: 'https://www.youtube-nocookie.com',
-        playerVars: { 'autoplay': 0, 'controls': 1, 'playsinline': 1, 'rel': 0, 'enablejsapi': 1, 'origin': window.location.origin },
-        events: {
-          'onReady': (e) => { renderPlaylist(); updateTrackInfo(); updateTimeDisplay(); },
-          'onStateChange': (e) => {
-            if(e.data === YT.PlayerState.PLAYING) {
-              isPlaying = true;
-              document.getElementById('playIcon').style.display='none';
-              document.getElementById('pauseIcon').style.display='block';
-              startTimer();
-            } else if(e.data === YT.PlayerState.ENDED) {
-              // AUTO-NEXT: Automatically play next track when current ends
-              playTrackAtIndex((currentTrackIndex + 1) % songsList.length);
-            } else {
-              isPlaying = false;
-              document.getElementById('playIcon').style.display='block';
-              document.getElementById('pauseIcon').style.display='none';
-              stopTimer();
-            }
-          }
-        }
-      });
-    }
-
-    function playTrackAtIndex(idx) {
-      currentTrackIndex = idx;
-      const track = songsList[currentTrackIndex];
-      if(player && player.loadVideoById) {
-        player.loadVideoById(track.id);
-        player.playVideo();
-      }
-      updateTrackInfo();
-      renderPlaylist();
-    }
-
-    function updateTrackInfo() {
-      const track = songsList[currentTrackIndex];
-      if(track) {
-        document.getElementById('trackTitle').innerText = track.name;
-        document.getElementById('albumImg').src = track.img;
-        document.getElementById('miniTvTitle').innerText = "📺 " + track.name;
-        document.getElementById('currentActiveSongLabel').innerText = track.name;
-      }
-    }
-
-    function renderPlaylist() {
-      const drawer = document.getElementById('playlistDrawer');
-      drawer.innerHTML = '';
-      songsList.forEach((song, idx) => {
-        const div = document.createElement('div');
-        div.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
-        div.innerHTML = `<span>🎵 ${song.name}</span><span style="color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>`;
-        div.onclick = () => { playTrackAtIndex(idx); drawer.classList.remove('open'); };
-        drawer.appendChild(div);
-      });
-    }
-
-    document.getElementById('playPauseBtn').onclick = () => {
-      if(player) { isPlaying ? player.pauseVideo() : player.playVideo(); }
-    };
+    document.getElementById('kelvinRange').addEventListener('input', (e) => { const k = parseInt(e.target.value); let hexColor = k <= 2000 ? "#ff6600" : (k <= 5000 ? "#ffddaa" : (k <= 8000 ? "#ffffff" : "#3b82f6")); root.style.setProperty('--fixture-color', hexColor); root.style.setProperty('--fixture-glow', hexColor); });
+    document.getElementById('dimRange').addEventListener('input', (e) => { const d = parseInt(e.target.value); root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100); });
+    document.getElementById('sidebarTriggerBtn').addEventListener('click', () => { document.getElementById('sidebarDrawer').classList.toggle('open'); });
+    async function fetchWeather() { try { const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true"); const data = await res.json(); const code = data.current_weather.weathercode; const temp = Math.round(data.current_weather.temperature); const scenery = document.getElementById('outdoorScenery'); const hour = new Date().getHours(); if (hour >= 19 || hour < 6) { scenery.className = 'outdoor-scenery night-mode'; document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: NIGHT ${temp}°C`; } else if (code >= 50 && code <= 99) { scenery.className = 'outdoor-scenery rainy-mode'; document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: RAIN ${temp}°C`; } else if (code >= 1 && code <= 49) { scenery.className = 'outdoor-scenery cloudy-mode'; document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: CLOUDY ${temp}°C`; } else { scenery.className = 'outdoor-scenery day-mode'; document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: CLEAR SUNNY ${temp}°C`; } } catch(e) { document.getElementById('outdoorScenery').className = 'outdoor-scenery day-mode'; document.getElementById('liveWeatherStatus').innerText = "LIVE WEATHER: ONLINE"; } } fetchWeather();
+    function onYouTubeIframeAPIReady() { player = new YT.Player('yt-player', { height: '100%', width: '100%', videoId: songsList[0].id, host: 'https://www.youtube-nocookie.com', playerVars: { 'autoplay': 0, 'controls': 1, 'playsinline': 1, 'rel': 0, 'enablejsapi': 1, 'origin': window.location.origin }, events: { 'onReady': (e) => { renderPlaylist(); updateTrackInfo(); updateTimeDisplay(); }, 'onStateChange': (e) => { if(e.data === YT.PlayerState.PLAYING) { isPlaying = true; document.getElementById('playIcon').style.display='none'; document.getElementById('pauseIcon').style.display='block'; startTimer(); } else if(e.data === YT.PlayerState.ENDED) { playTrackAtIndex((currentTrackIndex + 1) % songsList.length); } else { isPlaying = false; document.getElementById('playIcon').style.display='block'; document.getElementById('pauseIcon').style.display='none'; stopTimer(); } } } }); }
+    function playTrackAtIndex(idx) { currentTrackIndex = idx; const track = songsList[currentTrackIndex]; if(player && player.loadVideoById) { player.loadVideoById(track.id); player.playVideo(); } updateTrackInfo(); renderPlaylist(); }
+    function updateTrackInfo() { const track = songsList[currentTrackIndex]; if(track) { document.getElementById('trackTitle').innerText = track.name; document.getElementById('albumImg').src = track.img; document.getElementById('miniTvTitle').innerText = "📺 " + track.name; document.getElementById('currentActiveSongLabel').innerText = track.name; } }
+    function renderPlaylist() { const drawer = document.getElementById('playlistDrawer'); drawer.innerHTML = ''; songsList.forEach((song, idx) => { const div = document.createElement('div'); div.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`; div.innerHTML = `<span>🎵 ${song.name}</span><span style="color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>`; div.onclick = () => { playTrackAtIndex(idx); drawer.classList.remove('open'); }; drawer.appendChild(div); }); }
+    document.getElementById('playPauseBtn').onclick = () => { if(player) { isPlaying ? player.pauseVideo() : player.playVideo(); } };
     document.getElementById('nextBtn').onclick = () => { playTrackAtIndex((currentTrackIndex + 1) % songsList.length); };
     document.getElementById('prevBtn').onclick = () => { playTrackAtIndex((currentTrackIndex - 1 + songsList.length) % songsList.length); };
-
-    function formatTime(sec) {
-      if (!sec || isNaN(sec) || sec <= 0) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
-    function updateTimeDisplay() {
-      if (player && typeof player.getDuration === 'function') {
-        const cur = player.getCurrentTime() || 0;
-        const dur = player.getDuration() || 0;
-        document.getElementById('currentTime').innerText = formatTime(cur);
-        if (dur > 0) {
-          document.getElementById('totalTime').innerText = formatTime(dur);
-          document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
-        }
-      }
-    }
-
-    function startTimer() {
-      stopTimer();
-      progressTimer = setInterval(updateTimeDisplay, 500);
-    }
-    function stopTimer() {
-      if (progressTimer) clearInterval(progressTimer);
-    }
-
-    document.getElementById('progressBarBg').onclick = (e) => {
-      if (player && player.getDuration) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const pos = (e.clientX - rect.left) / rect.width;
-        const dur = player.getDuration();
-        player.seekTo(dur * pos, true);
-        updateTimeDisplay();
-      }
-    };
-
-    const volumeSlider = document.getElementById('volumeSlider');
-    const volumeIcon = document.getElementById('volumeIcon');
-    volumeSlider.addEventListener('input', (e) => {
-      const val = parseInt(e.target.value);
-      if (player && player.setVolume) player.setVolume(val);
-      if (val === 0) volumeIcon.textContent = "🔇";
-      else if (val < 50) volumeIcon.textContent = "🔉";
-      else volumeIcon.textContent = "🔊";
-    });
-
-    // --- SEARCH 45 SONGS (NON-STOP BACKGROUND SEARCH) ---
-    async function searchSongs() {
-      const q = document.getElementById('songQueryInput').value.trim();
-      if(!q) return;
-      document.getElementById('searchSubmitBtn').innerText = "SEARCHING...";
-      try {
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${encodeURIComponent(q + ' Official Audio')}&type=video&key=${YT_API_KEY}`);
-        const data = await res.json();
-        if(data.items && data.items.length > 0) {
-          songsList = data.items.map(item => ({
-            id: item.id.videoId,
-            name: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'"),
-            img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : ''
-          }));
-          renderPlaylist();
-          document.getElementById('playlistDrawer').classList.add('open');
-        }
-      } catch(e) { alert("YouTube Search error."); }
-      finally { document.getElementById('searchSubmitBtn').innerText = "SEARCH"; }
-    }
-
-    document.getElementById('searchSubmitBtn').onclick = searchSongs;
-    document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); };
-    document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
-
-    // --- MINI TV TOGGLE ---
-    const miniTvDock = document.getElementById('miniTvDock');
-    document.getElementById('miniTvBtn').onclick = () => {
-      miniTvDock.classList.toggle('open');
-    };
-    document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
-
-    // --- STREAM TV NETWORK SCAN & ROUTING ---
+    function formatTime(sec) { if (!sec || isNaN(sec) || sec <= 0) return "0:00"; const m = Math.floor(sec / 60); const s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
+    function updateTimeDisplay() { if (player && typeof player.getDuration === 'function') { const cur = player.getCurrentTime() || 0; const dur = player.getDuration() || 0; document.getElementById('currentTime').innerText = formatTime(cur); if (dur > 0) { document.getElementById('totalTime').innerText = formatTime(dur); document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`; } } }
+    function startTimer() { stopTimer(); progressTimer = setInterval(updateTimeDisplay, 500); }
+    function stopTimer() { if (progressTimer) clearInterval(progressTimer); }
+    document.getElementById('progressBarBg').onclick = (e) => { if (player && player.getDuration) { const rect = e.currentTarget.getBoundingClientRect(); const pos = (e.clientX - rect.left) / rect.width; const dur = player.getDuration(); player.seekTo(dur * pos, true); updateTimeDisplay(); } };
+    const volumeSlider = document.getElementById('volumeSlider'); const volumeIcon = document.getElementById('volumeIcon');
+    volumeSlider.addEventListener('input', (e) => { const val = parseInt(e.target.value); if (player && player.setVolume) player.setVolume(val); if (val === 0) volumeIcon.textContent = "🔇"; else if (val < 50) volumeIcon.textContent = "🔉"; else volumeIcon.textContent = "🔊"; });
+    async function searchSongs() { const q = document.getElementById('songQueryInput').value.trim(); if(!q) return; document.getElementById('searchSubmitBtn').innerText = "SEARCHING..."; try { const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${encodeURIComponent(q + ' Official Audio')}&type=video&key=${YT_API_KEY}`); const data = await res.json(); if(data.items && data.items.length > 0) { songsList = data.items.map(item => ({ id: item.id.videoId, name: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'"), img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : '' })); renderPlaylist(); document.getElementById('playlistDrawer').classList.add('open'); } } catch(e) { alert("YouTube Search error."); } finally { document.getElementById('searchSubmitBtn').innerText = "SEARCH"; } }
+    document.getElementById('searchSubmitBtn').onclick = searchSongs; document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); }; document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
+    const miniTvDock = document.getElementById('miniTvDock'); document.getElementById('miniTvBtn').onclick = () => { miniTvDock.classList.toggle('open'); }; document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
     const connectOverlay = document.getElementById('connectOverlay');
-    document.getElementById('streamTvBtn').onclick = () => {
-      connectOverlay.classList.add('open');
-      checkNetworkSinks();
-    };
+    document.getElementById('streamTvBtn').onclick = () => { connectOverlay.classList.add('open'); checkNetworkSinks(); };
     document.getElementById('closeSheetBtn').onclick = () => { connectOverlay.classList.remove('open'); };
     document.getElementById('activePhoneDevice').onclick = () => { connectOverlay.classList.remove('open'); };
-
     function checkNetworkSinks() {
       const header = document.getElementById('networkStatusHeader');
       const listContainer = document.getElementById('networkDeviceListContainer');
-      
       const isOnline = navigator.onLine;
-      const isLocalWifi = isOnline && (!navigator.connection || navigator.connection.type === 'wifi' || navigator.connection.type === 'ethernet' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-
+      const isLocalWifi = isOnline && (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || navigator.connection?.type === 'wifi' || navigator.connection?.type === 'ethernet');
       if (isLocalWifi) {
         header.innerText = "ON OTHER NETWORKS & ROOMS";
-        listContainer.innerHTML = `
-          <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">
-            <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Medium Cylinder</div><div style="font-size:0.65rem; color:var(--text-muted);">Office Main Zone • Active</div></div></div>
-            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-          </div>
-          <div class="device-item" onclick="selectAudioSink('Sphere 360')" style="margin-top:8px;">
-            <div class="device-info-left"><span style="font-size:1.1rem;">📽️</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Sphere 360</div><div style="font-size:0.65rem; color:var(--text-muted);">Boardroom 4K Display</div></div></div>
-            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-          </div>
-          <div class="device-item" onclick="selectAudioSink('Studio R')" style="margin-top:8px;">
-            <div class="device-info-left"><span style="font-size:1.1rem;">📡</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div><div style="font-size:0.65rem; color:var(--text-muted);">Dante Sync Node • Online</div></div></div>
-            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-          </div>
-          <div class="device-item" onclick="selectAudioSink('Parents Room')" style="margin-top:8px;">
-            <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Parents Room</div><div style="font-size:0.65rem; color:var(--text-muted);">Zone Amplifier</div></div></div>
-            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-          </div>
-        `;
+        listContainer.innerHTML = `<div class="device-item" onclick="selectAudioSink('Medium Cylinder')"><div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Medium Cylinder</div><div style="font-size:0.65rem; color:var(--text-muted);">Office Main Zone • Active</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div><div class="device-item" onclick="selectAudioSink('Sphere 360')" style="margin-top:8px;"><div class="device-info-left"><span style="font-size:1.1rem;">📽️</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Sphere 360</div><div style="font-size:0.65rem; color:var(--text-muted);">Boardroom 4K Display</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div><div class="device-item" onclick="selectAudioSink('Studio R')" style="margin-top:8px;"><div class="device-info-left"><span style="font-size:1.1rem;">📡</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div><div style="font-size:0.65rem; color:var(--text-muted);">Dante Sync Node • Online</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div><div class="device-item" onclick="selectAudioSink('Parents Room')" style="margin-top:8px;"><div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Parents Room</div><div style="font-size:0.65rem; color:var(--text-muted);">Zone Amplifier</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div>`;
       } else {
         header.innerText = "NO NETWORK DETECTED";
-        listContainer.innerHTML = `
-          <div style="padding:20px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">
-            🚫 No active casting devices found on this network.<br><span style="font-size:0.65rem; opacity:0.7;">Connect to local studio Wi-Fi to discover casting nodes.</span>
-          </div>
-        `;
+        listContainer.innerHTML = `<div style="padding:20px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">🚫 No active casting devices found on this network.<br><span style="font-size:0.65rem; opacity:0.7;">Connect to local studio Wi-Fi to discover casting nodes.</span></div>`;
       }
     }
-
     function selectAudioSink(deviceName) {
-      alert(`⚡ Successfully routed playback to: ${deviceName}\n(Network Dante node linked!)`);
-      document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Dante Active)`;
-      connectOverlay.classList.remove('open');
-    }
-
-    // --- PROFESSIONAL MOTORIZED DRAPERY GLIDE (EXACT % STOP + AUTO LIGHTS OFF) ---
-    const curtainLeft = document.getElementById('curtainLeft');
-    const curtainRight = document.getElementById('curtainRight');
-    const shadesBtn = document.getElementById('shadesBtn');
-    const processorStatusText = document.getElementById('processorStatusText');
-
-    let curtainPos = 0; 
-    let curtainMotionState = 'STOPPED'; 
-    let nextTarget = 'OPEN'; 
-    let curtainAnimFrame = null;
-    const DRAPERY_SPEED = 0.35; 
-
-    function renderCurtainPosition() {
-      curtainLeft.style.transform = `translateX(-${curtainPos}%)`;
-      curtainRight.style.transform = `translateX(${curtainPos}%)`;
-    }
-
-    function animateCurtainStep() {
-      if (curtainMotionState === 'OPENING') {
-        curtainPos += DRAPERY_SPEED;
-        if (curtainPos >= 100) {
-          curtainPos = 100;
-          curtainMotionState = 'STOPPED';
-          nextTarget = 'CLOSE';
-          shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
-          processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN (100%)";
-          shadesBtn.classList.add('active');
-        } else {
-          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
-          processorStatusText.textContent = `SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`;
-          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
-        }
-      } else if (curtainMotionState === 'CLOSING') {
-        curtainPos -= DRAPERY_SPEED;
-        if (curtainPos <= 0) {
-          curtainPos = 0;
-          curtainMotionState = 'STOPPED';
-          nextTarget = 'OPEN';
-          shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
-          processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
-          shadesBtn.classList.remove('active');
-        } else {
-          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
-          processorStatusText.textContent = `SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`;
-          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
-        }
-      }
-      renderCurtainPosition();
-    }
-
-    function handleDraperyClick() {
-      if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
-        nextTarget = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
-        curtainMotionState = 'STOPPED';
-        shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${nextTarget}`;
-        processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
-      } else {
-        if (nextTarget === 'OPEN') {
-          curtainMotionState = 'OPENING';
-          shadesBtn.classList.add('active');
-          // Automatically turn lights OFF on drapery opening
-          applySceneLighting('off', document.querySelector('[data-scene="off"]'));
-        } else {
-          curtainMotionState = 'CLOSING';
-        }
-        shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
-        curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
+      const isOnline = navigator.onLine;
+      const isLocalWifi = isOnline && (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || navigator.connection?.type === 'wifi' || navigator.connection?.type === 'ethernet');
+      if (isLocalWifi) {
+        alert(`⚡ Successfully routed playback to: ${deviceName}\n(Network Dante node linked!)`);
+        document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Dante Active)`;
+        connectOverlay.classList.remove('open');
       }
     }
-
-    // --- SCENES LIGHTING CONTROLS ---
+    // Lighting & Drapery logic remains same...
+    const curtainLeft = document.getElementById('curtainLeft'); const curtainRight = document.getElementById('curtainRight'); const shadesBtn = document.getElementById('shadesBtn'); const processorStatusText = document.getElementById('processorStatusText'); let curtainPos = 0; let curtainMotionState = 'STOPPED'; let nextTarget = 'OPEN'; let curtainAnimFrame = null; const DRAPERY_SPEED = 0.35; 
+    function renderCurtainPosition() { curtainLeft.style.transform = `translateX(-${curtainPos}%)`; curtainRight.style.transform = `translateX(${curtainPos}%)`; }
+    function animateCurtainStep() { if (curtainMotionState === 'OPENING') { curtainPos += DRAPERY_SPEED; if (curtainPos >= 100) { curtainPos = 100; curtainMotionState = 'STOPPED'; nextTarget = 'CLOSE'; shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE"; processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN (100%)"; shadesBtn.classList.add('active'); } else { shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY"; processorStatusText.textContent = `SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`; curtainAnimFrame = requestAnimationFrame(animateCurtainStep); } } else if (curtainMotionState === 'CLOSING') { curtainPos -= DRAPERY_SPEED; if (curtainPos <= 0) { curtainPos = 0; curtainMotionState = 'STOPPED'; nextTarget = 'OPEN'; shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN"; processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)"; shadesBtn.classList.remove('active'); } else { shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY"; processorStatusText.textContent = `SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`; curtainAnimFrame = requestAnimationFrame(animateCurtainStep); } } renderCurtainPosition(); }
+    function handleDraperyClick() { if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') { if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame); nextTarget = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN'; curtainMotionState = 'STOPPED'; shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${nextTarget}`; processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`; } else { if (nextTarget === 'OPEN') { curtainMotionState = 'OPENING'; shadesBtn.classList.add('active'); applySceneLighting('off', document.querySelector('[data-scene="off"]')); } else { curtainMotionState = 'CLOSING'; } shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY"; curtainAnimFrame = requestAnimationFrame(animateCurtainStep); } }
     const keypadButtons = document.querySelectorAll('.keypad-btn');
-    const sceneLightingConfig = {
-      bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.95)", opacity: "0.95", status: "01 BRIGHT (100% COOL WHITE)" },
-      dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.45)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" },
-      warm: { color: "#ffaa00", glow: "rgba(255, 170, 0, 0.75)", opacity: "0.85", status: "03 AMBIENT 2700K KELVIN" },
-      party: { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.8)", opacity: "0.75", status: "04 DALI BLUE NIGHT MODE" },
-      off: { color: "#000000", glow: "transparent", opacity: "0", status: "06 ALL OFF (0% LOAD)" }
-    };
-
-    function applySceneLighting(sceneName, targetBtn) {
-      if (sceneName === 'shades') {
-        handleDraperyClick();
-        return;
-      }
-
-      keypadButtons.forEach(b => {
-        if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active');
-      });
-      if(targetBtn) targetBtn.classList.add('active');
-
-      const config = sceneLightingConfig[sceneName] || sceneLightingConfig.warm;
-      root.style.setProperty('--fixture-color', config.color);
-      root.style.setProperty('--fixture-glow', config.glow);
-      root.style.setProperty('--beam-opacity', config.opacity);
-      processorStatusText.textContent = config.status;
-    }
-
-    keypadButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        applySceneLighting(btn.getAttribute('data-scene'), btn);
-      });
-    });
-
+    const sceneLightingConfig = { bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.95)", opacity: "0.95", status: "01 BRIGHT (100% COOL WHITE)" }, dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.45)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" }, warm: { color: "#ffaa00", glow: "rgba(255, 170, 0, 0.75)", opacity: "0.85", status: "03 AMBIENT 2700K KELVIN" }, party: { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.8)", opacity: "0.75", status: "04 DALI BLUE NIGHT MODE" }, off: { color: "#000000", glow: "transparent", opacity: "0", status: "06 ALL OFF (0% LOAD)" } };
+    function applySceneLighting(sceneName, targetBtn) { if (sceneName === 'shades') { handleDraperyClick(); return; } keypadButtons.forEach(b => { if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active'); }); if(targetBtn) targetBtn.classList.add('active'); const config = sceneLightingConfig[sceneName] || sceneLightingConfig.warm; root.style.setProperty('--fixture-color', config.color); root.style.setProperty('--fixture-glow', config.glow); root.style.setProperty('--beam-opacity', config.opacity); processorStatusText.textContent = config.status; }
+    keypadButtons.forEach(btn => { btn.addEventListener('click', () => { applySceneLighting(btn.getAttribute('data-scene'), btn); }); });
     renderCurtainPosition();
   </script>
 </body>
