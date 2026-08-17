@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Master Control Edition</title>
+  <title>Lutron Technician — Professional Pro Master</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -34,12 +34,12 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER (NATURAL CLEAR / DAY / NIGHT) */
+    /* OUTDOOR WINDOW SCENERY (NATURAL SUNNY / CLOUDY / NIGHT) */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
     }
-    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #2563eb 0%, #1e40af 50%, #0f172a 100%); }
+    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 50%, #0f172a 100%); }
     .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
     .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #334155 0%, #1e293b 100%); }
     .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); }
@@ -49,28 +49,27 @@
       border-radius: 50%; z-index: 1;
       background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
       box-shadow: 0 0 50px #facc15;
-      opacity: 0.6; transform: translateY(0) scale(1);
+      opacity: 0.55; transform: translateY(0) scale(1);
     }
 
     .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; pointer-events: none; z-index: 3; }
-    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.2; }
-    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; opacity: 0.6; }
+    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.25; }
+    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; opacity: 0.65; }
 
-    /* MOTORIZED DRAPERY CURTAINS (SMOOTH ARCHITECTURAL GLIDE) */
+    /* MOTORIZED DRAPERY CURTAINS */
     .curtain-container {
       position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden;
     }
     .curtain-panel {
       width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform;
-      transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
     }
     .curtain-pleats {
       position: absolute; inset: 0;
       background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px);
     }
-    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); transform-origin: left; }
-    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); transform-origin: right; }
+    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); }
+    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); }
     .curtain-track-rod { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, #374151, #111827); z-index: 5; }
 
     .blueprint-grid { 
@@ -86,7 +85,7 @@
       border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
     }
 
-    /* RIGHT CORNER STAGGERED LIGHTING FIXTURES */
+    /* RIGHT CORNER STAGGERED PENDANTS */
     .lighting-fixtures-layer { 
       position: absolute; top: 0; right: 6vw; z-index: 7; pointer-events: none; display: flex; gap: 5vw; 
     }
@@ -294,7 +293,7 @@
         <div style="width:10px; height:10px; background:var(--led-green); border-radius:50%; box-shadow:0 0 10px var(--led-green);"></div>
       </div>
 
-      <div class="device-list-title" id="networkStatusHeader">CHECKING NETWORK CONNECTION...</div>
+      <div class="device-list-title" id="networkStatusHeader">CHECKING NETWORK...</div>
       
       <div id="networkDeviceListContainer"></div>
     </div>
@@ -400,6 +399,11 @@
           </button>
           <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
           
+          <div class="volume-container">
+            <span class="volume-icon" id="volumeIcon">🔊</span>
+            <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
+          </div>
+
           <button class="mini-tv-btn" id="miniTvBtn"><span>📺</span> <span>MINI TV</span></button>
           <button class="stream-tv-btn" id="streamTvBtn"><span>📡</span> <span>STREAM TV</span></button>
           <button class="playlist-toggle-btn" id="playlistToggleBtn"><span>📋</span> <span>SONGS</span></button>
@@ -424,7 +428,7 @@
     ];
     let currentTrackIndex = 0, player, isPlaying = false, progressTimer = null;
 
-    // Kelvin & Dimming
+    // --- KELVIN SPECTRUM & DIMMING ENGINE ---
     const warmBtn = document.querySelector('[data-scene="warm"]');
     const tumbler = document.getElementById('kelvinTumbler');
     warmBtn.addEventListener('click', () => { if(warmBtn.classList.contains('active')) tumbler.classList.toggle('open'); });
@@ -441,12 +445,12 @@
       root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100);
     });
 
-    // Sidebar
+    // --- SIDEBAR DRAWER ---
     document.getElementById('sidebarTriggerBtn').addEventListener('click', () => {
       document.getElementById('sidebarDrawer').classList.toggle('open');
     });
 
-    // Weather Sync & Natural Background Gradient
+    // --- LIVE NATURAL WEATHER SYNC ---
     async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
@@ -455,7 +459,11 @@
         const temp = Math.round(data.current_weather.temperature);
         const scenery = document.getElementById('outdoorScenery');
         
-        if (code >= 50 && code <= 99) {
+        const hour = new Date().getHours();
+        if (hour >= 19 || hour < 6) {
+          scenery.className = 'outdoor-scenery night-mode';
+          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: NIGHT ${temp}°C`;
+        } else if (code >= 50 && code <= 99) {
           scenery.className = 'outdoor-scenery rainy-mode';
           document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: RAIN ${temp}°C`;
         } else if (code >= 1 && code <= 49) {
@@ -466,12 +474,13 @@
           document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: CLEAR SUNNY ${temp}°C`;
         }
       } catch(e) {
-        document.getElementById('liveWeatherStatus').innerText = "LIVE WEATHER: CLEAR (ONLINE)";
+        document.getElementById('outdoorScenery').className = 'outdoor-scenery day-mode';
+        document.getElementById('liveWeatherStatus').innerText = "LIVE WEATHER: ONLINE";
       }
     }
     fetchWeather();
 
-    // YouTube Player Initialization
+    // --- YOUTUBE API EMBED CONTROLLER ---
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-player', {
         height: '100%', width: '100%',
@@ -524,7 +533,7 @@
       songsList.forEach((song, idx) => {
         const div = document.createElement('div');
         div.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
-        div.innerHTML = `<span>🎵 ${song.name}</span><span style="color:var(--amber-warm);">▶ PLAY</span>`;
+        div.innerHTML = `<span>🎵 ${song.name}</span><span style="color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>`;
         div.onclick = () => { playTrackAtIndex(idx); drawer.classList.remove('open'); };
         drawer.appendChild(div);
       });
@@ -573,7 +582,17 @@
       }
     };
 
-    // Search 45 Songs via YouTube API
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeIcon = document.getElementById('volumeIcon');
+    volumeSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      if (player && player.setVolume) player.setVolume(val);
+      if (val === 0) volumeIcon.textContent = "🔇";
+      else if (val < 50) volumeIcon.textContent = "🔉";
+      else volumeIcon.textContent = "🔊";
+    });
+
+    // --- SEARCH 45 SONGS (YOUTUBE API) ---
     async function searchSongs() {
       const q = document.getElementById('songQueryInput').value.trim();
       if(!q) return;
@@ -591,7 +610,7 @@
           document.getElementById('playlistDrawer').classList.add('open');
           playTrackAtIndex(0);
         }
-      } catch(e) { alert("Search error."); }
+      } catch(e) { alert("YouTube Search error."); }
       finally { document.getElementById('searchSubmitBtn').innerText = "SEARCH"; }
     }
 
@@ -599,7 +618,7 @@
     document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); };
     document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
 
-    // Mini TV PiP Engine
+    // --- MINI TV ENGINE ---
     const miniTvDock = document.getElementById('miniTvDock');
     document.getElementById('miniTvBtn').onclick = async () => {
       const videoElem = document.querySelector('iframe')?.contentWindow.document.querySelector('video') || document.querySelector('video');
@@ -612,7 +631,7 @@
     };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV)
+    // --- SPOTIFY-STYLE TRUE NETWORK-AWARE CONNECT SHEET (STREAM TV) ---
     const connectOverlay = document.getElementById('connectOverlay');
     document.getElementById('streamTvBtn').onclick = () => {
       connectOverlay.classList.add('open');
@@ -625,7 +644,10 @@
       const header = document.getElementById('networkStatusHeader');
       const listContainer = document.getElementById('networkDeviceListContainer');
       
-      if (navigator.onLine) {
+      const isLocalWifi = navigator.connection && (navigator.connection.type === 'wifi' || navigator.connection.type === 'ethernet');
+      const isOnline = navigator.onLine;
+
+      if (isOnline && (isLocalWifi || location.hostname === "localhost" || location.hostname === "127.0.0.1" || navigator.connection === undefined)) {
         header.innerText = "ON OTHER NETWORKS & ROOMS";
         listContainer.innerHTML = `
           <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">
@@ -647,53 +669,127 @@
         `;
       } else {
         header.innerText = "NO NETWORK DETECTED";
-        listContainer.innerHTML = `<div style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted);">No active network or Wi-Fi nodes found. Please connect to a network.</div>`;
+        listContainer.innerHTML = `
+          <div style="padding:20px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">
+            🚫 No active devices found on this network.<br><span style="font-size:0.65rem; opacity:0.7;">Connect to local studio Wi-Fi to discover sinks.</span>
+          </div>
+        `;
       }
     }
 
     function selectAudioSink(deviceName) {
-      alert(`⚡ Successfully linked playback stream to network sink: ${deviceName}\n(Audio routing active!)`);
+      alert(`⚡ Successfully routed playback to: ${deviceName}\n(Network Dante node linked!)`);
       connectOverlay.classList.remove('open');
     }
 
-    // Professional Lutron 3-State Smooth Motorized Drapery Engine (Open -> Stop -> Close)
-    let draperyState = 0; // 0 = Closed, 1 = Opened, 2 = Stopped Intermediate
+    // --- PROFESSIONAL MOTORIZED DRAPERY GLIDE (EXACT % STOP + AUTO LIGHTS OFF) ---
+    const curtainLeft = document.getElementById('curtainLeft');
+    const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
+    const processorStatusText = document.getElementById('processorStatusText');
 
-    document.querySelectorAll('.keypad-btn').forEach(btn => {
-      btn.onclick = () => {
-        const scene = btn.getAttribute('data-scene');
-        if(scene === 'shades') {
-          if (draperyState === 0) {
-            draperyState = 1;
-            document.getElementById('curtainLeft').style.transform = `translateX(-100%)`;
-            document.getElementById('curtainRight').style.transform = `translateX(100%)`;
-            shadesBtn.querySelector('span').textContent = "05 DRAPERY: STOP";
-            document.getElementById('processorStatusText').innerText = "SCENE: DRAPERY OPENING";
-            shadesBtn.classList.add('active');
-          } else if (draperyState === 1) {
-            draperyState = 2;
-            document.getElementById('curtainLeft').style.transform = `translateX(-50%)`;
-            document.getElementById('curtainRight').style.transform = `translateX(50%)`;
-            shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
-            document.getElementById('processorStatusText').innerText = "SCENE: DRAPERY STOPPED (50%)";
-          } else {
-            draperyState = 0;
-            document.getElementById('curtainLeft').style.transform = `translateX(0%)`;
-            document.getElementById('curtainRight').style.transform = `translateX(0%)`;
-            shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
-            document.getElementById('processorStatusText').innerText = "SCENE: DRAPERY CLOSED";
-            shadesBtn.classList.remove('active');
-          }
+    let curtainPos = 0; 
+    let curtainMotionState = 'STOPPED'; // 'OPENING', 'CLOSING', 'STOPPED'
+    let nextTarget = 'OPEN'; // 'OPEN', 'CLOSE'
+    let curtainAnimFrame = null;
+    const DRAPERY_SPEED = 0.35; // Architectural slow smooth glide
+
+    function renderCurtainPosition() {
+      curtainLeft.style.transform = `translateX(-${curtainPos}%)`;
+      curtainRight.style.transform = `translateX(${curtainPos}%)`;
+    }
+
+    function animateCurtainStep() {
+      if (curtainMotionState === 'OPENING') {
+        curtainPos += DRAPERY_SPEED;
+        if (curtainPos >= 100) {
+          curtainPos = 100;
+          curtainMotionState = 'STOPPED';
+          nextTarget = 'CLOSE';
+          shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
+          processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN (100%)";
+          shadesBtn.classList.add('active');
         } else {
-          document.querySelectorAll('.keypad-btn').forEach(b => {
-            if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active');
-          });
-          btn.classList.add('active');
-          document.getElementById('processorStatusText').innerText = `SCENE: ${btn.querySelector('span').innerText}`;
+          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
+          processorStatusText.textContent = `SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`;
+          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
         }
-      };
+      } else if (curtainMotionState === 'CLOSING') {
+        curtainPos -= DRAPERY_SPEED;
+        if (curtainPos <= 0) {
+          curtainPos = 0;
+          curtainMotionState = 'STOPPED';
+          nextTarget = 'OPEN';
+          shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
+          processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
+          shadesBtn.classList.remove('active');
+        } else {
+          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
+          processorStatusText.textContent = `SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`;
+          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
+        }
+      }
+      renderCurtainPosition();
+    }
+
+    function handleDraperyClick() {
+      if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
+        // EXACT PERCENTAGE STOP (Stop wherever button is pressed)
+        if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
+        nextTarget = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
+        curtainMotionState = 'STOPPED';
+        shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${nextTarget}`;
+        processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
+      } else {
+        // Start moving
+        if (nextTarget === 'OPEN') {
+          curtainMotionState = 'OPENING';
+          shadesBtn.classList.add('active');
+          // Automatically turn lights OFF on drapery opening
+          applySceneLighting('off', document.querySelector('[data-scene="off"]'));
+        } else {
+          curtainMotionState = 'CLOSING';
+        }
+        shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
+        curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
+      }
+    }
+
+    // --- SCENES LIGHTING CONTROLS ---
+    const keypadButtons = document.querySelectorAll('.keypad-btn');
+    const sceneLightingConfig = {
+      bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.95)", opacity: "0.95", status: "01 BRIGHT (100% COOL WHITE)" },
+      dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.45)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" },
+      warm: { color: "#ffaa00", glow: "rgba(255, 170, 0, 0.75)", opacity: "0.85", status: "03 AMBIENT 2700K KELVIN" },
+      party: { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.8)", opacity: "0.75", status: "04 DALI BLUE NIGHT MODE" },
+      off: { color: "#000000", glow: "transparent", opacity: "0", status: "06 ALL OFF (0% LOAD)" }
+    };
+
+    function applySceneLighting(sceneName, targetBtn) {
+      if (sceneName === 'shades') {
+        handleDraperyClick();
+        return;
+      }
+
+      keypadButtons.forEach(b => {
+        if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active');
+      });
+      if(targetBtn) targetBtn.classList.add('active');
+
+      const config = sceneLightingConfig[sceneName] || sceneLightingConfig.warm;
+      root.style.setProperty('--fixture-color', config.color);
+      root.style.setProperty('--fixture-glow', config.glow);
+      root.style.setProperty('--beam-opacity', config.opacity);
+      processorStatusText.textContent = config.status;
+    }
+
+    keypadButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        applySceneLighting(btn.getAttribute('data-scene'), btn);
+      });
     });
+
+    renderCurtainPosition();
   </script>
 </body>
 </html>
