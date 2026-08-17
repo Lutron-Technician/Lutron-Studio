@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Master Control Edition</title>
+  <title>Lutron Technician — Professional Pro Master</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -34,15 +34,15 @@
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
 
-    /* OUTDOOR WINDOW SCENERY LAYER */
+    /* OUTDOOR WINDOW SCENERY LAYER (BALANCED BRIGHTNESS) */
     .outdoor-scenery {
       position: absolute; inset: 0; z-index: 1; overflow: hidden;
       transition: background 2s ease-in-out;
     }
-    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 50%, #fde047 100%); }
-    .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #1e1b4b 0%, #0f172a 60%, #020617 100%); }
-    .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%); }
-    .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #1e293b 0%, #334155 60%, #0f172a 100%); }
+    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 60%, #fef08a 100%); }
+    .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #312e81 0%, #1e1b4b 60%, #090d16 100%); }
+    .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #94a3b8 0%, #cbd5e1 60%, #e2e8f0 100%); }
+    .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #334155 0%, #475569 60%, #1e293b 100%); }
 
     .sky-sun {
       position: absolute; top: 12%; right: 18%; width: 110px; height: 110px;
@@ -68,8 +68,8 @@
     .outdoor-scenery.night-mode .sky-moon { opacity: 1; transform: translateY(0) scale(1); }
 
     .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; pointer-events: none; z-index: 3; }
-    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.3; }
-    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; }
+    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #3b82f6; opacity: 0.35; }
+    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #1e293b; opacity: 0.85; }
 
     /* CURTAINS */
     .curtain-container {
@@ -104,7 +104,7 @@
     .pendant-wire { width: 2px; height: 140px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
     .pendant-shade { width: 50px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; }
     .pendant-bulb { width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; }
-    .light-beam { width: 190px; height: 520px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%); clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(7px); }
+    .light-beam { width: 190px; height: 520px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%); clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(7px); opacity: var(--beam-opacity); }
 
     .app-container {
       position: relative; z-index: 10; width: 100vw; height: 100vh;
@@ -156,12 +156,12 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* TRANSPARENT SLIDE-DOWN KELVIN TUMBLER (NO POPUP BOX) */
+    /* TRANSPARENT INLINE SLIDE-DOWN KELVIN & DIMMING TUMBLER */
     .kelvin-inline-tumbler {
       max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
       background: rgba(10, 14, 22, 0.6); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
     }
-    .kelvin-inline-tumbler.open { max-height: 110px; padding: 10px; border-color: rgba(255,255,255,0.1); }
+    .kelvin-inline-tumbler.open { max-height: 120px; padding: 10px; border-color: rgba(255,255,255,0.1); }
     .tumbler-row { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber-warm); }
     .horizontal-slider {
       -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--amber-warm);
@@ -242,7 +242,7 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY (LIVE WEATHER RESTORED) -->
+  <!-- OUTDOOR SCENERY (BALANCED WEATHER BRIGHTNESS) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon">
@@ -286,7 +286,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER (SCENES + INLINE TUMBLER) -->
+    <!-- SIDEBAR DRAWER (SCENES + KELVIN/DIMMING SLIDERS) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -295,15 +295,16 @@
             <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
             
-            <!-- TRANSPARENT INLINE SLIDE-DOWN TUMBLER (NO POPUP BOX) -->
+            <!-- TRANSPARENT INLINE SLIDE-DOWN KELVIN & DIMMING TUMBLER -->
             <div class="kelvin-inline-tumbler" id="kelvinTumbler">
               <div class="tumbler-row">
-                <span>KELVIN:</span>
+                <span>KELVIN (1200K - 6000K):</span>
                 <span id="kelvinVal">2700K</span>
               </div>
-              <input type="range" min="2000" max="6000" step="100" value="2700" class="horizontal-slider" id="kelvinRange">
+              <input type="range" min="1200" max="6000" step="100" value="2700" class="horizontal-slider" id="kelvinRange">
+              
               <div class="tumbler-row" style="margin-top:4px;">
-                <span>INTENSITY:</span>
+                <span>INTENSITY (0% - 100%):</span>
                 <span id="dimVal">85%</span>
               </div>
               <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
@@ -351,7 +352,7 @@
           </div>
           <div class="track-details">
             <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
-            <div class="track-artist" id="trackArtist">2160p 4K HDR • Premium Audio</div>
+            <div class="track-artist" id="trackArtist">2160p 4K HDR • HD Master Audio</div>
           </div>
         </div>
 
@@ -412,13 +413,14 @@
     let isTransitioningTrack = false;
     let adKillerInterval = null;
 
-    // --- INLINE TRANSPARENT KELVIN TUMBLER LOGIC ---
+    // --- TRUE KELVIN COLOR & DIMMING LOGIC ---
     const warmSceneBtn = document.querySelector('[data-scene="warm"]');
     const kelvinTumbler = document.getElementById('kelvinTumbler');
     const kelvinRange = document.getElementById('kelvinRange');
     const kelvinVal = document.getElementById('kelvinVal');
     const dimRange = document.getElementById('dimRange');
     const dimVal = document.getElementById('dimVal');
+    const root = document.documentElement;
 
     if (warmSceneBtn) {
       warmSceneBtn.addEventListener('click', () => {
@@ -428,16 +430,44 @@
       });
     }
 
+    // Kelvin mapping (1200K = Deep Warm Amber/Blue shift, 3000K = Warm Yellow, 6000K = Pure Cool White)
     kelvinRange.addEventListener('input', (e) => {
-      const k = e.target.value;
+      const k = parseInt(e.target.value);
       kelvinVal.textContent = k + 'K';
+      
+      let hexColor = "#ff8800";
+      let glowColor = "rgba(255, 136, 0, 0.8)";
+      
+      if (k <= 1500) {
+        hexColor = "#3b82f6"; // Deep candle/blue tint as requested for extreme low
+        glowColor = "rgba(59, 130, 246, 0.8)";
+      } else if (k > 1500 && k <= 3500) {
+        hexColor = "#ffaa00"; // Warm yellow
+        glowColor = "rgba(255, 170, 0, 0.8)";
+      } else if (k > 3500 && k <= 5000) {
+        hexColor = "#ffeedd"; // Neutral white
+        glowColor = "rgba(255, 238, 221, 0.85)";
+      } else {
+        hexColor = "#ffffff"; // Pure Cool White at 6000K
+        glowColor = "rgba(255, 255, 255, 0.95)";
+      }
+
+      root.style.setProperty('--fixture-color', hexColor);
+      root.style.setProperty('--fixture-glow', glowColor);
       document.getElementById('processorStatusText').textContent = `SCENE: AMBIENT TUNED TO ${k}K`;
     });
 
+    // Dimming logic (0% = Completely OFF, 100% = Full Brightness)
     dimRange.addEventListener('input', (e) => {
-      const d = e.target.value;
+      const d = parseInt(e.target.value);
       dimVal.textContent = d + '%';
-      document.documentElement.style.setProperty('--beam-opacity', d / 100);
+      const opacityVal = d / 100;
+      root.style.setProperty('--beam-opacity', opacityVal);
+      
+      // If 0%, completely kill light beam emission
+      if (d === 0) {
+        root.style.setProperty('--fixture-glow', 'transparent');
+      }
     });
 
     // --- SIDEBAR MENU TOGGLE (SCENES) ---
@@ -527,7 +557,8 @@
 
     renderCurtainPosition();
 
-    // --- LIVE WEATHER ENGINE ---
+    // --- LIVE WEATHER ENGINE (BALANCED) ---
+    const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
@@ -537,7 +568,7 @@
 
       if (currentHour >= 19 || currentHour < 6) {
         outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeStr} LOCAL)`;
+        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeStr})`;
         return;
       }
 
@@ -596,14 +627,12 @@
 
     // SCENES CONFIG
     const keypadButtons = document.querySelectorAll('.keypad-btn');
-    const root = document.documentElement;
-
     const sceneLightingConfig = {
-      bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.9)", opacity: "0.85", status: "01 BRIGHT (100% COOL WHITE)" },
-      dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.4)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" },
+      bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.95)", opacity: "0.95", status: "01 BRIGHT (100% COOL WHITE)" },
+      dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.45)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" },
       warm: { color: "#ff8800", glow: "rgba(255, 136, 0, 0.75)", opacity: "0.85", status: "03 AMBIENT 2700K KELVIN" },
       party: { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.8)", opacity: "0.75", status: "04 DALI BLUE NIGHT MODE" },
-      off: { color: "#222222", glow: "rgba(0, 0, 0, 0)", opacity: "0.05", status: "06 ALL OFF (0% LOAD)" }
+      off: { color: "#000000", glow: "transparent", opacity: "0", status: "06 ALL OFF (0% LOAD)" }
     };
 
     function applyScene(sceneName, targetBtn) {
@@ -702,7 +731,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE API CONTROLLER + 4K & AD-KILLER ENGINE
+    // YOUTUBE API CONTROLLER + HIGH-RES AUDIO BOOSTER
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -819,7 +848,7 @@
       const track = songsList[currentTrackIndex];
       if (track) {
         document.getElementById('trackTitle').textContent = track.name;
-        document.getElementById('trackArtist').textContent = "2160p 4K HDR • Premium Audio";
+        document.getElementById('trackArtist').textContent = "2160p 4K HDR • Studio HD Master Audio";
         document.getElementById('miniTvTitle').textContent = "📺 " + track.name;
         if (track.img) document.getElementById('albumImg').src = track.img;
 
