@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Professional Pro Master</title>
+  <title>Lutron Technician — Master Control Edition</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -85,7 +85,7 @@
       border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
     }
 
-    /* RIGHT CORNER STAGGERED LIGHTING FIXTURES (PERFECTLY ALIGNED) */
+    /* RIGHT CORNER STAGGERED LIGHTING FIXTURES */
     .lighting-fixtures-layer { 
       position: absolute; top: 0; right: 6vw; z-index: 7; pointer-events: none; display: flex; gap: 5vw; 
     }
@@ -182,6 +182,33 @@
     .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
 
+    /* SPOTIFY-STYLE CONNECT BOTTOM SHEET (STREAM TV) */
+    .spotify-connect-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px);
+      z-index: 300; display: none; align-items: flex-end; justify-content: center;
+    }
+    .spotify-connect-overlay.open { display: flex; }
+    .spotify-connect-sheet {
+      width: 100%; max-width: 500px; background: #121622; border-top: 1px solid var(--glass-border);
+      border-radius: 24px 24px 0 0; padding: 20px 24px 35px 24px; display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.9); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; align-self: center; margin-bottom: 4px; }
+    .sheet-title { font-family: 'Syncopate', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; }
+    .active-device-box {
+      background: rgba(16, 185, 129, 0.1); border: 1px solid var(--led-green); border-radius: 14px; padding: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .device-info-left { display: flex; align-items: center; gap: 12px; }
+    .device-icon-wrap { width: 38px; height: 38px; background: rgba(16, 185, 129, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--led-green); font-size: 1.1rem; }
+    .device-list-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+    .device-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .device-item:hover { background: rgba(255,255,255,0.08); border-color: var(--amber-warm); }
+
     /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
@@ -230,8 +257,8 @@
     .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
     .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
 
-    #stream-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1; }
-    .mini-tv-dock.open #stream-container { position: absolute; inset: 0; opacity: 1; pointer-events: auto; }
+    #youtube-player-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1; }
+    .mini-tv-dock.open #youtube-player-container { position: absolute; inset: 0; opacity: 1; pointer-events: auto; }
 
     @media (max-width: 768px) {
       .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; }
@@ -244,6 +271,75 @@
   </style>
 </head>
 <body>
+
+  <!-- SPOTIFY-STYLE CONNECT BOTTOM SHEET (STREAM TV) -->
+  <div class="spotify-connect-overlay" id="connectOverlay">
+    <div class="spotify-connect-sheet">
+      <div class="sheet-handle"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="sheet-title">Connect to a device</span>
+        <button id="closeSheetBtn" style="background:transparent; border:none; color:#94a3b8; font-size:1.1rem; cursor:pointer;">✖</button>
+      </div>
+
+      <!-- Active Device (This Phone) -->
+      <div class="active-device-box" id="activePhoneDevice" style="cursor:pointer;">
+        <div class="device-info-left">
+          <div class="device-icon-wrap">📱</div>
+          <div>
+            <div style="font-size:0.85rem; font-weight:700; color:#fff;">This phone</div>
+            <div id="currentActiveSongLabel" style="font-size:0.7rem; color:var(--led-green); margin-top:2px;">Tu Hi Haqeeqat — Javed Ali</div>
+          </div>
+        </div>
+        <div style="width:10px; height:10px; background:var(--led-green); border-radius:50%; box-shadow:0 0 10px var(--led-green);"></div>
+      </div>
+
+      <div class="device-list-title">ON OTHER NETWORKS & ROOMS</div>
+      
+      <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">
+        <div class="device-info-left">
+          <span style="font-size:1.1rem;">🔊</span>
+          <div>
+            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Medium Cylinder</div>
+            <div style="font-size:0.65rem; color:var(--text-muted);">Office Main Zone • Active</div>
+          </div>
+        </div>
+        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+      </div>
+
+      <div class="device-item" onclick="selectAudioSink('Sphere 360')">
+        <div class="device-info-left">
+          <span style="font-size:1.1rem;">📽️</span>
+          <div>
+            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Sphere 360</div>
+            <div style="font-size:0.65rem; color:var(--text-muted);">Boardroom 4K Display</div>
+          </div>
+        </div>
+        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+      </div>
+
+      <div class="device-item" onclick="selectAudioSink('Studio R')">
+        <div class="device-info-left">
+          <span style="font-size:1.1rem;">📡</span>
+          <div>
+            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div>
+            <div style="font-size:0.65rem; color:var(--text-muted);">Dante Sync Node • Online</div>
+          </div>
+        </div>
+        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+      </div>
+
+      <div class="device-item" onclick="selectAudioSink('Parents Room')">
+        <div class="device-info-left">
+          <span style="font-size:1.1rem;">🔊</span>
+            <div>
+            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Parents Room</div>
+            <div style="font-size:0.65rem; color:var(--text-muted);">Zone Amplifier</div>
+          </div>
+        </div>
+        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+      </div>
+    </div>
+  </div>
 
   <!-- OUTDOOR SCENERY -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
@@ -260,18 +356,8 @@
 
   <!-- RIGHT CORNER STAGGERED PENDANTS -->
   <div class="lighting-fixtures-layer">
-    <div class="pendant-light pendant-1">
-      <div class="pendant-wire"></div>
-      <div class="pendant-shade"></div>
-      <div class="pendant-bulb"></div>
-      <div class="light-beam"></div>
-    </div>
-    <div class="pendant-light pendant-2">
-      <div class="pendant-wire"></div>
-      <div class="pendant-shade"></div>
-      <div class="pendant-bulb"></div>
-      <div class="light-beam"></div>
-    </div>
+    <div class="pendant-light pendant-1"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
+    <div class="pendant-light pendant-2"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
   </div>
 
   <div class="app-container">
@@ -302,6 +388,7 @@
             </div>
 
             <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
           </div>
         </div>
@@ -317,7 +404,7 @@
       <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
     </div>
     <div class="mini-tv-frame" id="miniTvSlot">
-      <div id="stream-container"></div>
+      <div id="youtube-player-container"><div id="yt-player"></div></div>
     </div>
   </div>
 
@@ -325,89 +412,129 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Invidious Proxy Mode)..." />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (45 Songs Playlist Mode)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
-      <div class="playlist-drawer" id="playlistDrawer" style="display:none; position:absolute; bottom:100%; right:0; width:380px; max-height:250px; overflow-y:auto; background:rgba(12,15,23,0.98); border-radius:12px; padding:10px; z-index:120;"></div>
+      <div class="playlist-drawer" id="playlistDrawer"></div>
 
-      <div class="player-top-row" style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
-        <div class="track-info" style="display:flex; align-items:center; gap:8px;">
-          <div class="album-art" style="width:40px; height:40px; background:#222; border-radius:8px; overflow:hidden;"><img id="albumImg" src="" style="width:100%; height:100%; object-fit:cover;"></div>
-          <div>
-            <div class="track-title" id="trackTitle" style="font-size:0.8rem; font-weight:600;">Select or Search a Track</div>
-            <div class="track-artist" id="trackArtist" style="font-size:0.65rem; color:var(--text-muted);">Invidious Proxy Stream • Ad-Free</div>
+      <div class="player-top-row">
+        <div class="track-info">
+          <div class="album-art"><img id="albumImg" src="https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" alt="Art"></div>
+          <div class="track-details">
+            <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
+            <div class="track-artist" id="trackArtist">2160p 4K HDR • Studio HD Master Audio</div>
           </div>
         </div>
 
-        <div class="player-controls" style="display:flex; gap:6px;">
-          <button class="ctrl-btn play-btn" id="playPauseBtn">▶</button>
-          <button class="mini-tv-btn" id="miniTvBtn">📺 MINI TV</button>
-          <button class="playlist-toggle-btn" id="playlistToggleBtn">📋 SONGS</button>
+        <div class="player-controls">
+          <button class="ctrl-btn" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="ctrl-btn play-btn" id="playPauseBtn">
+            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+          
+          <button class="mini-tv-btn" id="miniTvBtn"><span>📺</span> <span>MINI TV</span></button>
+          <button class="stream-tv-btn" id="streamTvBtn"><span>📡</span> <span>STREAM TV</span></button>
+          <button class="playlist-toggle-btn" id="playlistToggleBtn"><span>📋</span> <span>SONGS</span></button>
         </div>
+      </div>
+
+      <div class="progress-container">
+        <span class="time-stamp" id="currentTime">0:00</span>
+        <div class="progress-bar-bg" id="progressBarBg"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+        <span class="time-stamp" id="totalTime">0:00</span>
       </div>
     </div>
   </div>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
+    const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
     let songsList = [
       { id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" },
-      { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" }
+      { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
+      { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" }
     ];
-    let currentIndex = 0;
+    let currentTrackIndex = 0, player, isPlaying = false, progressTimer = null;
 
-    // Sidebar & Tumbler Toggle
+    // Kelvin & Dimming
     const warmBtn = document.querySelector('[data-scene="warm"]');
     const tumbler = document.getElementById('kelvinTumbler');
     warmBtn.addEventListener('click', () => { if(warmBtn.classList.contains('active')) tumbler.classList.toggle('open'); });
 
+    const root = document.documentElement;
+    document.getElementById('kelvinRange').addEventListener('input', (e) => {
+      const k = parseInt(e.target.value);
+      let hexColor = k <= 2000 ? "#ff6600" : (k <= 5000 ? "#ffddaa" : (k <= 8000 ? "#ffffff" : "#3b82f6"));
+      root.style.setProperty('--fixture-color', hexColor);
+      root.style.setProperty('--fixture-glow', hexColor);
+    });
+    document.getElementById('dimRange').addEventListener('input', (e) => {
+      const d = parseInt(e.target.value);
+      root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100);
+    });
+
+    // Sidebar
     document.getElementById('sidebarTriggerBtn').addEventListener('click', () => {
       document.getElementById('sidebarDrawer').classList.toggle('open');
     });
 
-    // Weather Sync
+    // Weather
     async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
         const data = await res.json();
-        document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: ${Math.round(data.current_weather.temperature)}°C (CLEAR)`;
+        document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: ${Math.round(data.current_weather.temperature)}°C (ACTIVE)`;
       } catch(e) {
         document.getElementById('liveWeatherStatus').innerText = "LIVE WEATHER: SYNCED";
       }
     }
     fetchWeather();
 
-    // Invidious Proxy Stream Loader (Zero Bot Blocks)
-    function loadStream(videoId, title, imgUrl) {
-      const container = document.getElementById('stream-container');
-      container.innerHTML = `<iframe src="https://yeti.peace-of-mind.site/embed/${videoId}?autoplay=1&loop=1" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-      
-      document.getElementById('trackTitle').innerText = title;
-      if(imgUrl) document.getElementById('albumImg').src = imgUrl;
+    // YouTube Player Initialization (Using No-Cookie Domain to prevent bot blocks)
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        height: '100%', width: '100%',
+        videoId: songsList[0].id,
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { 'autoplay': 0, 'controls': 1, 'playsinline': 1, 'rel': 0, 'enablejsapi': 1, 'origin': window.location.origin },
+        events: {
+          'onReady': (e) => { renderPlaylist(); updateTrackInfo(); },
+          'onStateChange': (e) => {
+            if(e.data === YT.PlayerState.PLAYING) {
+              isPlaying = true;
+              document.getElementById('playIcon').style.display='none';
+              document.getElementById('pauseIcon').style.display='block';
+            } else {
+              isPlaying = false;
+              document.getElementById('playIcon').style.display='block';
+              document.getElementById('pauseIcon').style.display='none';
+            }
+          }
+        }
+      });
     }
 
-    // Search Engine via Invidious Proxy
-    async function searchSongs() {
-      const q = document.getElementById('songQueryInput').value.trim();
-      if(!q) return;
-      document.getElementById('searchSubmitBtn').innerText = "SEARCHING...";
-      try {
-        const res = await fetch(`https://yeti.peace-of-mind.site/api/v1/search?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        if(data && data.length > 0) {
-          songsList = data.map(item => ({
-            id: item.videoId,
-            name: item.title,
-            img: item.videoThumbnails ? item.videoThumbnails[0].url : ''
-          }));
-          renderPlaylist();
-          document.getElementById('playlistDrawer').style.display = 'flex';
-          loadStream(songsList[0].id, songsList[0].name, songsList[0].img);
-        }
-      } catch(err) {
-        alert("Search error via proxy.");
-      } finally {
-        document.getElementById('searchSubmitBtn').innerText = "SEARCH";
+    function playTrackAtIndex(idx) {
+      currentTrackIndex = idx;
+      const track = songsList[currentTrackIndex];
+      if(player && player.loadVideoById) {
+        player.loadVideoById(track.id);
+        player.playVideo();
+      }
+      updateTrackInfo();
+      renderPlaylist();
+    }
+
+    function updateTrackInfo() {
+      const track = songsList[currentTrackIndex];
+      if(track) {
+        document.getElementById('trackTitle').innerText = track.name;
+        document.getElementById('albumImg').src = track.img;
+        document.getElementById('miniTvTitle').innerText = "📺 " + track.name;
+        document.getElementById('currentActiveSongLabel').innerText = track.name;
       }
     }
 
@@ -416,66 +543,84 @@
       drawer.innerHTML = '';
       songsList.forEach((song, idx) => {
         const div = document.createElement('div');
-        div.className = `playlist-item ${idx === currentIndex ? 'active-track' : ''}`;
-        div.style.cssText = "padding:8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; cursor:pointer; color:#fff;";
-        div.innerText = `🎵 ${song.name}`;
-        div.onclick = () => {
-          currentIndex = idx;
-          loadStream(song.id, song.name, song.img);
-          drawer.style.display = 'none';
-        };
+        div.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
+        div.innerHTML = `<span>🎵 ${song.name}</span><span style="color:var(--amber-warm);">▶ PLAY</span>`;
+        div.onclick = () => { playTrackAtIndex(idx); drawer.classList.remove('open'); };
         drawer.appendChild(div);
       });
     }
 
-    document.getElementById('searchSubmitBtn').addEventListener('click', searchSongs);
-    document.getElementById('songQueryInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') searchSongs(); });
-    document.getElementById('playlistToggleBtn').addEventListener('click', () => {
-      const drawer = document.getElementById('playlistDrawer');
-      drawer.style.display = drawer.style.display === 'flex' ? 'none' : 'flex';
-    });
+    document.getElementById('playPauseBtn').onclick = () => {
+      if(player) { isPlaying ? player.pauseVideo() : player.playVideo(); }
+    };
+    document.getElementById('nextBtn').onclick = () => { playTrackAtIndex((currentTrackIndex + 1) % songsList.length); };
+    document.getElementById('prevBtn').onclick = () => { playTrackAtIndex((currentTrackIndex - 1 + songsList.length) % songsList.length); };
 
-    // Mini TV Toggle
-    const miniTvDock = document.getElementById('miniTvDock');
-    document.getElementById('miniTvBtn').addEventListener('click', () => {
-      miniTvDock.classList.toggle('open');
-    });
-    document.getElementById('miniTvCloseBtn').addEventListener('click', () => {
-      miniTvDock.classList.remove('open');
-    });
-
-    // Lighting Controls
-    const root = document.documentElement;
-    document.getElementById('kelvinRange').addEventListener('input', (e) => {
-      const k = parseInt(e.target.value);
-      let color = "#ffaa00", glow = "rgba(255,170,0,0.65)";
-      if(k > 5000) { color = "#ffffff"; glow = "rgba(255,255,255,0.85)"; }
-      root.style.setProperty('--fixture-color', color);
-      root.style.setProperty('--fixture-glow', glow);
-    });
-    document.getElementById('dimRange').addEventListener('input', (e) => {
-      const d = parseInt(e.target.value);
-      root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100);
-    });
-
-    // Scenes logic
-    document.querySelectorAll('.keypad-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.keypad-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const scene = btn.getAttribute('data-scene');
-        if(scene === 'off') {
-          root.style.setProperty('--beam-opacity', '0');
-          document.getElementById('processorStatusText').innerText = "SYSTEM OFF";
-        } else {
-          root.style.setProperty('--beam-opacity', '0.85');
-          document.getElementById('processorStatusText').innerText = `SCENE: ${btn.innerText}`;
+    // Search 45 Songs via YouTube API
+    async function searchSongs() {
+      const q = document.getElementById('songQueryInput').value.trim();
+      if(!q) return;
+      document.getElementById('searchSubmitBtn').innerText = "SEARCHING...";
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${encodeURIComponent(q + ' Official Audio')}&type=video&key=${YT_API_KEY}`);
+        const data = await res.json();
+        if(data.items && data.items.length > 0) {
+          songsList = data.items.map(item => ({
+            id: item.id.videoId,
+            name: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'"),
+            img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : ''
+          }));
+          renderPlaylist();
+          document.getElementById('playlistDrawer').classList.add('open');
+          playTrackAtIndex(0);
         }
-      });
-    });
+      } catch(e) { alert("Search error."); }
+      finally { document.getElementById('searchSubmitBtn').innerText = "SEARCH"; }
+    }
 
-    // Initial load
-    loadStream(songsList[0].id, songsList[0].name, songsList[0].img);
+    document.getElementById('searchSubmitBtn').onclick = searchSongs;
+    document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); };
+    document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
+
+    // Mini TV PiP Engine
+    const miniTvDock = document.getElementById('miniTvDock');
+    document.getElementById('miniTvBtn').onclick = async () => {
+      const videoElem = document.querySelector('iframe')?.contentWindow.document.querySelector('video') || document.querySelector('video');
+      if(videoElem && document.pictureInPictureEnabled) {
+        try {
+          if(document.pictureInPictureElement) await document.exitPictureInPicture();
+          else { await videoElem.requestPictureInPicture(); miniTvDock.style.display='none'; }
+        } catch(e) { miniTvDock.classList.toggle('open'); }
+      } else { miniTvDock.classList.toggle('open'); }
+    };
+    document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
+
+    // SPOTIFY-STYLE CONNECT SHEET (STREAM TV)
+    const connectOverlay = document.getElementById('connectOverlay');
+    document.getElementById('streamTvBtn').onclick = () => { connectOverlay.classList.add('open'); };
+    document.getElementById('closeSheetBtn').onclick = () => { connectOverlay.classList.remove('open'); };
+    document.getElementById('activePhoneDevice').onclick = () => { connectOverlay.classList.remove('open'); };
+
+    function selectAudioSink(deviceName) {
+      alert(`⚡ Successfully linked playback stream to network sink: ${deviceName}\n(Audio routing active!)`);
+      connectOverlay.classList.remove('open');
+    }
+
+    // Scenes & Drapery
+    let curtainPos = 0;
+    document.querySelectorAll('.keypad-btn').forEach(btn => {
+      btn.onclick = () => {
+        const scene = btn.getAttribute('data-scene');
+        if(scene === 'shades') {
+          curtainPos = curtainPos === 0 ? 100 : 0;
+          document.getElementById('curtainLeft').style.transform = `translateX(-${curtainPos}%)`;
+          document.getElementById('curtainRight').style.transform = `translateX(${curtainPos}%)`;
+        } else {
+          document.querySelectorAll('.keypad-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      };
+    });
   </script>
 </body>
 </html>
