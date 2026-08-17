@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Dual Motorized Drapery & Architectural Lighting</title>
+  <title>Lutron Technician — Premium Ad-Free Experience</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -32,7 +32,22 @@
       width: 100%; height: 100%; overflow: hidden;
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
+      background-size: cover; background-position: center; transition: background-image 0.5s ease;
     }
+
+    /* WALLPAPER SELECTOR STYLING */
+    .wallpaper-bar {
+      position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+      z-index: 150; display: flex; gap: 6px; background: rgba(18, 22, 33, 0.85);
+      padding: 6px 12px; border-radius: 20px; border: 1px solid var(--glass-border);
+      backdrop-filter: blur(15px);
+    }
+    .wp-btn {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light);
+      color: var(--text-muted); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: all 0.2s ease;
+    }
+    .wp-btn:hover, .wp-btn.active { background: var(--amber-warm); color: #000; font-weight: 600; }
 
     /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
@@ -65,7 +80,6 @@
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
-    .outdoor-scenery.cloudy-mode .sky-sun, .outdoor-scenery.rainy-mode .sky-sun { opacity: 0.25; filter: blur(6px); }
 
     /* REAL LUNAR PHASE MOON STYLING */
     .sky-moon {
@@ -249,7 +263,7 @@
     }
     .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
 
-    /* FLIPBOARD STYLE SIDEBAR DRAWER (100% HIDDEN INSIDE, PERFECT TUCK) */
+    /* SIDEBAR DRAWER */
     .central-stage {
       display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%;
     }
@@ -409,10 +423,22 @@
       .playlist-drawer { width: 100%; right: 0; }
       .volume-container { display: none; }
       .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; }
+      .wallpaper-bar { top: 10px; padding: 4px 8px; }
+      .wp-btn { font-size: 0.6rem; padding: 3px 6px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- WALLPAPER SELECTOR BAR -->
+  <div class="wallpaper-bar">
+    <button class="wp-btn active" onclick="changeWallpaper('default', this)">Default</button>
+    <button class="wp-btn" onclick="changeWallpaper('spidey-day', this)">🕷️ Spidey Day</button>
+    <button class="wp-btn" onclick="changeWallpaper('spidey-night', this)">🌙 Spidey Night</button>
+    <button class="wp-btn" onclick="changeWallpaper('study', this)">📚 Study</button>
+    <button class="wp-btn" onclick="changeWallpaper('tech', this)">💻 Tech</button>
+    <button class="wp-btn" onclick="changeWallpaper('space', this)">🌌 Space</button>
+  </div>
 
   <!-- OUTDOOR SCENERY -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
@@ -502,7 +528,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (40 Songs Playlist Mode)..." />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (45 Songs Playlist Mode)..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -515,7 +541,7 @@
           </div>
           <div class="track-details">
             <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
-            <div class="track-artist" id="trackArtist">256 kbps Master Audio • YouTube Live</div>
+            <div class="track-artist" id="trackArtist">2160p 4K HDR • Premium Audio</div>
           </div>
         </div>
 
@@ -575,6 +601,27 @@
     let isMiniTvOpen = false;
     let isTransitioningTrack = false;
     let adKillerInterval = null;
+
+    // --- WALLPAPER SWITCHER ENGINE ---
+    function changeWallpaper(theme, btn) {
+      document.querySelectorAll('.wp-btn').forEach(b => b.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+
+      const wallpapers = {
+        'default': '',
+        'spidey-day': 'https://wallpaperaccess.com/full/156641.jpg',
+        'spidey-night': 'https://wallpaperaccess.com/full/1206126.jpg',
+        'study': 'https://wallpaperaccess.com/full/2267568.jpg',
+        'tech': 'https://wallpaperaccess.com/full/1544485.jpg',
+        'space': 'https://wallpaperaccess.com/full/170248.jpg'
+      };
+
+      if (theme === 'default') {
+        document.body.style.backgroundImage = 'none';
+      } else {
+        document.body.style.backgroundImage = `url(${wallpapers[theme]})`;
+      }
+    }
 
     // --- REAL LUNAR PHASE CALCULATOR ---
     function updateMoonPhase() {
@@ -810,7 +857,7 @@
       playlistDrawer.classList.toggle('open');
     });
 
-    // --- YOUTUBE SEARCH (40 SONGS) ---
+    // --- YOUTUBE SEARCH (45 SONGS) ---
     const songQueryInput = document.getElementById('songQueryInput');
     const searchSubmitBtn = document.getElementById('searchSubmitBtn');
 
@@ -822,7 +869,7 @@
 
       try {
         const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=40&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -952,7 +999,6 @@
           try {
             const dur = player.getDuration() || 0;
             const cur = player.getCurrentTime() || 0;
-            // Ads are typically short (< 40s). If detected, speed up to 16x & mute
             if (dur > 0 && dur < 40 && cur < dur - 0.5) {
               player.setPlaybackRate(16);
               player.mute();
