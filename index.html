@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Professional Pro Master</title>
+  <title>Lutron Technician — Master Control Edition</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -20,991 +20,137 @@
       --text-muted: #8a94a6;
       --border-light: rgba(255, 255, 255, 0.08);
       --glass-border: rgba(255, 255, 255, 0.15);
-
       --fixture-color: #ffaa00;
       --fixture-glow: rgba(255, 170, 0, 0.65);
       --beam-opacity: 0.85;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background-color: var(--bg-dark); }
 
-    body, html {
-      width: 100%; height: 100%; overflow: hidden;
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-dark); color: var(--text-main); position: relative;
-    }
-
-    /* OUTDOOR WINDOW SCENERY LAYER */
-    .outdoor-scenery {
-      position: absolute; inset: 0; z-index: 1; overflow: hidden;
-      transition: background 2s ease-in-out;
-    }
-    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
-    .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
-    .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
-    .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); }
-
-    .sky-sun {
-      position: absolute; top: 12%; right: 28%; width: 100px; height: 100px;
-      border-radius: 50%; z-index: 1;
-      background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
-      box-shadow: 0 0 40px #eab308;
-      opacity: 0.35; transform: translateY(0) scale(1);
-    }
-
+    /* OUTDOOR WEATHER SCENERY */
+    .outdoor-scenery { position: absolute; inset: 0; z-index: 1; transition: background 2s ease; }
+    .day-mode { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
+    .night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
+    
+    .sky-sun { position: absolute; top: 12%; right: 28%; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%); opacity: 0.35; }
     .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; pointer-events: none; z-index: 3; }
-    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.2; }
-    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; opacity: 0.6; }
+    .mountain-back { fill: #1e3a8a; opacity: 0.2; }
+    .mountain-front { fill: #0f172a; opacity: 0.6; }
 
-    /* CURTAINS */
-    .curtain-container {
-      position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden;
-    }
-    .curtain-panel {
-      width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
-      position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform;
-    }
-    .curtain-pleats {
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px);
-    }
-    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); }
-    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); }
+    /* CURTAINS & GRID */
     .curtain-track-rod { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, #374151, #111827); z-index: 5; }
-
-    .blueprint-grid { 
-      position: absolute; inset: 0; 
-      background-image: linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px); 
-      background-size: 35px 35px; pointer-events: none; z-index: 5; 
-    }
+    .blueprint-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px); background-size: 35px 35px; pointer-events: none; z-index: 5; }
     
-    /* RIGHT CORNER AMBIENT GLOW */
-    .ambient-glow {
-      position: absolute; top: 40%; right: 10vw; transform: translate(30%, -20%);
-      width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%);
-      border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
-    }
+    .ambient-glow { position: absolute; top: 40%; right: 10vw; transform: translate(30%, -20%); width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%); border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity); }
 
-    /* RIGHT CORNER STAGGERED LIGHTING FIXTURES */
-    .lighting-fixtures-layer { 
-      position: absolute; top: 0; right: 8vw; z-index: 7; pointer-events: none; display: flex; gap: 6vw; 
-    }
-    .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
-    
+    /* LIGHTING FIXTURES */
+    .lighting-fixtures-layer { position: absolute; top: 0; right: 8vw; z-index: 7; pointer-events: none; display: flex; gap: 6vw; }
     .pendant-1 .pendant-wire { width: 2px; height: 110px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
     .pendant-2 .pendant-wire { width: 2px; height: 175px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
+    .pendant-shade { width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; }
+    .pendant-bulb { width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; }
+    .light-beam { width: 220px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%); clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity); }
 
-    .pendant-shade { 
-      width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); 
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; 
-    }
-    .pendant-bulb { 
-      width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); 
-      box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; 
-    }
-    
-    .light-beam {
-      width: 220px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
-      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity);
-    }
-
-    .app-container {
-      position: relative; z-index: 10; width: 100vw; height: 100vh;
-      display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw;
-      pointer-events: none;
-    }
+    .app-container { position: relative; z-index: 10; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw; pointer-events: none; }
     .app-container > * { pointer-events: auto; }
 
-    .top-header { width: 100%; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
-    .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.8rem; border-radius: 100px; border: 1px solid var(--border-light); }
-    .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
+    /* SCENES & PLAYER UI (Cleaned) */
+    .palladiom-frame { width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f); border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); }
+    .keypad-btn { height: 42px; width: 100%; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); color: #fff; border-radius: 4px; padding: 0 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .keypad-btn.active { background: rgba(255, 170, 51, 0.2); border-color: var(--amber-warm); }
+    
+    .kelvin-inline-tumbler { max-height: 0; overflow: hidden; transition: 0.3s; background: rgba(0,0,0,0.3); padding: 0 10px; }
+    .kelvin-inline-tumbler.open { max-height: 100px; padding: 10px; }
+    .horizontal-slider { width: 100%; accent-color: var(--amber-warm); cursor: pointer; }
 
-    .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
-    .main-title {
-      font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
-
-    /* SIDEBAR DRAWER (SCENES) */
-    .central-stage { display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%; }
-    .sidebar-drawer {
-      position: absolute; left: -310px; top: 50%; transform: translateY(-50%);
-      display: flex; align-items: center; z-index: 40; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .sidebar-drawer.open { transform: translateY(-50%) translateX(310px); }
-    .palladiom-frame {
-      width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f);
-      border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .sidebar-trigger-tab {
-      background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
-      color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 0 10px 10px 0;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
-      writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
-      box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
-    }
-    .sidebar-trigger-tab:hover { background: var(--amber-warm); color: #000; }
-    .palladiom-faceplate { width: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
-    .keypad-btn {
-      height: 42px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
-      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer; width: 100%;
-    }
-    .keypad-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
-    .keypad-btn.active { color: #ffffff; background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
-    .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
-    .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
-
-    /* CLEAN TRANSPARENT SLIDE-DOWN TUMBLER */
-    .kelvin-inline-tumbler {
-      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
-      background: rgba(10, 14, 22, 0.75); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
-    }
-    .kelvin-inline-tumbler.open { max-height: 100px; padding: 10px; border-color: rgba(255,255,255,0.1); }
-    .tumbler-row { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--amber-warm); }
-    .horizontal-slider {
-      -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--amber-warm);
-    }
-
-    /* MINI TV */
-    .mini-tv-dock {
-      position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
-      background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
-      border-radius: 12px; padding: 6px; box-shadow: 0 20px 45px rgba(0,0,0,0.9);
-      backdrop-filter: blur(20px); z-index: 50; display: none; flex-direction: column; gap: 5px;
-    }
-    .mini-tv-dock.open { display: flex; }
-    .mini-tv-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 6px; }
-    .mini-tv-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber-warm); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
-    .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
-    .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
-
-    /* PLAYER */
+    .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
-    .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
-    .search-box-row { display: flex; gap: 8px; width: 100%; }
-    .song-search-input {
-      flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light);
-      border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem; outline: none;
-    }
-    .search-submit-btn {
-      background: var(--amber-warm); color: #000; border: none; border-radius: 10px;
-      padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer;
-    }
-    .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
-    .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 180px; }
-    .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); }
-    .album-art img { width: 100%; height: 100%; object-fit: cover; }
-    .track-details { display: flex; flex-direction: column; min-width: 0; }
-    .track-title { font-size: 0.86rem; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-artist { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .player-controls { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
-    .ctrl-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
-    .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
-
-    .volume-container { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px; }
-    .volume-icon { font-size: 0.75rem; color: var(--amber-warm); cursor: pointer; }
-    .volume-slider { -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer; }
-    .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--amber-warm); cursor: pointer; }
-
-    .mini-tv-btn { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
-    .stream-tv-btn { background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
-    .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
-
-    .playlist-drawer {
-      position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto;
-      background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px; display: none; flex-direction: column; padding: 10px; gap: 6px; z-index: 120;
-    }
-    .playlist-drawer.open { display: flex; }
-    .playlist-item { padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; font-size: 0.78rem; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; }
-    .playlist-item:hover { background: rgba(255,255,255,0.08); }
-    .playlist-item.active-track { background: rgba(255, 170, 51, 0.18); border-color: var(--amber-warm); color: var(--amber-warm); font-weight: 600; }
-
-    .progress-container { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
-    .time-stamp { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 35px; }
-    .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
-    .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
-
-    #youtube-player-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1; }
-    .mini-tv-dock.open #youtube-player-container { position: absolute; inset: 0; opacity: 1; pointer-events: auto; }
-
-    @media (max-width: 768px) {
-      .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; }
-      .hero-header { text-align: center; }
-      .playlist-drawer { width: 100%; right: 0; }
-      .volume-container { display: none; }
-      .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; }
-      .lighting-fixtures-layer { right: 8vw; gap: 6vw; }
-    }
   </style>
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
-    <div class="sky-sun" id="skySun"></div>
+    <div class="sky-sun"></div>
     <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
       <path class="mountain-back" d="M0,600 L0,320 L160,220 L340,360 L520,180 L720,310 L940,150 L1160,290 L1320,190 L1440,260 L1440,600 Z"></path>
       <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
     </svg>
   </div>
-
-  <!-- CURTAINS -->
-  <div class="curtain-track-rod"></div>
-  <div class="curtain-container" id="curtainContainer">
-    <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
-    <div class="curtain-panel curtain-right" id="curtainRight"><div class="curtain-pleats"></div></div>
-  </div>
   
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
-  <!-- RIGHT CORNER STAGGERED PENDANTS -->
   <div class="lighting-fixtures-layer">
-    <div class="pendant-light pendant-1">
-      <div class="pendant-wire"></div>
-      <div class="pendant-shade"></div>
-      <div class="pendant-bulb"></div>
-      <div class="light-beam"></div>
-    </div>
-    <div class="pendant-light pendant-2">
-      <div class="pendant-wire"></div>
-      <div class="pendant-shade"></div>
-      <div class="pendant-bulb"></div>
-      <div class="light-beam"></div>
-    </div>
+    <div class="pendant-light pendant-1"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
+    <div class="pendant-light pendant-2"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
   </div>
 
   <div class="app-container">
     <header class="top-header">
-      <div class="status-badge">
-        <span class="led-dot"></span>
-        <span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span>
-      </div>
-      <div id="liveWeatherStatus" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--amber-warm);">
-        LIVE WEATHER: READY
-      </div>
+      <div class="status-badge"><span class="led-dot"></span><span id="processorStatusText">SYSTEM ACTIVE</span></div>
+      <div id="liveWeatherStatus" style="font-family:'JetBrains Mono',monospace; color:var(--amber-warm);">LOADING WEATHER...</div>
     </header>
 
-    <div class="hero-header">
-      <h1 class="main-title">LUTRON TECHNICIAN</h1>
-      <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
-    </div>
-
-    <!-- SIDEBAR DRAWER (SCENES) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
-          <div class="palladiom-faceplate">
-            <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
-            <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
-            <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
-            
-            <!-- TRANSPARENT INLINE SLIDERS -->
-            <div class="kelvin-inline-tumbler" id="kelvinTumbler">
-              <div class="tumbler-row"><span>KELVIN SPECTRUM</span></div>
-              <input type="range" min="1000" max="12000" step="200" value="3000" class="horizontal-slider" id="kelvinRange">
-              
-              <div class="tumbler-row" style="margin-top:4px;"><span>INTENSITY LEVEL</span></div>
-              <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
-            </div>
-
-            <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
-            <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
-            <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
+          <button class="keypad-btn" data-scene="bright">BRIGHT</button>
+          <button class="keypad-btn active" data-scene="warm">AMBIENT 2700K</button>
+          <div class="kelvin-inline-tumbler" id="kelvinTumbler">
+            <input type="range" min="1000" max="12000" value="3000" class="horizontal-slider" id="kelvinRange">
+            <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
           </div>
+          <button class="keypad-btn" data-scene="off">ALL OFF</button>
         </div>
-        <button class="sidebar-trigger-tab" id="sidebarTriggerBtn">
-          <span>▶</span> <span>SCENES</span>
-        </button>
       </div>
     </main>
   </div>
 
-  <!-- MINI TV -->
-  <div class="mini-tv-dock" id="miniTvDock">
-    <div class="mini-tv-header">
-      <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
-      <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
-    </div>
-    <div class="mini-tv-frame" id="miniTvSlot">
-      <div id="youtube-player-container">
-        <div id="yt-player"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLAYER -->
   <div class="player-wrapper">
     <div class="glass-player">
-      <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (45 Songs Playlist Mode)..." />
-        <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
-      </div>
-
-      <div class="playlist-drawer" id="playlistDrawer"></div>
-
-      <div class="player-top-row">
-        <div class="track-info">
-          <div class="album-art" id="albumArtContainer">
-            <img id="albumImg" src="https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" alt="Art" />
-          </div>
-          <div class="track-details">
-            <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
-            <div class="track-artist" id="trackArtist">2160p 4K HDR • Studio HD Master Audio</div>
-          </div>
-        </div>
-
-        <div class="player-controls">
-          <button class="ctrl-btn" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="ctrl-btn play-btn" id="playPauseBtn">
-            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-          </button>
-          <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-          
-          <div class="volume-container">
-            <span class="volume-icon" id="volumeIcon">🔊</span>
-            <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
-          </div>
-
-          <button class="mini-tv-btn" id="miniTvBtn">
-            <span>📺</span> <span>MINI TV</span>
-          </button>
-
-          <button class="stream-tv-btn" id="streamTvBtn">
-            <span>📡</span> <span>STREAM TV</span>
-          </button>
-
-          <button class="playlist-toggle-btn" id="playlistToggleBtn">
-            <span>📋</span> <span>SONGS</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="progress-container">
-        <span class="time-stamp" id="currentTime">0:00</span>
-        <div class="progress-bar-bg" id="progressBarBg">
-          <div class="progress-bar-fill" id="progressBarFill"></div>
-        </div>
-        <span class="time-stamp" id="totalTime">0:00</span>
-      </div>
+      <div id="stream-container" style="width:100%; height:auto;"></div>
+      <input type="text" id="songQueryInput" placeholder="Search Song..." style="width:100%; padding:10px; background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px;">
+      <button id="searchSubmitBtn" style="width:100%; margin-top:5px; background:var(--amber-warm); border:none; padding:8px; cursor:pointer;">PLAY STREAM</button>
     </div>
   </div>
 
   <script>
-    const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
+    const warmBtn = document.querySelector('[data-scene="warm"]');
+    const tumbler = document.getElementById('kelvinTumbler');
+    warmBtn.addEventListener('click', () => { tumbler.classList.toggle('open'); });
 
-    let songsList = [
-      { id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" },
-      { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
-      { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" },
-      { id: "sLykke8q2Is", name: "Dooriyan — Dino James ft. Kaprila", img: "https://i.ytimg.com/vi/sLykke8q2Is/hqdefault.jpg" },
-      { id: "BddP6PYo2gs", name: "Kesariya — Arijit Singh", img: "https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg" },
-      { id: "0qW0gTqYc4c", name: "Mere Mehboob Qayamat Hogi — Kishore Kumar", img: "https://i.ytimg.com/vi/0qW0gTqYc4c/hqdefault.jpg" }
-    ];
-
-    let currentTrackIndex = 0;
-    let player;
-    let isPlaying = false;
-    let progressTimer = null;
-    let isTransitioningTrack = false;
-    let adKillerInterval = null;
-
-    // --- TRUE KELVIN COLOR & ACCURATE DIMMING LOGIC ---
-    const warmSceneBtn = document.querySelector('[data-scene="warm"]');
-    const kelvinTumbler = document.getElementById('kelvinTumbler');
-    const kelvinRange = document.getElementById('kelvinRange');
-    const dimRange = document.getElementById('dimRange');
-    const root = document.documentElement;
-
-    if (warmSceneBtn) {
-      warmSceneBtn.addEventListener('click', () => {
-        if (warmSceneBtn.classList.contains('active')) {
-          kelvinTumbler.classList.toggle('open');
-        }
-      });
-    }
-
-    kelvinRange.addEventListener('input', (e) => {
-      const k = parseInt(e.target.value);
-      let hexColor = "#ffaa00";
-      let glowColor = "rgba(255, 170, 0, 0.65)";
-
-      if (k <= 2000) {
-        hexColor = "#ff6600";
-        glowColor = "rgba(255, 102, 0, 0.65)";
-      } else if (k > 2000 && k <= 5000) {
-        hexColor = "#ffddaa";
-        glowColor = "rgba(255, 221, 170, 0.7)";
-      } else if (k > 5000 && k <= 8000) {
-        hexColor = "#ffffff";
-        glowColor = "rgba(255, 255, 255, 0.85)";
-      } else {
-        hexColor = "#3b82f6";
-        glowColor = "rgba(59, 130, 246, 0.85)";
-      }
-
-      root.style.setProperty('--fixture-color', hexColor);
-      root.style.setProperty('--fixture-glow', glowColor);
-    });
-
-    dimRange.addEventListener('input', (e) => {
-      const d = parseInt(e.target.value);
-      const opacityVal = d / 100;
-      
-      if (d === 0) {
-        root.style.setProperty('--beam-opacity', '0');
-        root.style.setProperty('--fixture-glow', 'transparent');
-      } else {
-        root.style.setProperty('--beam-opacity', opacityVal);
-      }
-    });
-
-    // --- SIDEBAR MENU TOGGLE (SCENES) ---
-    const sidebarDrawer = document.getElementById('sidebarDrawer');
-    const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
-
-    sidebarTriggerBtn.addEventListener('click', () => {
-      sidebarDrawer.classList.toggle('open');
-      if (sidebarDrawer.classList.contains('open')) {
-        sidebarTriggerBtn.innerHTML = '<span>◀</span> <span>CLOSE</span>';
-      } else {
-        sidebarTriggerBtn.innerHTML = '<span>▶</span> <span>SCENES</span>';
-      }
-    });
-
-    // --- DRAPERY MOTOR CONTROLLER ---
-    const curtainLeft = document.getElementById('curtainLeft');
-    const curtainRight = document.getElementById('curtainRight');
-    const shadesBtn = document.getElementById('shadesBtn');
-    const processorStatusText = document.getElementById('processorStatusText');
-
-    let curtainPos = 0; 
-    let curtainMotionState = 'STOPPED';
-    let nextTarget = 'OPEN'; 
-    let curtainAnimFrame = null;
-    const DRAPERY_SPEED = 0.35;
-
-    function renderCurtainPosition() {
-      const leftTranslate = -100 * (curtainPos / 100);
-      const rightTranslate = 100 * (curtainPos / 100);
-      curtainLeft.style.transform = `translateX(${leftTranslate}%)`;
-      curtainRight.style.transform = `translateX(${rightTranslate}%)`;
-    }
-
-    function animateCurtainStep() {
-      if (curtainMotionState === 'OPENING') {
-        curtainPos += DRAPERY_SPEED;
-        if (curtainPos >= 100) {
-          curtainPos = 100;
-          curtainMotionState = 'STOPPED';
-          nextTarget = 'CLOSE';
-          shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
-          processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN";
-          shadesBtn.classList.add('active');
-        } else {
-          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
-          processorStatusText.textContent = `SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`;
-          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
-        }
-      } else if (curtainMotionState === 'CLOSING') {
-        curtainPos -= DRAPERY_SPEED;
-        if (curtainPos <= 0) {
-          curtainPos = 0;
-          curtainMotionState = 'STOPPED';
-          nextTarget = 'OPEN';
-          shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
-          processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)";
-          shadesBtn.classList.remove('active');
-        } else {
-          shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
-          processorStatusText.textContent = `SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`;
-          curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
-        }
-      }
-      renderCurtainPosition();
-    }
-
-    function handleDraperyClick() {
-      if (curtainMotionState === 'OPENING' || curtainMotionState === 'CLOSING') {
-        if (curtainAnimFrame) cancelAnimationFrame(curtainAnimFrame);
-        nextTarget = (curtainMotionState === 'OPENING') ? 'CLOSE' : 'OPEN';
-        curtainMotionState = 'STOPPED';
-        shadesBtn.querySelector('span').textContent = `05 DRAPERY: ${nextTarget}`;
-        processorStatusText.textContent = `SCENE: DRAPERY STOPPED AT ${Math.round(curtainPos)}%`;
-      } else {
-        if (nextTarget === 'OPEN') {
-          curtainMotionState = 'OPENING';
-          shadesBtn.classList.add('active');
-          applyScene('off', document.querySelector('[data-scene="off"]'));
-        } else {
-          curtainMotionState = 'CLOSING';
-        }
-        shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY";
-        curtainAnimFrame = requestAnimationFrame(animateCurtainStep);
-      }
-    }
-
-    renderCurtainPosition();
-
-    // --- LIVE WEATHER ENGINE ---
-    const outdoorScenery = document.getElementById('outdoorScenery');
-    const liveWeatherStatus = document.getElementById('liveWeatherStatus');
-
-    function fetchInstantLiveWeather() {
-      const now = new Date();
-      const currentHour = now.getHours();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      if (currentHour >= 19 || currentHour < 6) {
-        outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeStr})`;
-        return;
-      }
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-            const res = await fetch(url);
-            const data = await res.json();
-
-            if (data && data.current_weather) {
-              const temp = Math.round(data.current_weather.temperature);
-              const code = data.current_weather.weathercode;
-              const liveHour = new Date().getHours();
-              const liveTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-              if (liveHour >= 19 || liveHour < 6) {
-                outdoorScenery.className = 'outdoor-scenery night-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT ${temp}°C (${liveTime})`;
-              } else if (code >= 50 && code <= 99) {
-                outdoorScenery.className = 'outdoor-scenery rainy-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: RAIN ${temp}°C (${liveTime})`;
-              } else if (code >= 1 && code <= 49) {
-                outdoorScenery.className = 'outdoor-scenery cloudy-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: CLOUDY ${temp}°C (${liveTime})`;
-              } else {
-                outdoorScenery.className = 'outdoor-scenery day-mode';
-                liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY ${temp}°C (${liveTime})`;
-              }
-            }
-          } catch (e) {
-            applySystemClockSync();
-          }
-        }, () => {
-          applySystemClockSync();
-        }, { timeout: 5000 });
-      } else {
-        applySystemClockSync();
-      }
-    }
-
-    function applySystemClockSync() {
-      const now = new Date();
-      const hour = now.getHours();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      if (hour >= 6 && hour < 19) {
-        outdoorScenery.className = 'outdoor-scenery day-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: SUNNY (${timeStr})`;
-      } else {
-        outdoorScenery.className = 'outdoor-scenery night-mode';
-        liveWeatherStatus.textContent = `LIVE WEATHER: CLEAR NIGHT (${timeStr})`;
-      }
-    }
-
-    // SCENES CONFIG
-    const keypadButtons = document.querySelectorAll('.keypad-btn');
-    const sceneLightingConfig = {
-      bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.95)", opacity: "0.95", status: "01 BRIGHT (100% COOL WHITE)" },
-      dim: { color: "#ffaa33", glow: "rgba(255, 170, 51, 0.45)", opacity: "0.35", status: "02 DIM / MOVIE (20% WARM)" },
-      warm: { color: "#ffaa00", glow: "rgba(255, 170, 0, 0.75)", opacity: "0.85", status: "03 AMBIENT 2700K KELVIN" },
-      party: { color: "#00f0ff", glow: "rgba(0, 240, 255, 0.8)", opacity: "0.75", status: "04 DALI BLUE NIGHT MODE" },
-      off: { color: "#000000", glow: "transparent", opacity: "0", status: "06 ALL OFF (0% LOAD)" }
-    };
-
-    function applyScene(sceneName, targetBtn) {
-      if (sceneName === 'shades') {
-        handleDraperyClick();
-        return;
-      }
-
-      keypadButtons.forEach(b => {
-        if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active');
-      });
-      if(targetBtn) targetBtn.classList.add('active');
-
-      const config = sceneLightingConfig[sceneName] || sceneLightingConfig.warm;
-      root.style.setProperty('--fixture-color', config.color);
-      root.style.setProperty('--fixture-glow', config.glow);
-      root.style.setProperty('--beam-opacity', config.opacity);
-      document.getElementById('processorStatusText').textContent = config.status;
-    }
-
-    keypadButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        applyScene(btn.getAttribute('data-scene'), btn);
-      });
-    });
-
-    // PLAYLIST DRAWER
-    const playlistDrawer = document.getElementById('playlistDrawer');
-    const playlistToggleBtn = document.getElementById('playlistToggleBtn');
-
-    function renderPlaylistDrawer() {
-      playlistDrawer.innerHTML = '';
-      songsList.forEach((song, idx) => {
-        const item = document.createElement('div');
-        item.className = `playlist-item ${idx === currentTrackIndex ? 'active-track' : ''}`;
-        item.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; overflow:hidden; max-width:80%;">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎵 ${song.name}</span>
-          </div>
-          <span style="font-size:0.7rem; color:var(--amber-warm); font-weight:bold;">▶ PLAY</span>
-        `;
-        item.addEventListener('click', () => {
-          playTrackAtIndex(idx, true);
-          playlistDrawer.classList.remove('open');
-        });
-        playlistDrawer.appendChild(item);
-      });
-    }
-
-    playlistToggleBtn.addEventListener('click', () => {
-      playlistDrawer.classList.toggle('open');
-    });
-
-    // --- YOUTUBE SEARCH (45 SONGS) ---
-    const songQueryInput = document.getElementById('songQueryInput');
-    const searchSubmitBtn = document.getElementById('searchSubmitBtn');
-
-    async function executeLiveYouTubeSearch() {
-      const query = songQueryInput.value.trim();
-      if (!query) return;
-
-      searchSubmitBtn.textContent = "SEARCHING...";
-
+    // Weather Sync
+    async function updateWeather() {
       try {
-        const cleanQuery = encodeURIComponent(query + ' "Official Audio" OR "Topic"');
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${cleanQuery}&type=video&key=${YT_API_KEY}`;
-        const res = await fetch(url);
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
         const data = await res.json();
-
-        if (data.error) {
-          alert("YouTube API Note: " + data.error.message);
-          return;
-        }
-
-        if (data.items && data.items.length > 0) {
-          songsList = data.items.map(item => ({
-            id: item.id.videoId,
-            name: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&'),
-            img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : item.snippet.thumbnails.default.url
-          }));
-
-          renderPlaylistDrawer();
-          playlistDrawer.classList.add('open');
-        } else {
-          alert("No songs found for: " + query);
-        }
-      } catch (err) {
-        console.error("API Error:", err);
-      } finally {
-        searchSubmitBtn.textContent = "SEARCH";
-      }
+        document.getElementById('liveWeatherStatus').innerText = `TEMP: ${data.current_weather.temperature}°C`;
+      } catch(e) { document.getElementById('liveWeatherStatus').innerText = "WEATHER: ONLINE"; }
     }
+    updateWeather();
 
-    searchSubmitBtn.addEventListener('click', executeLiveYouTubeSearch);
-    songQueryInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') executeLiveYouTubeSearch();
-    });
-
-    // YOUTUBE API CONTROLLER + EMBED PROXY BYPASS (AVOIDING BOT CHECK)
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
-
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('yt-player', {
-        height: '100%', width: '100%',
-        videoId: songsList[0].id,
-        host: 'https://www.youtube-nocookie.com',
-        playerVars: { 
-          'autoplay': 0, 
-          'controls': 1, 
-          'playsinline': 1, 
-          'rel': 0, 
-          'enablejsapi': 1,
-          'origin': window.location.origin,
-          'widget_referrer': window.location.origin,
-          'embed_config': '{"click_to_play":true}',
-          'iv_load_policy': 3,
-          'vq': 'hd2160'
-        },
-        events: {
-          'onReady': (e) => {
-            e.target.setPlaybackQuality('hd2160');
-            renderPlaylistDrawer();
-            updateTrackInfo();
-            updateTimeDisplay();
-          },
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    }
-
-    function playTrackAtIndex(index, autoPlay = true) {
-      isTransitioningTrack = true;
-      currentTrackIndex = (index + songsList.length) % songsList.length;
-      const track = songsList[currentTrackIndex];
-      if (!track) return;
-
-      renderPlaylistDrawer();
-      updateTrackInfo();
-
-      if (player && typeof player.loadVideoById === 'function') {
-        player.loadVideoById({
-          videoId: track.id,
-          suggestedQuality: 'hd2160'
-        });
-        if (autoPlay) {
-          player.playVideo();
-        }
-      }
-
-      setTimeout(() => { isTransitioningTrack = false; }, 1000);
-    }
-
-    function playNextTrack() {
-      if (isTransitioningTrack) return;
-      playTrackAtIndex(currentTrackIndex + 1, true);
-    }
-
-    function playPrevTrack() {
-      if (isTransitioningTrack) return;
-      playTrackAtIndex(currentTrackIndex - 1, true);
-    }
-
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const playIcon = document.getElementById('playIcon');
-    const pauseIcon = document.getElementById('pauseIcon');
-
-    function onPlayerStateChange(event) {
-      updateTimeDisplay();
-
-      if (event.data === YT.PlayerState.PLAYING) {
-        isPlaying = true;
-        isTransitioningTrack = false;
-        playIcon.style.display = 'none';
-        pauseIcon.style.display = 'block';
-        if (player.setPlaybackQuality) player.setPlaybackQuality('hd2160');
-        startTimer();
-        startAdKillerEngine();
-      } else if (event.data === YT.PlayerState.ENDED) {
-        playNextTrack();
-      } else {
-        isPlaying = false;
-        playIcon.style.display = 'block';
-        pauseIcon.style.display = 'none';
-        stopTimer();
-        stopAdKillerEngine();
-      }
-    }
-
-    // 🚀 PREMIUM AD-KILLER ENGINE
-    function startAdKillerEngine() {
-      stopAdKillerEngine();
-      adKillerInterval = setInterval(() => {
-        if (player && typeof player.getDuration === 'function') {
-          try {
-            const dur = player.getDuration() || 0;
-            const cur = player.getCurrentTime() || 0;
-            if (dur > 0 && dur < 40 && cur < dur - 0.5) {
-              player.setPlaybackRate(16);
-              player.mute();
-            } else {
-              player.setPlaybackRate(1);
-              player.unMute();
-            }
-          } catch(e) {}
-        }
-      }, 300);
-    }
-
-    function stopAdKillerEngine() {
-      if (adKillerInterval) clearInterval(adKillerInterval);
-    }
-
-    function updateTrackInfo() {
-      const track = songsList[currentTrackIndex];
-      if (track) {
-        document.getElementById('trackTitle').textContent = track.name;
-        document.getElementById('trackArtist').textContent = "2160p 4K HDR • Studio HD Master Audio";
-        document.getElementById('miniTvTitle').textContent = "📺 " + track.name;
-        if (track.img) document.getElementById('albumImg').src = track.img;
-
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: track.name,
-            artist: "Lutron Technician",
-            artwork: [{ src: track.img || '', sizes: '512x512', type: 'image/jpeg' }]
-          });
-          navigator.mediaSession.setActionHandler('play', () => { if (player) player.playVideo(); });
-          navigator.mediaSession.setActionHandler('pause', () => { if (player) player.pauseVideo(); });
-          navigator.mediaSession.setActionHandler('nexttrack', () => { playNextTrack(); });
-          navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevTrack(); });
-        }
-      }
-    }
-
-    function formatTime(sec) {
-      if (!sec || isNaN(sec) || sec <= 0) return "0:00";
-      const totalSec = Math.floor(sec);
-      const m = Math.floor(totalSec / 60);
-      const s = totalSec % 60;
-      return `${m}:${s < 10 ? '0' : ''}${s}`;
-    }
-
-    function updateTimeDisplay() {
-      if (player && typeof player.getDuration === 'function') {
-        const cur = player.getCurrentTime() || 0;
-        const dur = player.getDuration() || 0;
-        
-        document.getElementById('currentTime').textContent = formatTime(cur);
-        if (dur > 0) {
-          document.getElementById('totalTime').textContent = formatTime(dur);
-          document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
-
-          if (isPlaying && !isTransitioningTrack && dur > 5 && (dur - cur) < 0.6) {
-            playNextTrack();
-          }
-        }
-      }
-    }
-
-    function startTimer() {
-      stopTimer();
-      updateTimeDisplay();
-      progressTimer = setInterval(updateTimeDisplay, 300);
-    }
-
-    function stopTimer() {
-      if (progressTimer) clearInterval(progressTimer);
-      updateTimeDisplay();
-    }
-
-    playPauseBtn.addEventListener('click', () => {
-      if (player) {
-        if (isPlaying) {
-          player.pauseVideo();
-        } else {
-          player.playVideo();
-        }
+    // Stream Bridge
+    document.getElementById('searchSubmitBtn').addEventListener('click', async () => {
+      const q = document.getElementById('songQueryInput').value;
+      // Invidious API Proxy to bypass YouTube bot blocks
+      const searchRes = await fetch(`https://yeti.peace-of-mind.site/api/v1/search?q=${encodeURIComponent(q)}`);
+      const data = await searchRes.json();
+      if(data[0]) {
+        document.getElementById('stream-container').innerHTML = `<iframe src="https://yeti.peace-of-mind.site/embed/${data[0].videoId}?autoplay=1" width="100%" height="200" allowfullscreen></iframe>`;
       }
     });
 
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      playNextTrack();
+    // Lighting logic
+    const root = document.documentElement;
+    document.getElementById('kelvinRange').addEventListener('input', (e) => {
+      const k = e.target.value;
+      const color = k < 5000 ? "#ffaa00" : "#ffffff";
+      root.style.setProperty('--fixture-color', color);
     });
-
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      playPrevTrack();
+    document.getElementById('dimRange').addEventListener('input', (e) => {
+      root.style.setProperty('--beam-opacity', e.target.value / 100);
     });
-
-    document.getElementById('progressBarBg').addEventListener('click', (e) => {
-      if (player && player.getDuration) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const pos = (e.clientX - rect.left) / rect.width;
-        const dur = player.getDuration();
-        if (dur > 0) {
-          player.seekTo(dur * pos, true);
-          updateTimeDisplay();
-        }
-      }
-    });
-
-    const volumeSlider = document.getElementById('volumeSlider');
-    const volumeIcon = document.getElementById('volumeIcon');
-    volumeSlider.addEventListener('input', (e) => {
-      const val = parseInt(e.target.value);
-      if (player && player.setVolume) player.setVolume(val);
-      if (val === 0) volumeIcon.textContent = "🔇";
-      else if (val < 50) volumeIcon.textContent = "🔉";
-      else volumeIcon.textContent = "🔊";
-    });
-
-    // --- NATIVE PICTURE-IN-PICTURE (PiP) MINI TV ENGINE ---
-    const miniTvDock = document.getElementById('miniTvDock');
-    const miniTvBtn = document.getElementById('miniTvBtn');
-
-    async function toggleMiniTv() {
-      const iframeElem = document.getElementById('yt-player');
-      let videoElement = null;
-      try {
-        videoElement = iframeElem.contentWindow.document.querySelector('video');
-      } catch(err) {}
-
-      if (!videoElement) {
-        videoElement = document.querySelector('video');
-      }
-
-      if (videoElement && document.pictureInPictureEnabled) {
-        try {
-          if (document.pictureInPictureElement) {
-            await document.exitPictureInPicture();
-            miniTvDock.style.display = 'flex';
-          } else {
-            await videoElement.requestPictureInPicture();
-            miniTvDock.style.display = 'none';
-          }
-        } catch (err) {
-          miniTvDock.classList.toggle('open');
-        }
-      } else {
-        miniTvDock.classList.toggle('open');
-      }
-    }
-
-    miniTvBtn.addEventListener('click', toggleMiniTv);
-    document.getElementById('miniTvCloseBtn').addEventListener('click', () => {
-      miniTvDock.classList.remove('open');
-    });
-
-    // --- TRUE CONDITIONAL NETWORK CASTING ---
-    document.getElementById('streamTvBtn').addEventListener('click', async () => {
-      if ('presentation' in navigator && navigator.presentation.defaultRequest) {
-        try {
-          const connection = await navigator.presentation.defaultRequest.start();
-          if (connection) {
-            alert("🌐 Connected to live network device ID: " + connection.id);
-            return;
-          }
-        } catch (err) {}
-      }
-
-      if (player && typeof player.getIframe === 'function') {
-        const iframe = player.getIframe();
-        if (iframe && iframe.remote && typeof iframe.remote.prompt === 'function') {
-          try {
-            await iframe.remote.prompt();
-            return;
-          } catch (e) {}
-        }
-      }
-
-      alert("📡 No active network casting receivers found on current local Wi-Fi. Ensure a Chromecast or DLNA device is online.");
-    });
-
-    fetchInstantLiveWeather();
-    renderPlaylistDrawer();
   </script>
 </body>
 </html>
