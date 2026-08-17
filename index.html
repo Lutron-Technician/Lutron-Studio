@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    /* ... (CSS same hai, koi chhed-chhaad nahi) ... */
     :root { --bg-dark: #07090e; --bg-card: rgba(18, 22, 33, 0.92); --amber-warm: #ffaa33; --qs-blue: #00d2ff; --led-green: #10b981; --text-main: #f3f4f6; --text-muted: #8a94a6; --border-light: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15); --fixture-color: #ffaa00; --fixture-glow: rgba(255, 170, 0, 0.65); --beam-opacity: 0.85; }
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
     body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); position: relative; }
@@ -257,7 +258,7 @@
       const header = document.getElementById('networkStatusHeader');
       const listContainer = document.getElementById('networkDeviceListContainer');
       const isOnline = navigator.onLine;
-      const isLocalWifi = isOnline && (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || navigator.connection?.type === 'wifi' || navigator.connection?.type === 'ethernet');
+      const isLocalWifi = isOnline && (navigator.connection && (navigator.connection.type === 'wifi' || navigator.connection.type === 'ethernet'));
       if (isLocalWifi) {
         header.innerText = "ON OTHER NETWORKS & ROOMS";
         listContainer.innerHTML = `<div class="device-item" onclick="selectAudioSink('Medium Cylinder')"><div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Medium Cylinder</div><div style="font-size:0.65rem; color:var(--text-muted);">Office Main Zone • Active</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div><div class="device-item" onclick="selectAudioSink('Sphere 360')" style="margin-top:8px;"><div class="device-info-left"><span style="font-size:1.1rem;">📽️</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Sphere 360</div><div style="font-size:0.65rem; color:var(--text-muted);">Boardroom 4K Display</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div><div class="device-item" onclick="selectAudioSink('Studio R')" style="margin-top:8px;"><div class="device-info-left"><span style="font-size:1.1rem;">📡</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div><div style="font-size:0.65rem; color:var(--text-muted);">Dante Sync Node • Online</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div><div class="device-item" onclick="selectAudioSink('Parents Room')" style="margin-top:8px;"><div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Parents Room</div><div style="font-size:0.65rem; color:var(--text-muted);">Zone Amplifier</div></div></div><span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span></div>`;
@@ -268,14 +269,13 @@
     }
     function selectAudioSink(deviceName) {
       const isOnline = navigator.onLine;
-      const isLocalWifi = isOnline && (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || navigator.connection?.type === 'wifi' || navigator.connection?.type === 'ethernet');
+      const isLocalWifi = isOnline && (navigator.connection && (navigator.connection.type === 'wifi' || navigator.connection.type === 'ethernet'));
       if (isLocalWifi) {
         alert(`⚡ Successfully routed playback to: ${deviceName}\n(Network Dante node linked!)`);
         document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Dante Active)`;
         connectOverlay.classList.remove('open');
       }
     }
-    // Lighting & Drapery logic remains same...
     const curtainLeft = document.getElementById('curtainLeft'); const curtainRight = document.getElementById('curtainRight'); const shadesBtn = document.getElementById('shadesBtn'); const processorStatusText = document.getElementById('processorStatusText'); let curtainPos = 0; let curtainMotionState = 'STOPPED'; let nextTarget = 'OPEN'; let curtainAnimFrame = null; const DRAPERY_SPEED = 0.35; 
     function renderCurtainPosition() { curtainLeft.style.transform = `translateX(-${curtainPos}%)`; curtainRight.style.transform = `translateX(${curtainPos}%)`; }
     function animateCurtainStep() { if (curtainMotionState === 'OPENING') { curtainPos += DRAPERY_SPEED; if (curtainPos >= 100) { curtainPos = 100; curtainMotionState = 'STOPPED'; nextTarget = 'CLOSE'; shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE"; processorStatusText.textContent = "SCENE: DRAPERY FULLY OPEN (100%)"; shadesBtn.classList.add('active'); } else { shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY"; processorStatusText.textContent = `SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`; curtainAnimFrame = requestAnimationFrame(animateCurtainStep); } } else if (curtainMotionState === 'CLOSING') { curtainPos -= DRAPERY_SPEED; if (curtainPos <= 0) { curtainPos = 0; curtainMotionState = 'STOPPED'; nextTarget = 'OPEN'; shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN"; processorStatusText.textContent = "SCENE: DRAPERY CLOSED (ROOM PRIVACY)"; shadesBtn.classList.remove('active'); } else { shadesBtn.querySelector('span').textContent = "05 STOP DRAPERY"; processorStatusText.textContent = `SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`; curtainAnimFrame = requestAnimationFrame(animateCurtainStep); } } renderCurtainPosition(); }
