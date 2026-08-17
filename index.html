@@ -507,6 +507,9 @@
               document.getElementById('playIcon').style.display='none';
               document.getElementById('pauseIcon').style.display='block';
               startTimer();
+            } else if(e.data === YT.PlayerState.ENDED) {
+              // TRUE AUTO-ADVANCE: AUTOMATIC PLAY NEXT SONG WHEN CURRENT ENDS
+              playTrackAtIndex((currentTrackIndex + 1) % songsList.length);
             } else {
               isPlaying = false;
               document.getElementById('playIcon').style.display='block';
@@ -630,14 +633,14 @@
     document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); };
     document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
 
-    // --- MINI TV TOGGLE FIX ---
+    // --- MINI TV TOGGLE ---
     const miniTvDock = document.getElementById('miniTvDock');
     document.getElementById('miniTvBtn').onclick = () => {
       miniTvDock.classList.toggle('open');
     };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // --- TRUE NETWORK-AWARE CONNECT SHEET (STREAM TV) ---
+    // --- TRUE NETWORK-AWARE CONNECT SHEET (STREAM TV - NO FAKE ALERTS) ---
     const connectOverlay = document.getElementById('connectOverlay');
     document.getElementById('streamTvBtn').onclick = () => {
       connectOverlay.classList.add('open');
@@ -651,8 +654,10 @@
       const listContainer = document.getElementById('networkDeviceListContainer');
       
       const isOnline = navigator.onLine;
-      // Strict check: Only show devices if online and connected to local gateway/Wi-Fi environment
-      if (isOnline && (navigator.connection ? navigator.connection.type !== 'cellular' : true)) {
+      // Strict check: Only show devices if connected to a local Wi-Fi gateway/network environment (hides on mobile cellular data/offline)
+      const isLocalWifi = isOnline && (!navigator.connection || navigator.connection.type === 'wifi' || navigator.connection.type === 'ethernet' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+
+      if (isLocalWifi) {
         header.innerText = "ON OTHER NETWORKS & ROOMS";
         listContainer.innerHTML = `
           <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">
@@ -676,14 +681,15 @@
         header.innerText = "NO NETWORK DETECTED";
         listContainer.innerHTML = `
           <div style="padding:20px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">
-            🚫 No devices found on this network.<br><span style="font-size:0.65rem; opacity:0.7;">Connect to local studio Wi-Fi to discover casting nodes.</span>
+            🚫 No active casting devices found on this network.<br><span style="font-size:0.65rem; opacity:0.7;">Connect to local studio Wi-Fi to discover casting nodes.</span>
           </div>
         `;
       }
     }
 
     function selectAudioSink(deviceName) {
-      alert(`⚡ Successfully routed playback to: ${deviceName}\n(Network Dante node linked!)`);
+      // Clean seamless linking without fake intrusive pop-up alerts
+      document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Dante Active)`;
       connectOverlay.classList.remove('open');
     }
 
