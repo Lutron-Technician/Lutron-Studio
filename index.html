@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Clean Professional Edition</title>
+  <title>Lutron Technician — Master Control Edition</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -41,6 +41,8 @@
     }
     .outdoor-scenery.day-mode { background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 50%, #fde047 100%); }
     .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #1e1b4b 0%, #0f172a 60%, #020617 100%); }
+    .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%); }
+    .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #1e293b 0%, #334155 60%, #0f172a 100%); }
 
     .sky-sun {
       position: absolute; top: 12%; right: 18%; width: 110px; height: 110px;
@@ -50,7 +52,7 @@
       opacity: 0; transform: translateY(40px) scale(0.8);
       transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .outdoor-scenery.day-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
+    .outdoor-scenery.day-mode .sky-sun, .outdoor-scenery.cloudy-mode .sky-sun { opacity: 1; transform: translateY(0) scale(1); }
 
     .sky-moon {
       position: absolute; top: 10%; right: 16%; width: 85px; height: 85px;
@@ -131,8 +133,9 @@
     }
     .sidebar-drawer.open { transform: translateY(-50%) translateX(310px); }
     .palladiom-frame {
-      width: 260px; height: 380px; background: linear-gradient(145deg, #2a2f3d, #12151f);
+      width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f);
       border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex; flex-direction: column; gap: 8px;
     }
     .sidebar-trigger-tab {
       background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
@@ -142,16 +145,27 @@
       box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
     }
     .sidebar-trigger-tab:hover { background: var(--amber-warm); color: #000; }
-    .palladiom-faceplate { width: 100%; height: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+    .palladiom-faceplate { width: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
     .keypad-btn {
-      flex: 1; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+      height: 42px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
       border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
-      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer;
+      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer; width: 100%;
     }
     .keypad-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .keypad-btn.active { color: #ffffff; background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
+
+    /* TRANSPARENT SLIDE-DOWN KELVIN TUMBLER (NO POPUP BOX) */
+    .kelvin-inline-tumbler {
+      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
+      background: rgba(10, 14, 22, 0.6); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
+    }
+    .kelvin-inline-tumbler.open { max-height: 110px; padding: 10px; border-color: rgba(255,255,255,0.1); }
+    .tumbler-row { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber-warm); }
+    .horizontal-slider {
+      -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--amber-warm);
+    }
 
     /* MINI TV */
     .mini-tv-dock {
@@ -228,7 +242,7 @@
 </head>
 <body>
 
-  <!-- OUTDOOR SCENERY (DEFAULT LIVE WEATHER) -->
+  <!-- OUTDOOR SCENERY (LIVE WEATHER RESTORED) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon">
@@ -272,7 +286,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER (SCENES) -->
+    <!-- SIDEBAR DRAWER (SCENES + INLINE TUMBLER) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -280,6 +294,21 @@
             <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
+            
+            <!-- TRANSPARENT INLINE SLIDE-DOWN TUMBLER (NO POPUP BOX) -->
+            <div class="kelvin-inline-tumbler" id="kelvinTumbler">
+              <div class="tumbler-row">
+                <span>KELVIN:</span>
+                <span id="kelvinVal">2700K</span>
+              </div>
+              <input type="range" min="2000" max="6000" step="100" value="2700" class="horizontal-slider" id="kelvinRange">
+              <div class="tumbler-row" style="margin-top:4px;">
+                <span>INTENSITY:</span>
+                <span id="dimVal">85%</span>
+              </div>
+              <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
+            </div>
+
             <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
             <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
@@ -383,6 +412,34 @@
     let isTransitioningTrack = false;
     let adKillerInterval = null;
 
+    // --- INLINE TRANSPARENT KELVIN TUMBLER LOGIC ---
+    const warmSceneBtn = document.querySelector('[data-scene="warm"]');
+    const kelvinTumbler = document.getElementById('kelvinTumbler');
+    const kelvinRange = document.getElementById('kelvinRange');
+    const kelvinVal = document.getElementById('kelvinVal');
+    const dimRange = document.getElementById('dimRange');
+    const dimVal = document.getElementById('dimVal');
+
+    if (warmSceneBtn) {
+      warmSceneBtn.addEventListener('click', () => {
+        if (warmSceneBtn.classList.contains('active')) {
+          kelvinTumbler.classList.toggle('open');
+        }
+      });
+    }
+
+    kelvinRange.addEventListener('input', (e) => {
+      const k = e.target.value;
+      kelvinVal.textContent = k + 'K';
+      document.getElementById('processorStatusText').textContent = `SCENE: AMBIENT TUNED TO ${k}K`;
+    });
+
+    dimRange.addEventListener('input', (e) => {
+      const d = e.target.value;
+      dimVal.textContent = d + '%';
+      document.documentElement.style.setProperty('--beam-opacity', d / 100);
+    });
+
     // --- SIDEBAR MENU TOGGLE (SCENES) ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
@@ -471,7 +528,6 @@
     renderCurtainPosition();
 
     // --- LIVE WEATHER ENGINE ---
-    const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
@@ -878,7 +934,7 @@
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
 
-    // --- TRUE CONDITIONAL NETWORK CASTING (ONLY SHOWS IF AVAILABLE) ---
+    // --- TRUE CONDITIONAL NETWORK CASTING ---
     document.getElementById('streamTvBtn').addEventListener('click', async () => {
       if ('presentation' in navigator && navigator.presentation.defaultRequest) {
         try {
@@ -890,7 +946,6 @@
         } catch (err) {}
       }
 
-      // Check for native browser remote playback availability
       if (player && typeof player.getIframe === 'function') {
         const iframe = player.getIframe();
         if (iframe && iframe.remote && typeof iframe.remote.prompt === 'function') {
@@ -901,7 +956,6 @@
         }
       }
 
-      // If no active network cast receiver is found on the local network, notify cleanly without clutter
       alert("📡 No active network casting receivers found on current local Wi-Fi. Ensure a Chromecast or DLNA device is online.");
     });
 
