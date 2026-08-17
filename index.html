@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Master Control Edition</title>
+  <title>Lutron Technician — Professional Pro Master</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -20,56 +20,232 @@
       --text-muted: #8a94a6;
       --border-light: rgba(255, 255, 255, 0.08);
       --glass-border: rgba(255, 255, 255, 0.15);
+
       --fixture-color: #ffaa00;
       --fixture-glow: rgba(255, 170, 0, 0.65);
       --beam-opacity: 0.85;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-    body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background-color: var(--bg-dark); }
 
-    /* OUTDOOR WEATHER SCENERY */
-    .outdoor-scenery { position: absolute; inset: 0; z-index: 1; transition: background 2s ease; }
-    .day-mode { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
-    .night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
-    
-    .sky-sun { position: absolute; top: 12%; right: 28%; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%); opacity: 0.35; }
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark); color: var(--text-main); position: relative;
+    }
+
+    /* OUTDOOR WINDOW SCENERY LAYER */
+    .outdoor-scenery {
+      position: absolute; inset: 0; z-index: 1; overflow: hidden;
+      transition: background 2s ease-in-out;
+    }
+    .outdoor-scenery.day-mode { background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%); }
+    .outdoor-scenery.night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
+    .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+    .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); }
+
+    .sky-sun {
+      position: absolute; top: 12%; right: 28%; width: 100px; height: 100px;
+      border-radius: 50%; z-index: 1;
+      background: radial-gradient(circle, #ffffff 20%, #fef08a 60%, #eab308 100%);
+      box-shadow: 0 0 40px #eab308;
+      opacity: 0.35; transform: translateY(0) scale(1);
+    }
+
     .mountain-layer { position: absolute; bottom: 0; left: 0; width: 100%; height: 40%; pointer-events: none; z-index: 3; }
-    .mountain-back { fill: #1e3a8a; opacity: 0.2; }
-    .mountain-front { fill: #0f172a; opacity: 0.6; }
+    .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.2; }
+    .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; opacity: 0.6; }
 
-    /* CURTAINS & GRID */
+    /* CURTAINS */
+    .curtain-container {
+      position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden;
+    }
+    .curtain-panel {
+      width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
+      position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform;
+    }
+    .curtain-pleats {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px);
+    }
+    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); }
+    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); }
     .curtain-track-rod { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, #374151, #111827); z-index: 5; }
-    .blueprint-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px); background-size: 35px 35px; pointer-events: none; z-index: 5; }
-    
-    .ambient-glow { position: absolute; top: 40%; right: 10vw; transform: translate(30%, -20%); width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%); border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity); }
 
-    /* LIGHTING FIXTURES */
-    .lighting-fixtures-layer { position: absolute; top: 0; right: 8vw; z-index: 7; pointer-events: none; display: flex; gap: 6vw; }
+    .blueprint-grid { 
+      position: absolute; inset: 0; 
+      background-image: linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px); 
+      background-size: 35px 35px; pointer-events: none; z-index: 5; 
+    }
+    
+    /* RIGHT CORNER AMBIENT GLOW */
+    .ambient-glow {
+      position: absolute; top: 40%; right: 8vw; transform: translate(20%, -20%);
+      width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%);
+      border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
+    }
+
+    /* RIGHT CORNER STAGGERED LIGHTING FIXTURES (PERFECTLY ALIGNED) */
+    .lighting-fixtures-layer { 
+      position: absolute; top: 0; right: 6vw; z-index: 7; pointer-events: none; display: flex; gap: 5vw; 
+    }
+    .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
+    
     .pendant-1 .pendant-wire { width: 2px; height: 110px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
     .pendant-2 .pendant-wire { width: 2px; height: 175px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
-    .pendant-shade { width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; }
-    .pendant-bulb { width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; }
-    .light-beam { width: 220px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%); clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity); }
 
-    .app-container { position: relative; z-index: 10; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw; pointer-events: none; }
+    .pendant-shade { 
+      width: 52px; height: 28px; background: linear-gradient(180deg, #2a2f3a 0%, #11141a 100%); 
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 6px 6px 2px 2px; 
+    }
+    .pendant-bulb { 
+      width: 22px; height: 22px; border-radius: 50%; background-color: var(--fixture-color); 
+      box-shadow: 0 0 25px var(--fixture-color); margin-top: -6px; 
+    }
+    
+    .light-beam {
+      width: 200px; height: 580px; background: linear-gradient(180deg, var(--fixture-glow) 0%, transparent 100%);
+      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); filter: blur(12px); opacity: var(--beam-opacity);
+    }
+
+    .app-container {
+      position: relative; z-index: 10; width: 100vw; height: 100vh;
+      display: flex; flex-direction: column; justify-content: space-between; padding: 1.8rem 4vw 9.5rem 4vw;
+      pointer-events: none;
+    }
     .app-container > * { pointer-events: auto; }
 
-    /* SCENES & PLAYER UI (Cleaned) */
-    .palladiom-frame { width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f); border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); }
-    .keypad-btn { height: 42px; width: 100%; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); color: #fff; border-radius: 4px; padding: 0 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    .keypad-btn.active { background: rgba(255, 170, 51, 0.2); border-color: var(--amber-warm); }
-    
-    .kelvin-inline-tumbler { max-height: 0; overflow: hidden; transition: 0.3s; background: rgba(0,0,0,0.3); padding: 0 10px; }
-    .kelvin-inline-tumbler.open { max-height: 100px; padding: 10px; }
-    .horizontal-slider { width: 100%; accent-color: var(--amber-warm); cursor: pointer; }
+    .top-header { width: 100%; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.03); padding: 0.4rem 0.8rem; border-radius: 100px; border: 1px solid var(--border-light); }
+    .led-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--led-green); box-shadow: 0 0 8px var(--led-green); }
 
-    .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+    .hero-header { text-align: left; margin-top: 0.5rem; margin-bottom: 0.8rem; }
+    .main-title {
+      font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(180deg, #ffffff 0%, #a0aab8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sub-title { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.85rem); color: var(--amber-warm); letter-spacing: 0.25em; text-transform: uppercase; margin-top: 0.25rem; }
+
+    /* SIDEBAR DRAWER (SCENES) */
+    .central-stage { display: flex; align-items: center; position: relative; flex-grow: 1; width: 100%; }
+    .sidebar-drawer {
+      position: absolute; left: -310px; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; z-index: 40; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(310px); }
+    .palladiom-frame {
+      width: 260px; height: auto; background: linear-gradient(145deg, #2a2f3d, #12151f);
+      border-radius: 12px; padding: 12px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .sidebar-trigger-tab {
+      background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-left: none;
+      color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 0 10px 10px 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
+      writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
+      box-shadow: 5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
+    }
+    .sidebar-trigger-tab:hover { background: var(--amber-warm); color: #000; }
+    .palladiom-faceplate { width: 100%; background: linear-gradient(135deg, #1d222e 0%, #11141c 100%); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+    .keypad-btn {
+      height: 42px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px;
+      color: rgba(255, 255, 255, 0.65); font-size: 0.72rem; font-weight: 600; cursor: pointer; width: 100%;
+    }
+    .keypad-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .keypad-btn.active { color: #ffffff; background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
+    .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
+    .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
+
+    /* CLEAN TRANSPARENT SLIDE-DOWN TUMBLER */
+    .kelvin-inline-tumbler {
+      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
+      background: rgba(10, 14, 22, 0.75); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
+    }
+    .kelvin-inline-tumbler.open { max-height: 100px; padding: 10px; border-color: rgba(255,255,255,0.1); }
+    .tumbler-row { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--amber-warm); }
+    .horizontal-slider {
+      -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--amber-warm);
+    }
+
+    /* MINI TV */
+    .mini-tv-dock {
+      position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
+      background: rgba(15, 21, 33, 0.95); border: 1px solid var(--glass-border);
+      border-radius: 12px; padding: 6px; box-shadow: 0 20px 45px rgba(0,0,0,0.9);
+      backdrop-filter: blur(20px); z-index: 50; display: none; flex-direction: column; gap: 5px;
+    }
+    .mini-tv-dock.open { display: flex; }
+    .mini-tv-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 6px; }
+    .mini-tv-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--amber-warm); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
+    .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
+    .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
+
+    /* PLAYER */
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
+    .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
+    .search-box-row { display: flex; gap: 8px; width: 100%; }
+    .song-search-input {
+      flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-light);
+      border-radius: 10px; padding: 0.6rem 1rem; color: #fff; font-size: 0.82rem; outline: none;
+    }
+    .search-submit-btn {
+      background: var(--amber-warm); color: #000; border: none; border-radius: 10px;
+      padding: 0 1.3rem; font-weight: 700; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer;
+    }
+    .player-top-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+    .track-info { display: flex; align-items: center; gap: 0.8rem; flex: 1; min-width: 180px; }
+    .album-art { width: 44px; height: 44px; border-radius: 10px; background: #2a3042; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border-light); }
+    .album-art img { width: 100%; height: 100%; object-fit: cover; }
+    .track-details { display: flex; flex-direction: column; min-width: 0; }
+    .track-title { font-size: 0.86rem; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-artist { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .player-controls { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .ctrl-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light); color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .ctrl-btn.play-btn { width: 42px; height: 42px; background: var(--amber-warm); color: var(--bg-dark); border: none; }
+    .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .volume-container { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 10px; }
+    .volume-icon { font-size: 0.75rem; color: var(--amber-warm); cursor: pointer; }
+    .volume-slider { -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer; }
+    .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--amber-warm); cursor: pointer; }
+
+    .mini-tv-btn { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
+    .stream-tv-btn { background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
+    .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
+
+    .playlist-drawer {
+      position: absolute; bottom: 100%; right: 0; width: 380px; max-height: 320px; overflow-y: auto;
+      background: rgba(12, 15, 23, 0.98); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 10px; display: none; flex-direction: column; padding: 10px; gap: 6px; z-index: 120;
+    }
+    .playlist-drawer.open { display: flex; }
+    .playlist-item { padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; font-size: 0.78rem; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; }
+    .playlist-item:hover { background: rgba(255,255,255,0.08); }
+    .playlist-item.active-track { background: rgba(255, 170, 51, 0.18); border-color: var(--amber-warm); color: var(--amber-warm); font-weight: 600; }
+
+    .progress-container { display: flex; align-items: center; gap: 0.6rem; width: 100%; }
+    .time-stamp { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-muted); min-width: 35px; }
+    .progress-bar-bg { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; }
+    .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber-warm), var(--qs-blue)); border-radius: 10px; }
+
+    #stream-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; z-index: 1; }
+    .mini-tv-dock.open #stream-container { position: absolute; inset: 0; opacity: 1; pointer-events: auto; }
+
+    @media (max-width: 768px) {
+      .app-container { padding: 1.5rem 1.2rem 10.5rem 1.2rem; }
+      .hero-header { text-align: center; }
+      .playlist-drawer { width: 100%; right: 0; }
+      .volume-container { display: none; }
+      .mini-tv-dock { right: 50%; transform: translateX(50%); bottom: 8.5rem; width: 85%; max-width: 280px; }
+      .lighting-fixtures-layer { right: 6vw; gap: 5vw; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- OUTDOOR SCENERY -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun"></div>
     <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
@@ -77,80 +253,229 @@
       <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
     </svg>
   </div>
-  
+
+  <div class="curtain-track-rod"></div>
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
+  <!-- RIGHT CORNER STAGGERED PENDANTS -->
   <div class="lighting-fixtures-layer">
-    <div class="pendant-light pendant-1"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
-    <div class="pendant-light pendant-2"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
+    <div class="pendant-light pendant-1">
+      <div class="pendant-wire"></div>
+      <div class="pendant-shade"></div>
+      <div class="pendant-bulb"></div>
+      <div class="light-beam"></div>
+    </div>
+    <div class="pendant-light pendant-2">
+      <div class="pendant-wire"></div>
+      <div class="pendant-shade"></div>
+      <div class="pendant-bulb"></div>
+      <div class="light-beam"></div>
+    </div>
   </div>
 
   <div class="app-container">
     <header class="top-header">
-      <div class="status-badge"><span class="led-dot"></span><span id="processorStatusText">SYSTEM ACTIVE</span></div>
-      <div id="liveWeatherStatus" style="font-family:'JetBrains Mono',monospace; color:var(--amber-warm);">LOADING WEATHER...</div>
+      <div class="status-badge"><span class="led-dot"></span><span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span></div>
+      <div id="liveWeatherStatus" style="font-family:'JetBrains Mono',monospace; color:var(--amber-warm);">LIVE WEATHER: SYNCING...</div>
     </header>
 
+    <div class="hero-header">
+      <h1 class="main-title">LUTRON TECHNICIAN</h1>
+      <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
+    </div>
+
+    <!-- SIDEBAR DRAWER (SCENES) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
-          <button class="keypad-btn" data-scene="bright">BRIGHT</button>
-          <button class="keypad-btn active" data-scene="warm">AMBIENT 2700K</button>
-          <div class="kelvin-inline-tumbler" id="kelvinTumbler">
-            <input type="range" min="1000" max="12000" value="3000" class="horizontal-slider" id="kelvinRange">
-            <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
+          <div class="palladiom-faceplate">
+            <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
+            
+            <div class="kelvin-inline-tumbler" id="kelvinTumbler">
+              <div class="tumbler-row"><span>KELVIN SPECTRUM</span></div>
+              <input type="range" min="1000" max="12000" step="200" value="3000" class="horizontal-slider" id="kelvinRange">
+              <div class="tumbler-row" style="margin-top:4px;"><span>INTENSITY LEVEL</span></div>
+              <input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange">
+            </div>
+
+            <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
+            <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
           </div>
-          <button class="keypad-btn" data-scene="off">ALL OFF</button>
         </div>
+        <button class="sidebar-trigger-tab" id="sidebarTriggerBtn"><span>▶</span> <span>SCENES</span></button>
       </div>
     </main>
   </div>
 
+  <!-- MINI TV -->
+  <div class="mini-tv-dock" id="miniTvDock">
+    <div class="mini-tv-header">
+      <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
+      <button class="mini-tv-close" id="miniTvCloseBtn">✖</button>
+    </div>
+    <div class="mini-tv-frame" id="miniTvSlot">
+      <div id="stream-container"></div>
+    </div>
+  </div>
+
+  <!-- PLAYER -->
   <div class="player-wrapper">
     <div class="glass-player">
-      <div id="stream-container" style="width:100%; height:auto;"></div>
-      <input type="text" id="songQueryInput" placeholder="Search Song..." style="width:100%; padding:10px; background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px;">
-      <button id="searchSubmitBtn" style="width:100%; margin-top:5px; background:var(--amber-warm); border:none; padding:8px; cursor:pointer;">PLAY STREAM</button>
+      <div class="search-box-row">
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (Invidious Proxy Mode)..." />
+        <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
+      </div>
+
+      <div class="playlist-drawer" id="playlistDrawer" style="display:none; position:absolute; bottom:100%; right:0; width:380px; max-height:250px; overflow-y:auto; background:rgba(12,15,23,0.98); border-radius:12px; padding:10px; z-index:120;"></div>
+
+      <div class="player-top-row" style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+        <div class="track-info" style="display:flex; align-items:center; gap:8px;">
+          <div class="album-art" style="width:40px; height:40px; background:#222; border-radius:8px; overflow:hidden;"><img id="albumImg" src="" style="width:100%; height:100%; object-fit:cover;"></div>
+          <div>
+            <div class="track-title" id="trackTitle" style="font-size:0.8rem; font-weight:600;">Select or Search a Track</div>
+            <div class="track-artist" id="trackArtist" style="font-size:0.65rem; color:var(--text-muted);">Invidious Proxy Stream • Ad-Free</div>
+          </div>
+        </div>
+
+        <div class="player-controls" style="display:flex; gap:6px;">
+          <button class="ctrl-btn play-btn" id="playPauseBtn">▶</button>
+          <button class="mini-tv-btn" id="miniTvBtn">📺 MINI TV</button>
+          <button class="playlist-toggle-btn" id="playlistToggleBtn">📋 SONGS</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
+    let songsList = [
+      { id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" },
+      { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" }
+    ];
+    let currentIndex = 0;
+
+    // Sidebar & Tumbler Toggle
     const warmBtn = document.querySelector('[data-scene="warm"]');
     const tumbler = document.getElementById('kelvinTumbler');
-    warmBtn.addEventListener('click', () => { tumbler.classList.toggle('open'); });
+    warmBtn.addEventListener('click', () => { if(warmBtn.classList.contains('active')) tumbler.classList.toggle('open'); });
+
+    document.getElementById('sidebarTriggerBtn').addEventListener('click', () => {
+      document.getElementById('sidebarDrawer').classList.toggle('open');
+    });
 
     // Weather Sync
-    async function updateWeather() {
+    async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
         const data = await res.json();
-        document.getElementById('liveWeatherStatus').innerText = `TEMP: ${data.current_weather.temperature}°C`;
-      } catch(e) { document.getElementById('liveWeatherStatus').innerText = "WEATHER: ONLINE"; }
-    }
-    updateWeather();
-
-    // Stream Bridge
-    document.getElementById('searchSubmitBtn').addEventListener('click', async () => {
-      const q = document.getElementById('songQueryInput').value;
-      // Invidious API Proxy to bypass YouTube bot blocks
-      const searchRes = await fetch(`https://yeti.peace-of-mind.site/api/v1/search?q=${encodeURIComponent(q)}`);
-      const data = await searchRes.json();
-      if(data[0]) {
-        document.getElementById('stream-container').innerHTML = `<iframe src="https://yeti.peace-of-mind.site/embed/${data[0].videoId}?autoplay=1" width="100%" height="200" allowfullscreen></iframe>`;
+        document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: ${Math.round(data.current_weather.temperature)}°C (CLEAR)`;
+      } catch(e) {
+        document.getElementById('liveWeatherStatus').innerText = "LIVE WEATHER: SYNCED";
       }
+    }
+    fetchWeather();
+
+    // Invidious Proxy Stream Loader (Zero Bot Blocks)
+    function loadStream(videoId, title, imgUrl) {
+      const container = document.getElementById('stream-container');
+      container.innerHTML = `<iframe src="https://yeti.peace-of-mind.site/embed/${videoId}?autoplay=1&loop=1" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      
+      document.getElementById('trackTitle').innerText = title;
+      if(imgUrl) document.getElementById('albumImg').src = imgUrl;
+    }
+
+    // Search Engine via Invidious Proxy
+    async function searchSongs() {
+      const q = document.getElementById('songQueryInput').value.trim();
+      if(!q) return;
+      document.getElementById('searchSubmitBtn').innerText = "SEARCHING...";
+      try {
+        const res = await fetch(`https://yeti.peace-of-mind.site/api/v1/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if(data && data.length > 0) {
+          songsList = data.map(item => ({
+            id: item.videoId,
+            name: item.title,
+            img: item.videoThumbnails ? item.videoThumbnails[0].url : ''
+          }));
+          renderPlaylist();
+          document.getElementById('playlistDrawer').style.display = 'flex';
+          loadStream(songsList[0].id, songsList[0].name, songsList[0].img);
+        }
+      } catch(err) {
+        alert("Search error via proxy.");
+      } finally {
+        document.getElementById('searchSubmitBtn').innerText = "SEARCH";
+      }
+    }
+
+    function renderPlaylist() {
+      const drawer = document.getElementById('playlistDrawer');
+      drawer.innerHTML = '';
+      songsList.forEach((song, idx) => {
+        const div = document.createElement('div');
+        div.className = `playlist-item ${idx === currentIndex ? 'active-track' : ''}`;
+        div.style.cssText = "padding:8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; cursor:pointer; color:#fff;";
+        div.innerText = `🎵 ${song.name}`;
+        div.onclick = () => {
+          currentIndex = idx;
+          loadStream(song.id, song.name, song.img);
+          drawer.style.display = 'none';
+        };
+        drawer.appendChild(div);
+      });
+    }
+
+    document.getElementById('searchSubmitBtn').addEventListener('click', searchSongs);
+    document.getElementById('songQueryInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') searchSongs(); });
+    document.getElementById('playlistToggleBtn').addEventListener('click', () => {
+      const drawer = document.getElementById('playlistDrawer');
+      drawer.style.display = drawer.style.display === 'flex' ? 'none' : 'flex';
     });
 
-    // Lighting logic
+    // Mini TV Toggle
+    const miniTvDock = document.getElementById('miniTvDock');
+    document.getElementById('miniTvBtn').addEventListener('click', () => {
+      miniTvDock.classList.toggle('open');
+    });
+    document.getElementById('miniTvCloseBtn').addEventListener('click', () => {
+      miniTvDock.classList.remove('open');
+    });
+
+    // Lighting Controls
     const root = document.documentElement;
     document.getElementById('kelvinRange').addEventListener('input', (e) => {
-      const k = e.target.value;
-      const color = k < 5000 ? "#ffaa00" : "#ffffff";
+      const k = parseInt(e.target.value);
+      let color = "#ffaa00", glow = "rgba(255,170,0,0.65)";
+      if(k > 5000) { color = "#ffffff"; glow = "rgba(255,255,255,0.85)"; }
       root.style.setProperty('--fixture-color', color);
+      root.style.setProperty('--fixture-glow', glow);
     });
     document.getElementById('dimRange').addEventListener('input', (e) => {
-      root.style.setProperty('--beam-opacity', e.target.value / 100);
+      const d = parseInt(e.target.value);
+      root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100);
     });
+
+    // Scenes logic
+    document.querySelectorAll('.keypad-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.keypad-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const scene = btn.getAttribute('data-scene');
+        if(scene === 'off') {
+          root.style.setProperty('--beam-opacity', '0');
+          document.getElementById('processorStatusText').innerText = "SYSTEM OFF";
+        } else {
+          root.style.setProperty('--beam-opacity', '0.85');
+          document.getElementById('processorStatusText').innerText = `SCENE: ${btn.innerText}`;
+        }
+      });
+    });
+
+    // Initial load
+    loadStream(songsList[0].id, songsList[0].name, songsList[0].img);
   </script>
 </body>
 </html>
