@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Master Control Edition</title>
+  <title>Lutron Technician — Clean Professional Edition</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -33,37 +33,6 @@
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-dark); color: var(--text-main); position: relative;
     }
-
-    /* WALLPAPER DRAWER (TUCKED ON RIGHT SIDE) */
-    .wallpaper-drawer-container {
-      position: fixed; right: -280px; top: 50%; transform: translateY(-50%);
-      display: flex; align-items: center; z-index: 120;
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .wallpaper-drawer-container.open { transform: translateY(-50%) translateX(-280px); }
-
-    .wallpaper-trigger-tab {
-      background: rgba(18, 22, 33, 0.95); border: 1px solid var(--glass-border); border-right: none;
-      color: var(--amber-warm); padding: 1.2rem 0.6rem; border-radius: 10px 0 0 10px;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 700;
-      writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; gap: 6px;
-      box-shadow: -5px 0 20px rgba(0,0,0,0.6); backdrop-filter: blur(15px);
-    }
-    .wallpaper-trigger-tab:hover { background: var(--amber-warm); color: #000; }
-
-    .wallpaper-panel-box {
-      width: 280px; height: 340px; background: linear-gradient(145deg, #2a2f3d, #12151f);
-      border-radius: 12px 0 0 12px; padding: 14px; box-shadow: -25px 25px 50px rgba(0, 0, 0, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 8px;
-    }
-    .wp-menu-btn {
-      flex: 1; background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; color: rgba(255, 255, 255, 0.75);
-      font-size: 0.75rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; cursor: pointer;
-      display: flex; align-items: center; justify-content: space-between; padding: 0 14px; transition: all 0.3s ease;
-    }
-    .wp-menu-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
-    .wp-menu-btn.active { color: #ffffff; background: rgba(255, 170, 51, 0.2); border-color: var(--amber-warm); }
 
     /* OUTDOOR WINDOW SCENERY LAYER */
     .outdoor-scenery {
@@ -184,28 +153,6 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* KELVIN & DIMMING TUMBLER MODAL STYLING */
-    .kelvin-modal-overlay {
-      position: fixed; inset: 0; background: rgba(7, 9, 14, 0.85); backdrop-filter: blur(15px);
-      z-index: 200; display: none; align-items: center; justify-content: center;
-    }
-    .kelvin-modal-overlay.open { display: flex; }
-    .kelvin-modal-card {
-      width: 340px; background: linear-gradient(145deg, #1c2230, #0f131c);
-      border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px;
-      display: flex; flex-direction: column; gap: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.9);
-    }
-    .modal-header-row { display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--amber-warm); font-weight: 700; }
-    .modal-close-btn { background: transparent; border: none; color: #fff; font-size: 1rem; cursor: pointer; }
-    .sliders-row { display: flex; gap: 20px; justify-content: center; height: 220px; }
-    .slider-group { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; position: relative; }
-    .vertical-slider {
-      -webkit-appearance: slider-vertical; width: 8px; height: 160px;
-      background: rgba(255,255,255,0.1); outline: none; border-radius: 10px; cursor: pointer; accent-color: var(--amber-warm);
-    }
-    .slider-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-top: 10px; }
-
     /* MINI TV */
     .mini-tv-dock {
       position: fixed; bottom: 7.8rem; right: 3vw; width: 270px;
@@ -281,42 +228,7 @@
 </head>
 <body>
 
-  <!-- KELVIN & DIMMING TUMBLER POPUP MODAL -->
-  <div class="kelvin-modal-overlay" id="kelvinModal">
-    <div class="kelvin-modal-card">
-      <div class="modal-header-row">
-        <span class="modal-title">💡 ARCHITECTURAL KELVIN & DIMMING</span>
-        <button class="modal-close-btn" id="closeKelvinModal">✖</button>
-      </div>
-      <div class="sliders-row">
-        <div class="slider-group">
-          <input type="range" min="2000" max="6000" step="100" value="2700" class="vertical-slider" id="kelvinRange">
-          <span class="slider-label" id="kelvinVal">2700K</span>
-        </div>
-        <div class="slider-group">
-          <input type="range" min="0" max="100" value="85" class="vertical-slider" id="dimRange">
-          <span class="slider-label" id="dimVal">85%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- WALLPAPER DRAWER (TUCKED ON RIGHT SIDE) -->
-  <div class="wallpaper-drawer-container" id="wallpaperDrawer">
-    <button class="wallpaper-trigger-tab" id="wallpaperTriggerBtn">
-      <span>◀</span> <span>WALLPAPERS</span>
-    </button>
-    <div class="wallpaper-panel-box">
-      <button class="wp-menu-btn active" onclick="changeWallpaper('default', this)"><span>🎨 DEFAULT SCENERY</span><span class="keypad-led"></span></button>
-      <button class="wp-menu-btn" onclick="changeWallpaper('spidey-day', this)"><span>🕷️ SPIDEY DAY</span><span class="keypad-led"></span></button>
-      <button class="wp-menu-btn" onclick="changeWallpaper('spidey-night', this)"><span>🌙 SPIDEY NIGHT</span><span class="keypad-led"></span></button>
-      <button class="wp-menu-btn" onclick="changeWallpaper('study', this)"><span>📚 STUDY ROOM</span><span class="keypad-led"></span></button>
-      <button class="wp-menu-btn" onclick="changeWallpaper('tech', this)"><span>💻 TECH LAB</span><span class="keypad-led"></span></button>
-      <button class="wp-menu-btn" onclick="changeWallpaper('space', this)"><span>🌌 GALAXY SPACE</span><span class="keypad-led"></span></button>
-    </div>
-  </div>
-
-  <!-- OUTDOOR SCENERY (DEFAULT THEME) -->
+  <!-- OUTDOOR SCENERY (DEFAULT LIVE WEATHER) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun" id="skySun"></div>
     <div class="sky-moon" id="skyMoon">
@@ -471,76 +383,6 @@
     let isTransitioningTrack = false;
     let adKillerInterval = null;
 
-    // --- KELVIN & DIMMING TUMBLER MODAL LOGIC ---
-    const warmSceneBtn = document.querySelector('[data-scene="warm"]');
-    const kelvinModal = document.getElementById('kelvinModal');
-    const closeKelvinModal = document.getElementById('closeKelvinModal');
-    const kelvinRange = document.getElementById('kelvinRange');
-    const kelvinVal = document.getElementById('kelvinVal');
-    const dimRange = document.getElementById('dimRange');
-    const dimVal = document.getElementById('dimVal');
-
-    if (warmSceneBtn) {
-      warmSceneBtn.addEventListener('click', () => {
-        if (warmSceneBtn.classList.contains('active')) {
-          kelvinModal.classList.add('open');
-        }
-      });
-    }
-
-    closeKelvinModal.addEventListener('click', () => {
-      kelvinModal.classList.remove('open');
-    });
-
-    kelvinRange.addEventListener('input', (e) => {
-      const k = e.target.value;
-      kelvinVal.textContent = k + 'K';
-      document.getElementById('processorStatusText').textContent = `SCENE: AMBIENT TUNED TO ${k}K`;
-    });
-
-    dimRange.addEventListener('input', (e) => {
-      const d = e.target.value;
-      dimVal.textContent = d + '%';
-      document.documentElement.style.setProperty('--beam-opacity', d / 100);
-    });
-
-    // --- WALLPAPER DRAWER & SWITCHER ENGINE ---
-    const wallpaperDrawer = document.getElementById('wallpaperDrawer');
-    const wallpaperTriggerBtn = document.getElementById('wallpaperTriggerBtn');
-    const outdoorScenery = document.getElementById('outdoorScenery');
-
-    wallpaperTriggerBtn.addEventListener('click', () => {
-      wallpaperDrawer.classList.toggle('open');
-      if (wallpaperDrawer.classList.contains('open')) {
-        wallpaperTriggerBtn.innerHTML = '<span>WALLPAPERS</span> <span>▶</span>';
-      } else {
-        wallpaperTriggerBtn.innerHTML = '<span>◀</span> <span>WALLPAPERS</span>';
-      }
-    });
-
-    function changeWallpaper(theme, btn) {
-      document.querySelectorAll('.wp-menu-btn').forEach(b => b.classList.remove('active'));
-      if(btn) btn.classList.add('active');
-
-      const wallpapers = {
-        'spidey-day': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1920&q=80',
-        'spidey-night': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80',
-        'study': 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=1920&q=80',
-        'tech': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80',
-        'space': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80'
-      };
-
-      if (theme === 'default') {
-        document.body.style.backgroundImage = 'none';
-        outdoorScenery.style.display = 'block';
-      } else {
-        outdoorScenery.style.display = 'none';
-        document.body.style.backgroundImage = `url(${wallpapers[theme]})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-      }
-    }
-
     // --- SIDEBAR MENU TOGGLE (SCENES) ---
     const sidebarDrawer = document.getElementById('sidebarDrawer');
     const sidebarTriggerBtn = document.getElementById('sidebarTriggerBtn');
@@ -629,6 +471,7 @@
     renderCurtainPosition();
 
     // --- LIVE WEATHER ENGINE ---
+    const outdoorScenery = document.getElementById('outdoorScenery');
     const liveWeatherStatus = document.getElementById('liveWeatherStatus');
 
     function fetchInstantLiveWeather() {
@@ -1035,74 +878,31 @@
     miniTvBtn.addEventListener('click', toggleMiniTv);
     miniTvCloseBtn.addEventListener('click', toggleMiniTv);
 
-    // --- REAL-TIME AUTOMATIC NETWORK SINK DISCOVERY ENGINE ---
+    // --- TRUE CONDITIONAL NETWORK CASTING (ONLY SHOWS IF AVAILABLE) ---
     document.getElementById('streamTvBtn').addEventListener('click', async () => {
-      let discoveredDevices = [];
-      const btn = document.getElementById('streamTvBtn');
-      btn.innerHTML = '<span>📡</span> <span>SCANNING...</span>';
-
       if ('presentation' in navigator && navigator.presentation.defaultRequest) {
         try {
           const connection = await navigator.presentation.defaultRequest.start();
           if (connection) {
-            btn.innerHTML = '<span>📡</span> <span>STREAM TV</span>';
             alert("🌐 Connected to live network device ID: " + connection.id);
             return;
           }
         } catch (err) {}
       }
 
-      try {
-        const pc = new RTCPeerConnection({ iceServers: [] });
-        pc.createDataChannel('');
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        let localIP = "";
-        await new Promise((resolve) => {
-          pc.onicecandidate = (ice) => {
-            if (!ice || !ice.candidate || !ice.candidate.candidate) return;
-            const parts = ice.candidate.candidate.split(" ");
-            const ip = parts[4];
-            if (ip && ip.includes('.')) {
-              localIP = ip;
-              resolve();
-            }
-          };
-          setTimeout(resolve, 600);
-        });
-        pc.close();
-
-        if (localIP) {
-          const subnet = localIP.substring(0, localIP.lastIndexOf('.'));
-          discoveredDevices = [
-            `🔊 Main Office Gateway (${subnet}.10) - Active`,
-            `📡 Studio R Dante Sync Node (${subnet}.45) - Online`,
-            `📺 Boardroom 4K Display (Chromecast Built-in)`,
-            `🔊 Zone Amplifier (${localIP})`
-          ];
+      // Check for native browser remote playback availability
+      if (player && typeof player.getIframe === 'function') {
+        const iframe = player.getIframe();
+        if (iframe && iframe.remote && typeof iframe.remote.prompt === 'function') {
+          try {
+            await iframe.remote.prompt();
+            return;
+          } catch (e) {}
         }
-      } catch (e) {}
-
-      if (discoveredDevices.length === 0) {
-        discoveredDevices = [
-          "🔊 Medium Cylinder (Office Main Zone)",
-          "📡 Studio R (Dante / Network Sink)",
-          "📺 Boardroom Display (Chromecast Built-in)"
-        ];
       }
 
-      btn.innerHTML = '<span>📡</span> <span>STREAM TV</span>';
-
-      const userChoice = prompt(
-        "🌐 LIVE NETWORK DISCOVERY (Auto-Detected Sinks):\n\n" + 
-        discoveredDevices.map((d, i) => `${i + 1}. ${d}`).join("\n") + 
-        "\n\nEnter device number or name to connect:"
-      );
-
-      if (userChoice) {
-        alert("⚡ Successfully Linked to Live Network Node:\n" + userChoice + "\n(Audio stream routing active!)");
-      }
+      // If no active network cast receiver is found on the local network, notify cleanly without clutter
+      alert("📡 No active network casting receivers found on current local Wi-Fi. Ensure a Chromecast or DLNA device is online.");
     });
 
     fetchInstantLiveWeather();
