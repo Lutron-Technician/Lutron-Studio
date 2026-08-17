@@ -523,7 +523,7 @@
               document.getElementById('pauseIcon').style.display='block';
               startTimer();
             } else if(e.data === YT.PlayerState.ENDED) {
-              // TRUE AUTO-NEXT: Automatically play next track when current ends
+              // AUTO-NEXT: Automatically play next track when current ends
               playTrackAtIndex((currentTrackIndex + 1) % songsList.length);
             } else {
               isPlaying = false;
