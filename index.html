@@ -56,20 +56,21 @@
     .mountain-back { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; fill: #1e3a8a; opacity: 0.2; }
     .mountain-front { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; fill: #0f172a; opacity: 0.6; }
 
-    /* CURTAINS */
+    /* MOTORIZED DRAPERY CURTAINS (OPEN, STOP, CLOSE) */
     .curtain-container {
       position: absolute; inset: 0; z-index: 4; pointer-events: none; display: flex; width: 100%; height: 100%; overflow: hidden;
     }
     .curtain-panel {
       width: 50%; height: 100%; background: linear-gradient(180deg, #181d28 0%, #0e121a 50%, #07090e 100%);
       position: relative; box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85); will-change: transform;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .curtain-pleats {
       position: absolute; inset: 0;
       background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(0, 0, 0, 0.5) 20px, rgba(255, 255, 255, 0.07) 40px, rgba(0, 0, 0, 0.65) 60px);
     }
-    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); }
-    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); }
+    .curtain-left { border-right: 2px solid rgba(255,255,255,0.06); transform-origin: left; }
+    .curtain-right { border-left: 2px solid rgba(255,255,255,0.06); transform-origin: right; }
     .curtain-track-rod { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, #374151, #111827); z-index: 5; }
 
     .blueprint-grid { 
@@ -182,7 +183,7 @@
     .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
 
-    /* SPOTIFY-STYLE CONNECT BOTTOM SHEET (STREAM TV) */
+    /* SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV) */
     .spotify-connect-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px);
       z-index: 300; display: none; align-items: flex-end; justify-content: center;
@@ -272,7 +273,7 @@
 </head>
 <body>
 
-  <!-- SPOTIFY-STYLE CONNECT BOTTOM SHEET (STREAM TV) -->
+  <!-- SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV) -->
   <div class="spotify-connect-overlay" id="connectOverlay">
     <div class="spotify-connect-sheet">
       <div class="sheet-handle"></div>
@@ -293,51 +294,9 @@
         <div style="width:10px; height:10px; background:var(--led-green); border-radius:50%; box-shadow:0 0 10px var(--led-green);"></div>
       </div>
 
-      <div class="device-list-title">ON OTHER NETWORKS & ROOMS</div>
+      <div class="device-list-title" id="networkStatusHeader">CHECKING LOCAL NETWORK...</div>
       
-      <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">
-        <div class="device-info-left">
-          <span style="font-size:1.1rem;">🔊</span>
-          <div>
-            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Medium Cylinder</div>
-            <div style="font-size:0.65rem; color:var(--text-muted);">Office Main Zone • Active</div>
-          </div>
-        </div>
-        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-      </div>
-
-      <div class="device-item" onclick="selectAudioSink('Sphere 360')">
-        <div class="device-info-left">
-          <span style="font-size:1.1rem;">📽️</span>
-          <div>
-            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Sphere 360</div>
-            <div style="font-size:0.65rem; color:var(--text-muted);">Boardroom 4K Display</div>
-          </div>
-        </div>
-        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-      </div>
-
-      <div class="device-item" onclick="selectAudioSink('Studio R')">
-        <div class="device-info-left">
-          <span style="font-size:1.1rem;">📡</span>
-          <div>
-            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div>
-            <div style="font-size:0.65rem; color:var(--text-muted);">Dante Sync Node • Online</div>
-          </div>
-        </div>
-        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-      </div>
-
-      <div class="device-item" onclick="selectAudioSink('Parents Room')">
-        <div class="device-info-left">
-          <span style="font-size:1.1rem;">🔊</span>
-            <div>
-            <div style="font-size:0.8rem; font-weight:600; color:#fff;">Parents Room</div>
-            <div style="font-size:0.65rem; color:var(--text-muted);">Zone Amplifier</div>
-          </div>
-        </div>
-        <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-      </div>
+      <div id="networkDeviceListContainer"></div>
     </div>
   </div>
 
@@ -350,7 +309,13 @@
     </svg>
   </div>
 
+  <!-- MOTORIZED DRAPERY CURTAINS (RESTORED HTML) -->
   <div class="curtain-track-rod"></div>
+  <div class="curtain-container" id="curtainContainer">
+    <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
+    <div class="curtain-panel curtain-right" id="curtainRight"><div class="curtain-pleats"></div></div>
+  </div>
+
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
@@ -493,7 +458,7 @@
     }
     fetchWeather();
 
-    // YouTube Player Initialization (Using No-Cookie Domain to prevent bot blocks)
+    // YouTube Player Initialization
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-player', {
         height: '100%', width: '100%',
@@ -501,16 +466,18 @@
         host: 'https://www.youtube-nocookie.com',
         playerVars: { 'autoplay': 0, 'controls': 1, 'playsinline': 1, 'rel': 0, 'enablejsapi': 1, 'origin': window.location.origin },
         events: {
-          'onReady': (e) => { renderPlaylist(); updateTrackInfo(); },
+          'onReady': (e) => { renderPlaylist(); updateTrackInfo(); updateTimeDisplay(); },
           'onStateChange': (e) => {
             if(e.data === YT.PlayerState.PLAYING) {
               isPlaying = true;
               document.getElementById('playIcon').style.display='none';
               document.getElementById('pauseIcon').style.display='block';
+              startTimer();
             } else {
               isPlaying = false;
               document.getElementById('playIcon').style.display='block';
               document.getElementById('pauseIcon').style.display='none';
+              stopTimer();
             }
           }
         }
@@ -556,6 +523,43 @@
     document.getElementById('nextBtn').onclick = () => { playTrackAtIndex((currentTrackIndex + 1) % songsList.length); };
     document.getElementById('prevBtn').onclick = () => { playTrackAtIndex((currentTrackIndex - 1 + songsList.length) % songsList.length); };
 
+    function formatTime(sec) {
+      if (!sec || isNaN(sec) || sec <= 0) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function updateTimeDisplay() {
+      if (player && typeof player.getDuration === 'function') {
+        const cur = player.getCurrentTime() || 0;
+        const dur = player.getDuration() || 0;
+        document.getElementById('currentTime').innerText = formatTime(cur);
+        if (dur > 0) {
+          document.getElementById('totalTime').innerText = formatTime(dur);
+          document.getElementById('progressBarFill').style.width = `${(cur / dur) * 100}%`;
+        }
+      }
+    }
+
+    function startTimer() {
+      stopTimer();
+      progressTimer = setInterval(updateTimeDisplay, 500);
+    }
+    function stopTimer() {
+      if (progressTimer) clearInterval(progressTimer);
+    }
+
+    document.getElementById('progressBarBg').onclick = (e) => {
+      if (player && player.getDuration) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        const dur = player.getDuration();
+        player.seekTo(dur * pos, true);
+        updateTimeDisplay();
+      }
+    };
+
     // Search 45 Songs via YouTube API
     async function searchSongs() {
       const q = document.getElementById('songQueryInput').value.trim();
@@ -595,29 +599,86 @@
     };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // SPOTIFY-STYLE CONNECT SHEET (STREAM TV)
+    // SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV)
     const connectOverlay = document.getElementById('connectOverlay');
-    document.getElementById('streamTvBtn').onclick = () => { connectOverlay.classList.add('open'); };
+    document.getElementById('streamTvBtn').onclick = () => {
+      connectOverlay.classList.add('open');
+      checkNetworkSinks();
+    };
     document.getElementById('closeSheetBtn').onclick = () => { connectOverlay.classList.remove('open'); };
     document.getElementById('activePhoneDevice').onclick = () => { connectOverlay.classList.remove('open'); };
+
+    function checkNetworkSinks() {
+      const header = document.getElementById('networkStatusHeader');
+      const listContainer = document.getElementById('networkDeviceListContainer');
+      
+      if (navigator.onLine) {
+        header.innerText = "ON OTHER NETWORKS & ROOMS";
+        listContainer.innerHTML = `
+          <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">
+            <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Medium Cylinder</div><div style="font-size:0.65rem; color:var(--text-muted);">Office Main Zone • Active</div></div></div>
+            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+          </div>
+          <div class="device-item" onclick="selectAudioSink('Sphere 360')" style="margin-top:8px;">
+            <div class="device-info-left"><span style="font-size:1.1rem;">📽️</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Sphere 360</div><div style="font-size:0.65rem; color:var(--text-muted);">Boardroom 4K Display</div></div></div>
+            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+          </div>
+          <div class="device-item" onclick="selectAudioSink('Studio R')" style="margin-top:8px;">
+            <div class="device-info-left"><span style="font-size:1.1rem;">📡</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div><div style="font-size:0.65rem; color:var(--text-muted);">Dante Sync Node • Online</div></div></div>
+            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+          </div>
+          <div class="device-item" onclick="selectAudioSink('Parents Room')" style="margin-top:8px;">
+            <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Parents Room</div><div style="font-size:0.65rem; color:var(--text-muted);">Zone Amplifier</div></div></div>
+            <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
+          </div>
+        `;
+      } else {
+        header.innerText = "NO NETWORK DETECTED";
+        listContainer.innerHTML = `<div style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted);">Please connect to Wi-Fi to discover casting nodes.</div>`;
+      }
+    }
 
     function selectAudioSink(deviceName) {
       alert(`⚡ Successfully linked playback stream to network sink: ${deviceName}\n(Audio routing active!)`);
       connectOverlay.classList.remove('open');
     }
 
-    // Scenes & Drapery
-    let curtainPos = 0;
+    // Professional Lutron 3-State Motorized Drapery Engine (Open, Stop, Close)
+    let draperyState = 0; // 0 = Closed, 1 = Opening/Opened, 2 = Stopped Intermediate
+    const shadesBtn = document.getElementById('shadesBtn');
+
     document.querySelectorAll('.keypad-btn').forEach(btn => {
       btn.onclick = () => {
         const scene = btn.getAttribute('data-scene');
         if(scene === 'shades') {
-          curtainPos = curtainPos === 0 ? 100 : 0;
-          document.getElementById('curtainLeft').style.transform = `translateX(-${curtainPos}%)`;
-          document.getElementById('curtainRight').style.transform = `translateX(${curtainPos}%)`;
+          if (draperyState === 0) {
+            draperyState = 1;
+            document.getElementById('curtainLeft').style.transform = `translateX(-100%)`;
+            document.getElementById('curtainRight').style.transform = `translateX(100%)`;
+            shadesBtn.querySelector('span').textContent = "05 DRAPERY: STOP";
+            document.getElementById('processorStatusText').innerText = "SCENE: DRAPERY OPENING";
+            shadesBtn.classList.add('active');
+          } else if (draperyState === 1) {
+            draperyState = 2;
+            const currentLeft = document.getElementById('curtainLeft').getBoundingClientRect().width;
+            document.getElementById('curtainLeft').style.transform = `translateX(-50%)`;
+            document.getElementById('curtainRight').style.transform = `translateX(50%)`;
+            shadesBtn.querySelector('span').textContent = "05 DRAPERY: CLOSE";
+            document.getElementById('processorStatusText').innerText = "SCENE: DRAPERY STOPPED (50%)";
+          } else {
+            draperyState = 0;
+            document.getElementById('curtainLeft').style.transform = `translateX(0%)`;
+            document.getElementById('curtainRight').style.transform = `translateX(0%)`;
+            shadesBtn.querySelector('span').textContent = "05 DRAPERY: OPEN";
+            document.getElementById('processorStatusText').innerText = "SCENE: DRAPERY CLOSED";
+            shadesBtn.classList.remove('active');
+          }
         } else {
-          document.querySelectorAll('.keypad-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.keypad-btn').forEach(b => {
+            if(b.getAttribute('data-scene') !== 'shades') b.classList.remove('active');
+          });
           btn.classList.add('active');
+          document.getElementById('processorStatusText').innerText = `SCENE: ${btn.querySelector('span').innerText}`;
         }
       };
     });
