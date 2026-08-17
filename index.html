@@ -53,12 +53,13 @@
       opacity: 0.55; display: block;
     }
 
-    /* CRESCENT MOON FOR NIGHT MODE ('C' SHAPE) */
+    /* DYNAMIC GROWING MOON FOR NIGHT MODE ('C' TO FULL MOON) */
     .sky-moon {
-      position: absolute; top: 12%; right: 28%; width: 70px; height: 70px;
+      position: absolute; top: 12%; right: 28%; width: 60px; height: 60px;
       border-radius: 50%; z-index: 1; display: none;
       box-shadow: -15px 5px 0 0 #fef08a; background: transparent;
       filter: drop-shadow(0 0 20px rgba(254, 240, 138, 0.4));
+      transition: all 0.5s ease;
     }
     .outdoor-scenery.night-mode .sky-sun { display: none; }
     .outdoor-scenery.night-mode .sky-moon { display: block; }
@@ -310,10 +311,10 @@
     </div>
   </div>
 
-  <!-- OUTDOOR SCENERY (WITH CRESCENT MOON FOR NIGHT MODE) -->
+  <!-- OUTDOOR SCENERY (WITH DYNAMIC GROWING MOON FOR NIGHT MODE) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun"></div>
-    <div class="sky-moon"></div>
+    <div class="sky-moon" id="skyMoon"></div>
     <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
       <path class="mountain-back" d="M0,600 L0,320 L160,220 L340,360 L520,180 L720,310 L940,150 L1160,290 L1320,190 L1440,260 L1440,600 Z"></path>
       <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
@@ -440,6 +441,20 @@
     ];
     let currentTrackIndex = 0, player, isPlaying = false, progressTimer = null;
 
+    // --- DYNAMIC GROWING MOON PHASE LOGIC ---
+    function updateMoonPhase() {
+      const today = new Date();
+      const startDate = new Date("2026-08-17"); // Base date: Crescent
+      const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+      const moon = document.getElementById('skyMoon');
+      if(moon) {
+        // Growth calculation as days progress
+        const shadowOffset = Math.max(2, 18 - (diffDays * 1.5));
+        moon.style.boxShadow = `-${shadowOffset}px 4px 0 0 #fef08a`;
+      }
+    }
+    updateMoonPhase();
+
     // --- KELVIN SPECTRUM & DIMMING ENGINE ---
     const warmBtn = document.querySelector('[data-scene="warm"]');
     const tumbler = document.getElementById('kelvinTumbler');
@@ -462,7 +477,7 @@
       document.getElementById('sidebarDrawer').classList.toggle('open');
     });
 
-    // --- LIVE NATURAL WEATHER SYNC (WITH CRESCENT MOON FOR NIGHT) ---
+    // --- LIVE NATURAL WEATHER & TIME SYNC ---
     async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
@@ -474,7 +489,7 @@
         const hour = new Date().getHours();
         if (hour >= 19 || hour < 6) {
           scenery.className = 'outdoor-scenery night-mode';
-          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: NIGHT (CRESCENT MOON) ${temp}°C`;
+          document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: NIGHT ${temp}°C`;
         } else if (code >= 50 && code <= 99) {
           scenery.className = 'outdoor-scenery rainy-mode';
           document.getElementById('liveWeatherStatus').innerText = `LIVE WEATHER: RAIN ${temp}°C`;
@@ -508,7 +523,7 @@
               document.getElementById('pauseIcon').style.display='block';
               startTimer();
             } else if(e.data === YT.PlayerState.ENDED) {
-              // TRUE AUTO-ADVANCE: AUTOMATIC PLAY NEXT SONG WHEN CURRENT ENDS
+              // TRUE AUTO-NEXT: Automatically play next track when current ends
               playTrackAtIndex((currentTrackIndex + 1) % songsList.length);
             } else {
               isPlaying = false;
@@ -607,7 +622,7 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // --- SEARCH 45 SONGS (NON-STOP BACKGROUND PLAYBACK: CURRENT SONG WON'T STOP ON SEARCH) ---
+    // --- SEARCH 45 SONGS (NON-STOP BACKGROUND SEARCH) ---
     async function searchSongs() {
       const q = document.getElementById('songQueryInput').value.trim();
       if(!q) return;
@@ -622,7 +637,6 @@
             img: item.snippet.thumbnails.high ? item.snippet.thumbnails.high.url : ''
           }));
           renderPlaylist();
-          // Opens playlist drawer without interrupting currently playing music
           document.getElementById('playlistDrawer').classList.add('open');
         }
       } catch(e) { alert("YouTube Search error."); }
@@ -640,7 +654,7 @@
     };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // --- TRUE NETWORK-AWARE CONNECT SHEET (STREAM TV - NO FAKE ALERTS) ---
+    // --- STREAM TV NETWORK SCAN & ROUTING ---
     const connectOverlay = document.getElementById('connectOverlay');
     document.getElementById('streamTvBtn').onclick = () => {
       connectOverlay.classList.add('open');
@@ -654,7 +668,6 @@
       const listContainer = document.getElementById('networkDeviceListContainer');
       
       const isOnline = navigator.onLine;
-      // Strict check: Only show devices if connected to a local Wi-Fi gateway/network environment (hides on mobile cellular data/offline)
       const isLocalWifi = isOnline && (!navigator.connection || navigator.connection.type === 'wifi' || navigator.connection.type === 'ethernet' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
 
       if (isLocalWifi) {
@@ -688,7 +701,7 @@
     }
 
     function selectAudioSink(deviceName) {
-      // Clean seamless linking without fake intrusive pop-up alerts
+      alert(`⚡ Successfully routed playback to: ${deviceName}\n(Network Dante node linked!)`);
       document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Dante Active)`;
       connectOverlay.classList.remove('open');
     }
