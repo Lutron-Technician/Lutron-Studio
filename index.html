@@ -91,10 +91,7 @@
     }
     .pendant-light { display: flex; flex-direction: column; align-items: center; position: relative; }
     
-    /* Pendant 1: Higher / Shorter Wire */
     .pendant-1 .pendant-wire { width: 2px; height: 110px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
-    
-    /* Pendant 2: Lower / Longer Wire (Staggered Drop) */
     .pendant-2 .pendant-wire { width: 2px; height: 175px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.4)); }
 
     .pendant-shade { 
@@ -267,16 +264,14 @@
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
-  <!-- RIGHT CORNER STAGGERED PENDANTS (ONE HIGH, ONE LOW) -->
+  <!-- RIGHT CORNER STAGGERED PENDANTS -->
   <div class="lighting-fixtures-layer">
-    <!-- Pendant 1 (Higher) -->
     <div class="pendant-light pendant-1">
       <div class="pendant-wire"></div>
       <div class="pendant-shade"></div>
       <div class="pendant-bulb"></div>
       <div class="light-beam"></div>
     </div>
-    <!-- Pendant 2 (Lower Staggered Drop) -->
     <div class="pendant-light pendant-2">
       <div class="pendant-wire"></div>
       <div class="pendant-shade"></div>
@@ -301,7 +296,7 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER (SCENES + CLEAN NO-NUMBER SLIDERS) -->
+    <!-- SIDEBAR DRAWER (SCENES) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -310,7 +305,7 @@
             <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
             <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
             
-            <!-- TRANSPARENT INLINE SLIDERS (CLEAN, NO NUMBERS) -->
+            <!-- TRANSPARENT INLINE SLIDERS -->
             <div class="kelvin-inline-tumbler" id="kelvinTumbler">
               <div class="tumbler-row"><span>KELVIN SPECTRUM</span></div>
               <input type="range" min="1000" max="12000" step="200" value="3000" class="horizontal-slider" id="kelvinRange">
@@ -418,7 +413,6 @@
     let player;
     let isPlaying = false;
     let progressTimer = null;
-    let isMiniTvOpen = false;
     let isTransitioningTrack = false;
     let adKillerInterval = null;
 
@@ -437,23 +431,22 @@
       });
     }
 
-    // Exact Kelvin Spectrum Mapping (1000K Warm Amber -> 5000K Pure White -> 12000K Ice Blue)
     kelvinRange.addEventListener('input', (e) => {
       const k = parseInt(e.target.value);
       let hexColor = "#ffaa00";
       let glowColor = "rgba(255, 170, 0, 0.65)";
 
       if (k <= 2000) {
-        hexColor = "#ff6600"; // Deep Warm Amber/Yellow
+        hexColor = "#ff6600";
         glowColor = "rgba(255, 102, 0, 0.65)";
       } else if (k > 2000 && k <= 5000) {
-        hexColor = "#ffddaa"; // Warm to Neutral White
+        hexColor = "#ffddaa";
         glowColor = "rgba(255, 221, 170, 0.7)";
       } else if (k > 5000 && k <= 8000) {
-        hexColor = "#ffffff"; // Pure White
+        hexColor = "#ffffff";
         glowColor = "rgba(255, 255, 255, 0.85)";
       } else {
-        hexColor = "#3b82f6"; // Ice Blue (High Kelvin)
+        hexColor = "#3b82f6";
         glowColor = "rgba(59, 130, 246, 0.85)";
       }
 
@@ -461,7 +454,6 @@
       root.style.setProperty('--fixture-glow', glowColor);
     });
 
-    // Dimming Logic: 0% = Completely Off, 100% = Full Bright
     dimRange.addEventListener('input', (e) => {
       const d = parseInt(e.target.value);
       const opacityVal = d / 100;
@@ -735,7 +727,7 @@
       if (e.key === 'Enter') executeLiveYouTubeSearch();
     });
 
-    // YOUTUBE API CONTROLLER + AUDIO CLARITY FILTER
+    // YOUTUBE API CONTROLLER + BOT-CHECK BYPASS (NO-COOKIE HOST)
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
@@ -744,7 +736,7 @@
       player = new YT.Player('yt-player', {
         height: '100%', width: '100%',
         videoId: songsList[0].id,
-        host: 'https://www.youtube.com',
+        host: 'https://www.youtube-nocookie.com',
         playerVars: { 
           'autoplay': 0, 
           'controls': 1, 
@@ -752,6 +744,7 @@
           'rel': 0, 
           'enablejsapi': 1,
           'origin': window.location.origin,
+          'iv_load_policy': 3,
           'vq': 'hd2160'
         },
         events: {
@@ -946,26 +939,42 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // --- MINI TV TOGGLE SYSTEM ---
+    // --- SMOOTH PICTURE-IN-PICTURE (PiP) MINI TV ENGINE ---
     const miniTvDock = document.getElementById('miniTvDock');
     const miniTvBtn = document.getElementById('miniTvBtn');
-    const miniTvCloseBtn = document.getElementById('miniTvCloseBtn');
 
-    function toggleMiniTv() {
-      isMiniTvOpen = !isMiniTvOpen;
-      if (isMiniTvOpen) {
-        miniTvDock.classList.add('open');
-        miniTvBtn.style.background = "var(--led-green)";
-        miniTvBtn.style.color = "#000";
+    async function toggleMiniTv() {
+      const iframeElem = document.getElementById('yt-player');
+      let videoElement = null;
+      try {
+        videoElement = iframeElem.contentWindow.document.querySelector('video');
+      } catch(err) {}
+
+      if (!videoElement) {
+        videoElement = document.querySelector('video');
+      }
+
+      if (videoElement && document.pictureInPictureEnabled) {
+        try {
+          if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+            miniTvDock.style.display = 'flex';
+          } else {
+            await videoElement.requestPictureInPicture();
+            miniTvDock.style.display = 'none';
+          }
+        } catch (err) {
+          miniTvDock.classList.toggle('open');
+        }
       } else {
-        miniTvDock.classList.remove('open');
-        miniTvBtn.style.background = "rgba(16, 185, 129, 0.15)";
-        miniTvBtn.style.color = "var(--led-green)";
+        miniTvDock.classList.toggle('open');
       }
     }
 
     miniTvBtn.addEventListener('click', toggleMiniTv);
-    miniTvCloseBtn.addEventListener('click', toggleMiniTv);
+    document.getElementById('miniTvCloseBtn').addEventListener('click', () => {
+      miniTvDock.classList.remove('open');
+    });
 
     // --- TRUE CONDITIONAL NETWORK CASTING ---
     document.getElementById('streamTvBtn').addEventListener('click', async () => {
