@@ -16,7 +16,6 @@
       --amber-warm: #ffaa33;
       --qs-blue: #00d2ff;
       --led-green: #10b981;
-      --spotify-green: #1db954;
       --text-main: #f3f4f6;
       --text-muted: #8a94a6;
       --border-light: rgba(255, 255, 255, 0.08);
@@ -213,7 +212,6 @@
     .volume-slider { -webkit-appearance: none; width: 65px; height: 4px; border-radius: 5px; background: rgba(255, 255, 255, 0.2); outline: none; cursor: pointer; }
     .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--amber-warm); cursor: pointer; }
 
-    .spotify-badge-btn { background: rgba(29, 185, 84, 0.15); border: 1px solid var(--spotify-green); color: var(--spotify-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
     .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
 
     .playlist-drawer {
@@ -303,10 +301,9 @@
     </main>
   </div>
 
-  <!-- MINI TV PERMANENT DOCK -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
-      <span class="mini-tv-title" id="miniTvTitle">📺 SPOTIFY & STUDIO MONITOR</span>
+      <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
     </div>
     <div class="mini-tv-frame" id="miniTvSlot">
       <div id="youtube-player-container"><div id="yt-player"></div></div>
@@ -327,7 +324,7 @@
           <div class="album-art"><img id="albumImg" src="https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" alt="Art"></div>
           <div class="track-details">
             <div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div>
-            <div class="track-artist" id="trackArtist">Spotify Connect Style • Studio HD Audio</div>
+            <div class="track-artist" id="trackArtist">2160p 4K HDR • Studio HD Master Audio</div>
           </div>
         </div>
 
@@ -344,7 +341,6 @@
             <input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider" title="Volume">
           </div>
 
-          <button class="spotify-badge-btn" id="spotifyBadgeBtn"><span>🟢</span> <span>SPOTIFY UI</span></button>
           <button class="playlist-toggle-btn" id="playlistToggleBtn"><span>📋</span> <span>SONGS</span></button>
         </div>
       </div>
@@ -564,10 +560,6 @@
     document.getElementById('searchSubmitBtn').onclick = searchSongs;
     document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); };
     document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
-
-    document.getElementById('spotifyBadgeBtn').onclick = () => {
-      alert("🟢 Spotify UI Connected: Free Tier Active. Streaming high-definition audio & Mini TV seamlessly!");
-    };
 
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
