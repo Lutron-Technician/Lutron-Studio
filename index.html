@@ -434,7 +434,6 @@
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
     
     const SPOTIFY_CLIENT_ID = "201c5d19e7264a69b3e303082b40dbd5";
-    // Strips trailing slash to match dashboard normalized format
     const REDIRECT_URI = (window.location.origin + window.location.pathname).replace(/\/$/, "");
 
     let songsList = [
@@ -472,7 +471,7 @@
 
     document.getElementById('spotifyLoginBtn').onclick = () => {
       const scope = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
-      // Fallback to implicit token grant to ensure instant token extraction matching dashboard URI
+      // Fixed response_type back to token to match implicit flow safely without code-exchange backend error
       const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=token&show_dialog=true`;
       window.location.href = authUrl;
     };
