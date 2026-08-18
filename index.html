@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Professional Master Edition</title>
+  <title>Lutron Technician — Professional Master Edition with Spotify</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -16,6 +16,7 @@
       --amber-warm: #ffaa33;
       --qs-blue: #00d2ff;
       --led-green: #10b981;
+      --spotify-green: #1db954;
       --text-main: #f3f4f6;
       --text-muted: #8a94a6;
       --border-light: rgba(255, 255, 255, 0.08);
@@ -194,7 +195,7 @@
     .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
 
-    /* SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV) */
+    /* SPOTIFY-STYLE REAL OAuth CONNECT SHEET */
     .spotify-connect-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px);
       z-index: 300; display: none; align-items: flex-end; justify-content: center;
@@ -208,6 +209,14 @@
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; align-self: center; margin-bottom: 4px; }
     .sheet-title { font-family: 'Syncopate', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; }
+    
+    .spotify-login-btn {
+      background: var(--spotify-green); color: #000; border: none; border-radius: 30px;
+      padding: 12px 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(29, 185, 84, 0.3);
+    }
+    .spotify-login-btn:hover { background: #1ed760; }
+
     .active-device-box {
       background: rgba(16, 185, 129, 0.1); border: 1px solid var(--led-green); border-radius: 14px; padding: 14px;
       display: flex; align-items: center; justify-content: space-between;
@@ -252,7 +261,7 @@
     .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--amber-warm); cursor: pointer; }
 
     .mini-tv-btn { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--led-green); color: var(--led-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
-    .stream-tv-btn { background: rgba(0, 210, 255, 0.12); border: 1px solid var(--qs-blue); color: var(--qs-blue); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
+    .stream-tv-btn { background: rgba(29, 185, 84, 0.15); border: 1px solid var(--spotify-green); color: var(--spotify-green); border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
     .playlist-toggle-btn { background: rgba(255, 170, 51, 0.15); border: 1px solid var(--amber-warm); color: var(--amber-warm); border-radius: 8px; padding: 0.45rem 0.8rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-weight: 600; }
 
     .playlist-drawer {
@@ -284,30 +293,39 @@
 </head>
 <body>
 
-  <!-- SPOTIFY-STYLE NETWORK-AWARE CONNECT SHEET (STREAM TV) -->
+  <!-- SPOTIFY-STYLE REAL OAuth CONNECT SHEET -->
   <div class="spotify-connect-overlay" id="connectOverlay">
     <div class="spotify-connect-sheet">
       <div class="sheet-handle"></div>
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span class="sheet-title">Connect to a device</span>
+        <span class="sheet-title">Spotify Connect</span>
         <button id="closeSheetBtn" style="background:transparent; border:none; color:#94a3b8; font-size:1.1rem; cursor:pointer;">✖</button>
       </div>
 
-      <!-- Active Device (This Phone) -->
-      <div class="active-device-box" id="activePhoneDevice" style="cursor:pointer;">
-        <div class="device-info-left">
-          <div class="device-icon-wrap">📱</div>
-          <div>
-            <div style="font-size:0.85rem; font-weight:700; color:#fff;">This phone</div>
-            <div id="currentActiveSongLabel" style="font-size:0.7rem; color:var(--led-green); margin-top:2px;">Tu Hi Haqeeqat — Javed Ali</div>
-          </div>
-        </div>
-        <div style="width:10px; height:10px; background:var(--led-green); border-radius:50%; box-shadow:0 0 10px var(--led-green);"></div>
+      <!-- SPOTIFY LOGIN BUTTON CONTAINER -->
+      <div id="spotifyLoginSection" style="text-align: center; padding: 10px 0;">
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; font-family: 'JetBrains Mono';">Link your Spotify account to discover real network speakers & active endpoints.</p>
+        <button class="spotify-login-btn" id="spotifyLoginBtn">
+          <span>🟢</span> Connect with Spotify
+        </button>
       </div>
 
-      <div class="device-list-title" id="networkStatusHeader">CHECKING NETWORK...</div>
-      
-      <div id="networkDeviceListContainer"></div>
+      <!-- ACTIVE DEVICES LIST (LOADS AFTER AUTH) -->
+      <div id="spotifyDevicesSection" style="display:none; flex-direction:column; gap:10px;">
+        <div class="active-device-box" id="activePhoneDevice" style="cursor:pointer;">
+          <div class="device-info-left">
+            <div class="device-icon-wrap">📱</div>
+            <div>
+              <div style="font-size:0.85rem; font-weight:700; color:#fff;">This Web Client</div>
+              <div id="currentActiveSongLabel" style="font-size:0.7rem; color:var(--led-green); margin-top:2px;">Tu Hi Haqeeqat — Javed Ali</div>
+            </div>
+          </div>
+          <div style="width:10px; height:10px; background:var(--led-green); border-radius:50%; box-shadow:0 0 10px var(--led-green);"></div>
+        </div>
+
+        <div class="device-list-title" id="networkStatusHeader">FETCHING SPOTIFY DEVICES...</div>
+        <div id="networkDeviceListContainer"></div>
+      </div>
     </div>
   </div>
 
@@ -418,7 +436,7 @@
           </div>
 
           <button class="mini-tv-btn" id="miniTvBtn"><span>📺</span> <span>MINI TV</span></button>
-          <button class="stream-tv-btn" id="streamTvBtn"><span>📡</span> <span>STREAM TV</span></button>
+          <button class="stream-tv-btn" id="streamTvBtn"><span>🟢</span> <span>SPOTIFY CONNECT</span></button>
           <button class="playlist-toggle-btn" id="playlistToggleBtn"><span>📋</span> <span>SONGS</span></button>
         </div>
       </div>
@@ -434,17 +452,120 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
+    
+    // --- SPOTIFY OAUTH CREDENTIALS ---
+    const SPOTIFY_CLIENT_ID = "201c5d19e7264a69b3e303082b40dbd5";
+    const REDIRECT_URI = window.location.origin + window.location.pathname;
+
     let songsList = [
       { id: "1fueZCTYkpA", name: "Tu Hi Haqeeqat — Javed Ali", img: "https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" },
       { id: "TFr6G5zveS8", name: "Lag Jaa Gale — Lata Mangeshkar", img: "https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg" },
       { id: "o1-f2rB_gP4", name: "Abhi Mujh Mein Kahin — Sonu Nigam", img: "https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg" }
     ];
     let currentTrackIndex = 0, player, isPlaying = false, progressTimer = null;
+    let spotifyAccessToken = localStorage.getItem('spotify_access_token') || null;
+
+    // --- CHECK SPOTIFY OAUTH RETURN TOKEN ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const token = params.get('access_token');
+      if (token) {
+        spotifyAccessToken = token;
+        localStorage.setItem('spotify_access_token', token);
+        window.history.pushState({}, document.title, window.location.pathname);
+      }
+      checkSpotifyAuthStatus();
+    });
+
+    function checkSpotifyAuthStatus() {
+      const loginSec = document.getElementById('spotifyLoginSection');
+      const devSec = document.getElementById('spotifyDevicesSection');
+      if (spotifyAccessToken) {
+        loginSec.style.display = 'none';
+        devSec.style.display = 'flex';
+        fetchRealSpotifyDevices();
+      } else {
+        loginSec.style.display = 'block';
+        devSec.style.display = 'none';
+      }
+    }
+
+    document.getElementById('spotifyLoginBtn').onclick = () => {
+      const scope = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=token&show_dialog=true`;
+      window.location.href = authUrl;
+    };
+
+    // --- FETCH REAL DEVICES FROM SPOTIFY API ---
+    async function fetchRealSpotifyDevices() {
+      const header = document.getElementById('networkStatusHeader');
+      const listContainer = document.getElementById('networkDeviceListContainer');
+      header.innerText = "FETCHING ACTIVE SPOTIFY DEVICES...";
+      listContainer.innerHTML = `<div style="padding:15px; text-align:center; color:var(--text-muted); font-family:'JetBrains Mono'; font-size:0.75rem;">Querying Spotify Cloud API...</div>`;
+
+      try {
+        const res = await fetch('https://api.spotify.com/v1/me/player/devices', {
+          headers: { 'Authorization': `Bearer ${spotifyAccessToken}` }
+        });
+        if(res.status === 401) {
+          localStorage.removeItem('spotify_access_token');
+          spotifyAccessToken = null;
+          checkSpotifyAuthStatus();
+          return;
+        }
+        const data = await res.json();
+        if (data.devices && data.devices.length > 0) {
+          header.innerText = `CONNECTED DEVICES (${data.devices.length})`;
+          listContainer.innerHTML = '';
+          data.devices.forEach(device => {
+            const div = document.createElement('div');
+            div.className = 'device-item';
+            div.innerHTML = `
+              <div class="device-info-left">
+                <span style="font-size:1.1rem;">🔊</span>
+                <div>
+                  <div style="font-size:0.8rem; font-weight:600; color:#fff;">${device.name}</div>
+                  <div style="font-size:0.65rem; color:${device.is_active ? 'var(--led-green)' : 'var(--text-muted)'};">${device.type} • ${device.is_active ? 'Active Now' : 'Available'}</div>
+                </div>
+              </div>
+              <span style="font-size:0.7rem; color:var(--spotify-green); font-family:'JetBrains Mono';">${device.is_active ? 'ACTIVE' : 'TRANSFER'}</span>
+            `;
+            div.onclick = () => transferSpotifyPlayback(device.id, device.name);
+            listContainer.appendChild(div);
+          });
+        } else {
+          header.innerText = "NO ACTIVE DEVICES";
+          listContainer.innerHTML = `<div style="padding:15px; text-align:center; color:var(--text-muted); font-family:'JetBrains Mono'; font-size:0.72rem;">Open Spotify app on your phone, TV or Echo speaker to make it appear here.</div>`;
+        }
+      } catch(e) {
+        header.innerText = "API ERROR";
+        listContainer.innerHTML = `<div style="padding:15px; text-align:center; color:#ef4444; font-family:'JetBrains Mono'; font-size:0.72rem;">Failed to fetch devices. Relogin required.</div>`;
+      }
+    }
+
+    async function transferSpotifyPlayback(deviceId, deviceName) {
+      try {
+        await fetch('https://api.spotify.com/v1/me/player', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${spotifyAccessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ device_ids: [deviceId], play: true })
+        });
+        alert(`⚡ Active playback successfully routed to: ${deviceName}`);
+        document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Active)`;
+        connectOverlay.classList.remove('open');
+      } catch(e) {
+        alert("Failed to transfer playback to device.");
+      }
+    }
 
     // --- DYNAMIC GROWING MOON PHASE LOGIC ---
     function updateMoonPhase() {
       const today = new Date();
-      const startDate = new Date("2026-08-17"); // Base date: Crescent
+      const startDate = new Date("2026-08-17");
       const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
       const moon = document.getElementById('skyMoon');
       if(moon) {
@@ -650,61 +771,13 @@
     document.getElementById('miniTvBtn').onclick = () => { miniTvDock.classList.toggle('open'); };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // --- REAL ASYNCHRONOUS SCAN (FALLBACK SUPPORT FOR OFFICE / SITE WIFI) ---
+    // --- SPOTIFY CONNECT MODAL TOGGLE ---
     const connectOverlay = document.getElementById('connectOverlay');
     document.getElementById('streamTvBtn').onclick = () => {
       connectOverlay.classList.add('open');
-      runRealNetworkScan();
+      checkSpotifyAuthStatus();
     };
     document.getElementById('closeSheetBtn').onclick = () => { connectOverlay.classList.remove('open'); };
-    document.getElementById('activePhoneDevice').onclick = () => { connectOverlay.classList.remove('open'); };
-
-    function runRealNetworkScan() {
-      const header = document.getElementById('networkStatusHeader');
-      const listContainer = document.getElementById('networkDeviceListContainer');
-      
-      header.innerText = "SCANNING LOCAL NETWORK...";
-      listContainer.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted); font-family:'JetBrains Mono'; font-size:0.75rem;">Searching for active nodes on local subnet...</div>`;
-
-      setTimeout(() => {
-        const isOnline = navigator.onLine;
-        
-        if (isOnline) {
-          header.innerText = "ACTIVE NODES FOUND";
-          listContainer.innerHTML = `
-            <div class="device-item" onclick="selectAudioSink('Amolak\\'s Echo Dot')">
-              <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Amolak's Echo Dot</div><div style="font-size:0.65rem; color:var(--led-green);">Connected • Ready</div></div></div>
-              <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-            </div>
-            <div class="device-item" onclick="selectAudioSink('Living Room')" style="margin-top:8px;">
-              <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Living Room</div><div style="font-size:0.65rem; color:var(--led-green);">Zone Speaker</div></div></div>
-              <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-            </div>
-            <div class="device-item" onclick="selectAudioSink('PPC\\'s A9')" style="margin-top:8px;">
-              <div class="device-info-left"><span style="font-size:1.1rem;">🔊</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">PPC's A9</div><div style="font-size:0.65rem; color:var(--led-green);">Audio Receiver</div></div></div>
-              <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-            </div>
-            <div class="device-item" onclick="selectAudioSink('Studio R')" style="margin-top:8px;">
-              <div class="device-info-left"><span style="font-size:1.1rem;">📡</span><div><div style="font-size:0.8rem; font-weight:600; color:#fff;">Studio R</div><div style="font-size:0.65rem; color:var(--text-muted);">Remote Node</div></div></div>
-              <span style="font-size:0.7rem; color:var(--amber-warm); font-family:'JetBrains Mono';">CONNECT</span>
-            </div>
-          `;
-        } else {
-          header.innerText = "NO DEVICES FOUND";
-          listContainer.innerHTML = `
-            <div style="padding:25px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">
-              🔍 Scan complete. No local studio nodes found on this network.<br><span style="font-size:0.62rem; opacity:0.6; margin-top:4px; display:block;">Connect to office Wi-Fi to detect active hardware.</span>
-            </div>
-          `;
-        }
-      }, 1000);
-    }
-
-    function selectAudioSink(deviceName) {
-      alert(`⚡ Successfully routed playback to: ${deviceName}\n(Node linked successfully!)`);
-      document.getElementById('currentActiveSongLabel').innerText = `Linked to ${deviceName} (Active)`;
-      connectOverlay.classList.remove('open');
-    }
 
     // --- PROFESSIONAL MOTORIZED DRAPERY GLIDE ---
     const curtainLeft = document.getElementById('curtainLeft');
