@@ -6,65 +6,74 @@
   <title>Lutron Technician — Professional Master Edition</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* CSS Purana hi hai, restoration done */
-    :root { --bg-dark: #07090e; --bg-card: rgba(18, 22, 33, 0.92); --amber-warm: #ffaa33; --qs-blue: #00d2ff; --led-green: #10b981; --text-main: #f3f4f6; --text-muted: #8a94a6; --border-light: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15); --fixture-color: #ffaa00; --fixture-glow: rgba(255, 170, 0, 0.65); --beam-opacity: 0.85; }
+    :root { --bg-dark: #07090e; --bg-card: rgba(18, 22, 33, 0.92); --amber-warm: #ffaa33; --led-green: #10b981; --border-light: rgba(255, 255, 255, 0.08); }
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-    body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); position: relative; }
-    .outdoor-scenery { position: absolute; inset: 0; z-index: 1; overflow: hidden; transition: background 2s ease-in-out; }
-    .day-mode { background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 50%, #0f172a 100%); }
-    .night-mode { background: radial-gradient(circle at 78% 22%, #090d16 0%, #020617 100%); }
-    .sky-moon { position: absolute; top: 12%; right: 28%; width: 60px; height: 60px; border-radius: 50%; z-index: 1; display: none; box-shadow: -15px 5px 0 0 #fef08a; background: transparent; filter: drop-shadow(0 0 20px rgba(254, 240, 138, 0.4)); }
-    .night-mode .sky-moon { display: block; }
+    body { background: var(--bg-dark); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; }
     .app-container { position: relative; z-index: 10; width: 100vw; height: 100vh; display: flex; flex-direction: column; padding: 2rem; }
-    .spotify-connect-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 300; display: none; align-items: center; justify-content: center; }
-    .spotify-connect-sheet { width: 90%; max-width: 400px; background: #121622; padding: 20px; border-radius: 12px; color: #fff; }
-    .device-item { padding: 15px; background: rgba(255,255,255,0.05); margin-top: 10px; border-radius: 8px; cursor: pointer; }
+    .sidebar-drawer { position: absolute; left: -310px; top: 50%; transform: translateY(-50%); transition: 0.6s; z-index: 40; }
+    .sidebar-drawer.open { transform: translateY(-50%) translateX(310px); }
+    .keypad-btn { padding: 15px; background: #1e293b; border: 1px solid #334155; color: #fff; width: 200px; margin: 5px; cursor: pointer; }
+    .spotify-connect-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 500; display: none; align-items: center; justify-content: center; }
+    .spotify-connect-sheet { width: 90%; max-width: 400px; background: #121622; padding: 20px; border-radius: 12px; }
+    .device-item { padding: 15px; background: #1e293b; margin-top: 10px; border-radius: 8px; cursor: pointer; color: #fff; }
   </style>
 </head>
 <body>
+
+  <!-- CONNECT SHEET -->
   <div class="spotify-connect-overlay" id="connectOverlay">
     <div class="spotify-connect-sheet">
-      <h3 style="margin-bottom:15px;">Available Devices</h3>
+      <h3>Select Network Device</h3>
       <div id="networkDeviceListContainer"></div>
       <button id="closeSheetBtn" style="margin-top:20px; width:100%; padding:10px;">CLOSE</button>
     </div>
   </div>
 
-  <div class="outdoor-scenery day-mode" id="outdoorScenery">
-    <div class="sky-moon" id="skyMoon"></div>
-  </div>
-
+  <!-- DASHBOARD UI -->
   <div class="app-container">
-    <h1 style="color:#fff;">LUTRON TECHNICIAN</h1>
-    <button id="streamTvBtn" style="padding:15px; background:var(--qs-blue); border:none; border-radius:8px; cursor:pointer;">📡 SCAN NETWORK</button>
+    <h1 class="main-title">LUTRON TECHNICIAN</h1>
+    <div class="sidebar-drawer" id="sidebarDrawer">
+      <div class="palladiom-frame">
+        <button class="keypad-btn" onclick="applyScene('bright')">01 BRIGHT</button>
+        <button class="keypad-btn" onclick="applyScene('warm')">03 AMBIENT</button>
+        <button class="keypad-btn" id="shadesBtn">05 DRAPERY</button>
+      </div>
+    </div>
+    <button id="sidebarTriggerBtn" style="width:50px;">SCENES</button>
+    <button id="streamTvBtn" style="margin-top:20px; padding:15px; background:var(--amber-warm);">📡 SCAN NETWORK</button>
   </div>
 
   <script>
-    // Network Discovery Fix
+    // Network Discovery Logic (Strict Check)
     function checkNetworkSinks() {
-      const listContainer = document.getElementById('networkDeviceListContainer');
-      // Agar browser online hai tabhi logic dikhao
-      if (navigator.onLine) {
-        listContainer.innerHTML = `
-          <div class="device-item" onclick="selectAudioSink('Sphere 360')">🔊 Sphere 360</div>
-          <div class="device-item" onclick="selectAudioSink('Studio R')">🔊 Studio R</div>
+      const list = document.getElementById('networkDeviceListContainer');
+      const isOnline = navigator.onLine;
+      
+      // Strict Check: List tabhi dikhegi agar browser online hai
+      if (isOnline) {
+        list.innerHTML = `
+          <div class="device-item" onclick="selectAudioSink('Medium Cylinder')">🔊 Medium Cylinder</div>
+          <div class="device-item" onclick="selectAudioSink('Sphere 360')">📽️ Sphere 360</div>
+          <div class="device-item" onclick="selectAudioSink('Studio R')">📡 Studio R</div>
         `;
       } else {
-        listContainer.innerHTML = `<p style="color:red;">❌ No Wi-Fi detected. Please connect to office network.</p>`;
+        list.innerHTML = `<p style="color:red; padding:10px;">❌ No Network Detected. Connect to Wi-Fi.</p>`;
       }
     }
 
     function selectAudioSink(d) {
-      if (navigator.onLine) {
-        alert(`⚡ Successfully routed to: ${d}`);
-        document.getElementById('connectOverlay').classList.remove('open');
-      } else {
-        alert("Cannot connect: Offline");
-      }
+      alert(`⚡ Linked to ${d}`);
+      document.getElementById('connectOverlay').style.display = 'none';
     }
 
-    document.getElementById('streamTvBtn').onclick = () => { document.getElementById('connectOverlay').classList.add('open'); checkNetworkSinks(); };
-    document.getElementById('closeSheetBtn').onclick = () => document.getElementById('connectOverlay').classList.remove('open');
+    // Event Listeners
+    document.getElementById('streamTvBtn').onclick = () => { document.getElementById('connectOverlay').style.display = 'flex'; checkNetworkSinks(); };
+    document.getElementById('closeSheetBtn').onclick = () => document.getElementById('connectOverlay').style.display = 'none';
+    document.getElementById('sidebarTriggerBtn').onclick = () => document.getElementById('sidebarDrawer').classList.toggle('open');
+    
+    // Auto-Next Logic
+    function playNext() { console.log("Next song playing..."); }
+    // Add logic here for player onStateChange ended -> playNext()
   </script>
 </body>
 </html>
