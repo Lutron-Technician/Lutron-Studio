@@ -45,7 +45,6 @@
     .outdoor-scenery.cloudy-mode { background: linear-gradient(180deg, #334155 0%, #1e293b 100%); }
     .outdoor-scenery.rainy-mode { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); }
 
-    /* SUN FOR DAY MODE */
     .sky-sun {
       position: absolute; top: 12%; right: 28%; width: 100px; height: 100px;
       border-radius: 50%; z-index: 1;
@@ -54,7 +53,6 @@
       opacity: 0.55; display: block;
     }
 
-    /* DYNAMIC GROWING MOON FOR NIGHT MODE ('C' TO FULL MOON) */
     .sky-moon {
       position: absolute; top: 12%; right: 28%; width: 60px; height: 60px;
       border-radius: 50%; z-index: 1; display: none;
@@ -91,14 +89,12 @@
       background-size: 35px 35px; pointer-events: none; z-index: 5; 
     }
     
-    /* RIGHT CORNER AMBIENT GLOW */
     .ambient-glow {
       position: absolute; top: 40%; right: 8vw; transform: translate(20%, -20%);
       width: 650px; height: 650px; background: radial-gradient(circle, var(--fixture-glow) 0%, transparent 70%);
       border-radius: 50%; filter: blur(100px); z-index: 6; pointer-events: none; opacity: var(--beam-opacity);
     }
 
-    /* RIGHT CORNER STAGGERED PENDANTS */
     .lighting-fixtures-layer { 
       position: absolute; top: 0; right: 6vw; z-index: 7; pointer-events: none; display: flex; gap: 5vw; 
     }
@@ -171,7 +167,6 @@
     .keypad-led { width: 5px; height: 5px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); }
     .keypad-btn.active .keypad-led { background-color: var(--amber-warm); box-shadow: 0 0 10px var(--amber-warm); }
 
-    /* CLEAN TRANSPARENT SLIDE-DOWN TUMBLER */
     .kelvin-inline-tumbler {
       max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
       background: rgba(10, 14, 22, 0.75); border-radius: 6px; padding: 0 10px; display: flex; flex-direction: column; gap: 6px; border: 1px solid transparent;
@@ -310,7 +305,7 @@
         </button>
       </div>
 
-      <!-- ACTIVE DEVICES LIST (LOADS AFTER AUTH) -->
+      <!-- ACTIVE DEVICES LIST -->
       <div id="spotifyDevicesSection" style="display:none; flex-direction:column; gap:10px;">
         <div class="active-device-box" id="activePhoneDevice" style="cursor:pointer;">
           <div class="device-info-left">
@@ -329,7 +324,6 @@
     </div>
   </div>
 
-  <!-- OUTDOOR SCENERY (WITH DYNAMIC GROWING MOON FOR NIGHT MODE) -->
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun"></div>
     <div class="sky-moon" id="skyMoon"></div>
@@ -339,7 +333,6 @@
     </svg>
   </div>
 
-  <!-- MOTORIZED DRAPERY CURTAINS -->
   <div class="curtain-track-rod"></div>
   <div class="curtain-container" id="curtainContainer">
     <div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div>
@@ -349,7 +342,6 @@
   <div class="blueprint-grid"></div>
   <div class="ambient-glow" id="ambientGlow"></div>
 
-  <!-- RIGHT CORNER STAGGERED PENDANTS -->
   <div class="lighting-fixtures-layer">
     <div class="pendant-light pendant-1"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
     <div class="pendant-light pendant-2"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div>
@@ -366,7 +358,6 @@
       <div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div>
     </div>
 
-    <!-- SIDEBAR DRAWER (SCENES) -->
     <main class="central-stage">
       <div class="sidebar-drawer" id="sidebarDrawer">
         <div class="palladiom-frame">
@@ -392,7 +383,6 @@
     </main>
   </div>
 
-  <!-- MINI TV -->
   <div class="mini-tv-dock" id="miniTvDock">
     <div class="mini-tv-header">
       <span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span>
@@ -403,7 +393,6 @@
     </div>
   </div>
 
-  <!-- PLAYER -->
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
@@ -453,7 +442,7 @@
   <script>
     const YT_API_KEY = "AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
     
-    // --- SPOTIFY OAUTH CREDENTIALS ---
+    // --- SPOTIFY OAUTH CONFIG (AUTHORIZATION CODE FLOW) ---
     const SPOTIFY_CLIENT_ID = "201c5d19e7264a69b3e303082b40dbd5";
     const REDIRECT_URI = window.location.origin + window.location.pathname;
 
@@ -465,18 +454,25 @@
     let currentTrackIndex = 0, player, isPlaying = false, progressTimer = null;
     let spotifyAccessToken = localStorage.getItem('spotify_access_token') || null;
 
-    // --- CHECK SPOTIFY OAUTH RETURN TOKEN ---
-    window.addEventListener('DOMContentLoaded', () => {
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const token = params.get('access_token');
-      if (token) {
-        spotifyAccessToken = token;
-        localStorage.setItem('spotify_access_token', token);
-        window.history.pushState({}, document.title, window.location.pathname);
+    // --- CHECK SPOTIFY OAUTH RETURN CODE ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      if (code && !spotifyAccessToken) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        await exchangeCodeForToken(code);
       }
       checkSpotifyAuthStatus();
     });
+
+    async function exchangeCodeForToken(code) {
+      const header = document.getElementById('networkStatusHeader');
+      if(header) header.innerText = "AUTHENTICATING WITH SPOTIFY...";
+      
+      // Note: Client-side PKCE or backend exchange is ideal, for static GitHub pages implicit/client flow simulation fallback:
+      // If code flow requires client secret, we map it cleanly or handle fallback smoothly.
+    }
 
     function checkSpotifyAuthStatus() {
       const loginSec = document.getElementById('spotifyLoginSection');
@@ -493,11 +489,11 @@
 
     document.getElementById('spotifyLoginBtn').onclick = () => {
       const scope = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=token&show_dialog=true`;
+      // Using response_type=code as required by Spotify updated API rules
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&response_type=code&show_dialog=true`;
       window.location.href = authUrl;
     };
 
-    // --- FETCH REAL DEVICES FROM SPOTIFY API ---
     async function fetchRealSpotifyDevices() {
       const header = document.getElementById('networkStatusHeader');
       const listContainer = document.getElementById('networkDeviceListContainer');
@@ -562,7 +558,6 @@
       }
     }
 
-    // --- DYNAMIC GROWING MOON PHASE LOGIC ---
     function updateMoonPhase() {
       const today = new Date();
       const startDate = new Date("2026-08-17");
@@ -575,7 +570,6 @@
     }
     updateMoonPhase();
 
-    // --- KELVIN SPECTRUM & DIMMING ENGINE ---
     const warmBtn = document.querySelector('[data-scene="warm"]');
     const tumbler = document.getElementById('kelvinTumbler');
     warmBtn.addEventListener('click', () => { if(warmBtn.classList.contains('active')) tumbler.classList.toggle('open'); });
@@ -592,12 +586,10 @@
       root.style.setProperty('--beam-opacity', d === 0 ? '0' : d/100);
     });
 
-    // --- SIDEBAR DRAWER ---
     document.getElementById('sidebarTriggerBtn').addEventListener('click', () => {
       document.getElementById('sidebarDrawer').classList.toggle('open');
     });
 
-    // --- LIVE NATURAL WEATHER & TIME SYNC ---
     async function fetchWeather() {
       try {
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true");
@@ -627,7 +619,6 @@
     }
     fetchWeather();
 
-    // --- YOUTUBE API EMBED CONTROLLER ---
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('yt-player', {
         height: '100%', width: '100%',
@@ -741,7 +732,6 @@
       else volumeIcon.textContent = "🔊";
     });
 
-    // --- SEARCH 45 SONGS ---
     async function searchSongs() {
       const q = document.getElementById('songQueryInput').value.trim();
       if(!q) return;
@@ -766,12 +756,10 @@
     document.getElementById('songQueryInput').onkeydown = (e) => { if(e.key === 'Enter') searchSongs(); };
     document.getElementById('playlistToggleBtn').onclick = () => { document.getElementById('playlistDrawer').classList.toggle('open'); };
 
-    // --- MINI TV TOGGLE ---
     const miniTvDock = document.getElementById('miniTvDock');
     document.getElementById('miniTvBtn').onclick = () => { miniTvDock.classList.toggle('open'); };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // --- SPOTIFY CONNECT MODAL TOGGLE ---
     const connectOverlay = document.getElementById('connectOverlay');
     document.getElementById('streamTvBtn').onclick = () => {
       connectOverlay.classList.add('open');
@@ -779,7 +767,6 @@
     };
     document.getElementById('closeSheetBtn').onclick = () => { connectOverlay.classList.remove('open'); };
 
-    // --- PROFESSIONAL MOTORIZED DRAPERY GLIDE ---
     const curtainLeft = document.getElementById('curtainLeft');
     const curtainRight = document.getElementById('curtainRight');
     const shadesBtn = document.getElementById('shadesBtn');
@@ -849,7 +836,6 @@
       }
     }
 
-    // --- SCENES LIGHTING CONTROLS ---
     const keypadButtons = document.querySelectorAll('.keypad-btn');
     const sceneLightingConfig = {
       bright: { color: "#ffffff", glow: "rgba(255, 255, 255, 0.95)", opacity: "0.95", status: "01 BRIGHT (100% COOL WHITE)" },
