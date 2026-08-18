@@ -1,505 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Spotify Connect Edition</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <style>
-    :root { --bg-dark:#07090e; --bg-card:rgba(18,22,33,.92); --amber-warm:#ffaa33; --qs-blue:#00d2ff; --led-green:#10b981; --text-main:#f3f4f6; --text-muted:#8a94a6; --border-light:rgba(255,255,255,.08); --glass-border:rgba(255,255,255,.15); --fixture-color:#ffaa00; --fixture-glow:rgba(255,170,0,.65); --beam-opacity:.85; }
-    *{margin:0;padding:0;box-sizing:border-box;user-select:none}
-    body,html{width:100%;height:100%;overflow:hidden;font-family:Inter,sans-serif;background:var(--bg-dark);color:var(--text-main);position:relative}
-    button,input{font:inherit}
-    .outdoor-scenery{position:absolute;inset:0;z-index:1;overflow:hidden;transition:background 2s}
-    .outdoor-scenery.day-mode{background:linear-gradient(180deg,#1d4ed8 0%,#1e3a8a 50%,#0f172a 100%)}
-    .outdoor-scenery.night-mode{background:radial-gradient(circle at 78% 22%,#090d16 0%,#020617 100%)}
-    .outdoor-scenery.cloudy-mode{background:linear-gradient(180deg,#334155 0%,#1e293b 100%)}
-    .outdoor-scenery.rainy-mode{background:linear-gradient(180deg,#0f172a 0%,#020617 100%)}
-    .sky-sun{position:absolute;top:12%;right:28%;width:100px;height:100px;border-radius:50%;z-index:1;background:radial-gradient(circle,#fff 20%,#fef08a 60%,#eab308 100%);box-shadow:0 0 50px #facc15;opacity:.55}
-    .sky-moon{position:absolute;top:12%;right:28%;width:60px;height:60px;border-radius:50%;z-index:1;display:none;box-shadow:-15px 5px 0 0 #fef08a;background:transparent;filter:drop-shadow(0 0 20px rgba(254,240,138,.4))}
-    .outdoor-scenery.night-mode .sky-sun{display:none}.outdoor-scenery.night-mode .sky-moon{display:block}
-    .mountain-layer{position:absolute;bottom:0;left:0;width:100%;height:40%;pointer-events:none;z-index:3}
-    .mountain-back{fill:#1e3a8a;opacity:.25}.mountain-front{fill:#0f172a;opacity:.65}
-    .curtain-container{position:absolute;inset:0;z-index:4;pointer-events:none;display:flex;width:100%;height:100%;overflow:hidden}
-    .curtain-panel{width:50%;height:100%;background:linear-gradient(180deg,#181d28 0%,#0e121a 50%,#07090e 100%);position:relative;box-shadow:inset 0 0 50px rgba(0,0,0,.85);will-change:transform}
-    .curtain-pleats{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0,rgba(0,0,0,.5) 20px,rgba(255,255,255,.07) 40px,rgba(0,0,0,.65) 60px)}
-    .curtain-left{border-right:2px solid rgba(255,255,255,.06)}.curtain-right{border-left:2px solid rgba(255,255,255,.06)}
-    .curtain-track-rod{position:absolute;top:0;left:0;width:100%;height:8px;background:linear-gradient(180deg,#374151,#111827);z-index:5}
-    .blueprint-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,210,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,.02) 1px,transparent 1px);background-size:35px 35px;pointer-events:none;z-index:5}
-    .ambient-glow{position:absolute;top:40%;right:8vw;transform:translate(20%,-20%);width:650px;height:650px;background:radial-gradient(circle,var(--fixture-glow) 0%,transparent 70%);border-radius:50%;filter:blur(100px);z-index:6;pointer-events:none;opacity:var(--beam-opacity)}
-    .lighting-fixtures-layer{position:absolute;top:0;right:6vw;z-index:7;pointer-events:none;display:flex;gap:5vw}
-    .pendant-light{display:flex;flex-direction:column;align-items:center;position:relative}
-    .pendant-1 .pendant-wire{width:2px;height:110px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.4))}
-    .pendant-2 .pendant-wire{width:2px;height:175px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.4))}
-    .pendant-shade{width:52px;height:28px;background:linear-gradient(180deg,#2a2f3a,#11141a);border:1px solid rgba(255,255,255,.2);border-radius:6px 6px 2px 2px}
-    .pendant-bulb{width:22px;height:22px;border-radius:50%;background:var(--fixture-color);box-shadow:0 0 25px var(--fixture-color);margin-top:-6px}
-    .light-beam{width:200px;height:580px;background:linear-gradient(180deg,var(--fixture-glow),transparent);clip-path:polygon(15% 0%,85% 0%,100% 100%,0% 100%);filter:blur(12px);opacity:var(--beam-opacity)}
-    .app-container{position:relative;z-index:10;width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:1.8rem 4vw 9.5rem;pointer-events:none}
-    .app-container>*{pointer-events:auto}.top-header{width:100%;display:flex;justify-content:space-between;align-items:center;font-family:JetBrains Mono,monospace;font-size:.75rem;color:var(--text-muted)}
-    .status-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.03);padding:.4rem .8rem;border-radius:100px;border:1px solid var(--border-light)}
-    .led-dot{width:8px;height:8px;border-radius:50%;background:var(--led-green);box-shadow:0 0 8px var(--led-green)}
-    .hero-header{text-align:left;margin-top:.5rem;margin-bottom:.8rem}.main-title{font-family:Syncopate,sans-serif;font-size:clamp(2rem,4.5vw,3.6rem);font-weight:700;text-transform:uppercase;letter-spacing:.1em;background:linear-gradient(180deg,#fff,#a0aab8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .sub-title{font-family:JetBrains Mono,monospace;font-size:clamp(.7rem,1.5vw,.85rem);color:var(--amber-warm);letter-spacing:.25em;text-transform:uppercase;margin-top:.25rem}
-    .central-stage{display:flex;align-items:center;position:relative;flex-grow:1;width:100%}
-    .sidebar-drawer{position:absolute;left:-310px;top:50%;transform:translateY(-50%);display:flex;align-items:center;z-index:40;transition:transform .6s cubic-bezier(.16,1,.3,1)}
-    .sidebar-drawer.open{transform:translateY(-50%) translateX(310px)}
-    .palladiom-frame{width:260px;background:linear-gradient(145deg,#2a2f3d,#12151f);border-radius:12px;padding:12px;box-shadow:0 25px 50px rgba(0,0,0,.9);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px}
-    .sidebar-trigger-tab{background:rgba(18,22,33,.95);border:1px solid var(--glass-border);border-left:none;color:var(--amber-warm);padding:1.2rem .6rem;border-radius:0 10px 10px 0;font-family:JetBrains Mono,monospace;font-size:.75rem;cursor:pointer;font-weight:700;writing-mode:vertical-rl;display:flex;align-items:center;gap:6px;box-shadow:5px 0 20px rgba(0,0,0,.6);backdrop-filter:blur(15px)}
-    .sidebar-trigger-tab:hover{background:var(--amber-warm);color:#000}.palladiom-faceplate{width:100%;background:linear-gradient(135deg,#1d222e,#11141c);border-radius:6px;display:flex;flex-direction:column;gap:8px;padding:10px}
-    .keypad-btn{height:42px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:4px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;color:rgba(255,255,255,.65);font-size:.72rem;font-weight:600;cursor:pointer;width:100%}
-    .keypad-btn:hover{background:rgba(255,255,255,.12);color:#fff}.keypad-btn.active{color:#fff;background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3)}
-    .keypad-led{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.2)}.keypad-btn.active .keypad-led{background:var(--amber-warm);box-shadow:0 0 10px var(--amber-warm)}
-    .kelvin-inline-tumbler{max-height:0;overflow:hidden;transition:max-height .4s,padding .4s;background:rgba(10,14,22,.75);border-radius:6px;padding:0 10px;display:flex;flex-direction:column;gap:6px;border:1px solid transparent}
-    .kelvin-inline-tumbler.open{max-height:100px;padding:10px;border-color:rgba(255,255,255,.1)}.tumbler-row{display:flex;align-items:center;justify-content:space-between;font-family:JetBrains Mono,monospace;font-size:.62rem;color:var(--amber-warm)}
-    .horizontal-slider{-webkit-appearance:none;width:100%;height:4px;background:rgba(255,255,255,.2);border-radius:5px;outline:none;cursor:pointer;accent-color:var(--amber-warm)}
-    .mini-tv-dock{position:fixed;bottom:7.8rem;right:3vw;width:270px;background:rgba(15,21,33,.95);border:1px solid var(--glass-border);border-radius:12px;padding:6px;box-shadow:0 20px 45px rgba(0,0,0,.9);backdrop-filter:blur(20px);z-index:50;display:none;flex-direction:column;gap:5px}
-    .mini-tv-dock.open{display:flex}.mini-tv-header{display:flex;justify-content:space-between;align-items:center;padding:2px 6px}.mini-tv-title{font-family:JetBrains Mono,monospace;font-size:.65rem;color:var(--amber-warm);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%}.mini-tv-close{background:transparent;border:none;color:#94a3b8;font-size:.8rem;cursor:pointer}
-    .mini-tv-frame{width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden;position:relative}#youtube-player-container{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;z-index:1}.mini-tv-dock.open #youtube-player-container{opacity:1;pointer-events:auto}
-    .spotify-connect-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);z-index:300;display:none;align-items:flex-end;justify-content:center}.spotify-connect-overlay.open{display:flex}
-    .spotify-connect-sheet{width:100%;max-width:500px;max-height:88vh;overflow:auto;background:#121622;border-top:1px solid var(--glass-border);border-radius:24px 24px 0 0;padding:20px 24px 35px;display:flex;flex-direction:column;gap:14px;box-shadow:0 -20px 50px rgba(0,0,0,.9);animation:slideUp .3s cubic-bezier(.16,1,.3,1)}
-    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}.sheet-handle{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:10px;align-self:center;margin-bottom:4px}.sheet-title{font-family:Syncopate,sans-serif;font-size:.95rem;font-weight:700;color:#fff}
-    .active-device-box{background:rgba(16,185,129,.1);border:1px solid var(--led-green);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between}.device-info-left{display:flex;align-items:center;gap:12px}.device-icon-wrap{width:38px;height:38px;background:rgba(16,185,129,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--led-green);font-size:1.1rem}
-    .device-list-title{font-family:JetBrains Mono,monospace;font-size:.72rem;color:var(--text-muted);margin-top:2px}.device-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:pointer;transition:.2s}.device-item:hover{background:rgba(255,255,255,.08);border-color:var(--amber-warm)}
-    .connect-action{background:var(--amber-warm);color:#000;border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer}.secondary-action{background:rgba(255,255,255,.06);color:#fff;border:1px solid var(--border-light);border-radius:10px;padding:10px 14px;cursor:pointer}
-    .spotify-search{display:flex;gap:8px}.spotify-search input{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--border-light);border-radius:10px;padding:11px;color:#fff;outline:none}.spotify-track{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;cursor:pointer}.spotify-track img{width:44px;height:44px;border-radius:6px;object-fit:cover}.spotify-track small{display:block;color:var(--text-muted);margin-top:3px}
-    .player-wrapper{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);width:calc(100% - 2rem);max-width:870px;z-index:100}.glass-player{background:var(--bg-card);backdrop-filter:blur(25px);border:1px solid var(--glass-border);border-radius:18px;padding:.8rem 1.2rem;display:flex;flex-direction:column;gap:.6rem;position:relative;box-shadow:0 20px 40px rgba(0,0,0,.85)}
-    .search-box-row{display:flex;gap:8px;width:100%}.song-search-input{flex:1;background:rgba(255,255,255,.08);border:1px solid var(--border-light);border-radius:10px;padding:.6rem 1rem;color:#fff;font-size:.82rem;outline:none}.search-submit-btn{background:var(--amber-warm);color:#000;border:none;border-radius:10px;padding:0 1.3rem;font-weight:700;font-size:.75rem;font-family:JetBrains Mono,monospace;cursor:pointer}
-    .player-top-row{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}.track-info{display:flex;align-items:center;gap:.8rem;flex:1;min-width:180px}.album-art{width:44px;height:44px;border-radius:10px;background:#2a3042;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:1px solid var(--border-light)}.album-art img{width:100%;height:100%;object-fit:cover}.track-details{display:flex;flex-direction:column;min-width:0}.track-title{font-size:.86rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.track-artist{font-size:.7rem;color:var(--text-muted);font-family:JetBrains Mono,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .player-controls{display:flex;align-items:center;gap:.6rem;flex-shrink:0}.ctrl-btn{background:rgba(255,255,255,.05);border:1px solid var(--border-light);color:var(--text-main);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}.ctrl-btn.play-btn{width:42px;height:42px;background:var(--amber-warm);color:var(--bg-dark);border:none}.ctrl-btn svg{width:16px;height:16px;fill:currentColor}
-    .volume-container{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border-light);border-radius:20px;padding:4px 10px}.volume-slider{-webkit-appearance:none;width:65px;height:4px;border-radius:5px;background:rgba(255,255,255,.2);outline:none}.mini-tv-btn,.stream-tv-btn,.playlist-toggle-btn{border-radius:8px;padding:.45rem .75rem;font-size:.72rem;font-family:JetBrains Mono,monospace;cursor:pointer;font-weight:600}.mini-tv-btn{background:rgba(16,185,129,.15);border:1px solid var(--led-green);color:var(--led-green)}.stream-tv-btn{background:rgba(0,210,255,.12);border:1px solid var(--qs-blue);color:var(--qs-blue)}.playlist-toggle-btn{background:rgba(255,170,51,.15);border:1px solid var(--amber-warm);color:var(--amber-warm)}
-    .playlist-drawer{position:absolute;bottom:100%;right:0;width:380px;max-height:320px;overflow-y:auto;background:rgba(12,15,23,.98);backdrop-filter:blur(25px);border:1px solid var(--glass-border);border-radius:14px;margin-bottom:10px;display:none;flex-direction:column;padding:10px;gap:6px;z-index:120}.playlist-drawer.open{display:flex}.playlist-item{padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid transparent;font-size:.78rem;cursor:pointer;color:var(--text-main);display:flex;align-items:center;justify-content:space-between}.playlist-item:hover{background:rgba(255,255,255,.08)}.playlist-item.active-track{background:rgba(255,170,51,.18);border-color:var(--amber-warm);color:var(--amber-warm);font-weight:600}
-    .progress-container{display:flex;align-items:center;gap:.6rem;width:100%}.time-stamp{font-family:JetBrains Mono,monospace;font-size:.65rem;color:var(--text-muted);min-width:35px}.progress-bar-bg{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:10px;cursor:pointer}.progress-bar-fill{width:0;height:100%;background:linear-gradient(90deg,var(--amber-warm),var(--qs-blue));border-radius:10px}
-    @media(max-width:768px){.app-container{padding:1.5rem 1.2rem 10.5rem}.hero-header{text-align:center}.playlist-drawer{width:100%;right:0}.volume-container{display:none}.lighting-fixtures-layer{right:6vw;gap:5vw}.player-controls{gap:.35rem}.stream-tv-btn{padding:.45rem .55rem}.mini-tv-btn{display:none}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Lutron Studio — Network Audio</title>
+<style>
+:root{--bg:#07090e;--card:rgba(18,22,33,.94);--amber:#ffaa33;--cyan:#00d2ff;--green:#10b981;--muted:#8a94a6;--border:rgba(255,255,255,.12)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,Arial,sans-serif;color:#fff;background:#07090e}body{overflow:hidden}
+.bg{position:fixed;inset:0;background:radial-gradient(circle at 80% 20%,#172554 0,#0b1020 35%,#07090e 75%);z-index:0}.grid{position:fixed;inset:0;background-image:linear-gradient(#00d2ff08 1px,transparent 1px),linear-gradient(90deg,#00d2ff08 1px,transparent 1px);background-size:35px 35px;z-index:1}
+.app{position:relative;z-index:2;height:100%;padding:18px 4vw 170px;display:flex;flex-direction:column}.top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font:12px monospace}.badge{border:1px solid var(--border);border-radius:20px;padding:8px 12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);margin-right:7px}
+h1{font-size:clamp(30px,6vw,64px);letter-spacing:.08em;margin:25px 0 4px;background:linear-gradient(#fff,#94a3b8);color:transparent;background-clip:text}h2{font:12px monospace;letter-spacing:.2em;color:var(--amber);margin:0 0 20px}.center{flex:1;display:flex;align-items:center;justify-content:center}.panel{width:min(760px,100%);background:var(--card);border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:0 25px 70px #000b;backdrop-filter:blur(20px)}
+.row{display:flex;gap:9px;align-items:center}.btn{border:1px solid var(--border);background:#ffffff0b;color:#fff;border-radius:11px;padding:11px 14px;cursor:pointer;font-weight:700}.btn.primary{background:var(--amber);color:#090b10;border-color:var(--amber)}.btn.cyan{color:var(--cyan);border-color:#00d2ff66;background:#00d2ff12}.btn.green{color:var(--green);border-color:#10b98166;background:#10b98112}
+input{width:100%;background:#ffffff0a;border:1px solid var(--border);color:#fff;border-radius:11px;padding:12px;outline:none}.gateway{display:flex;gap:8px;margin-bottom:14px}.gateway input{flex:1}.status{font:12px monospace;color:var(--muted);padding:10px 0}.devices{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto}.device{display:flex;align-items:center;justify-content:space-between;padding:13px;background:#ffffff06;border:1px solid var(--border);border-radius:13px}.device.active{border-color:var(--green);background:#10b98110}.device-name{font-weight:700}.device-sub{font:11px monospace;color:var(--muted);margin-top:4px}.empty{text-align:center;padding:28px;color:var(--muted);font:12px monospace;border:1px dashed var(--border);border-radius:13px}
+.player{position:fixed;z-index:5;bottom:14px;left:50%;transform:translateX(-50%);width:min(900px,calc(100% - 22px));background:var(--card);border:1px solid var(--border);border-radius:18px;padding:12px;box-shadow:0 20px 50px #000d;backdrop-filter:blur(20px)}.track{display:flex;justify-content:space-between;gap:12px;align-items:center}.title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font:11px monospace;color:var(--muted);margin-top:4px}.controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.round{width:38px;height:38px;padding:0;border-radius:50%;display:grid;place-items:center}.play{background:var(--amber);color:#000;border:0}.vol{display:flex;align-items:center;gap:6px;border:1px solid var(--border);padding:5px 9px;border-radius:20px}.vol input{width:80px;padding:0;border:0}.help{font:11px monospace;color:#718096;line-height:1.5;margin-top:12px}
+@media(max-width:700px){.app{padding:15px 12px 205px}h1{text-align:center;font-size:30px}.top{font-size:10px}.panel{padding:13px}.controls{justify-content:center}.gateway{flex-direction:column}.gateway .btn{width:100%}.track{align-items:flex-start;flex-direction:column}.player{bottom:8px}}
+</style>
 </head>
 <body>
-
-  <!-- Spotify Connect sheet -->
-  <div class="spotify-connect-overlay" id="connectOverlay">
-    <div class="spotify-connect-sheet">
-      <div class="sheet-handle"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="sheet-title">Spotify Connect</span>
-        <button id="closeSheetBtn" style="background:transparent;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer">✖</button>
+<div class="bg"></div><div class="grid"></div>
+<div class="app">
+  <div class="top"><div class="badge"><span class="dot"></span>LUTRON STUDIO ONLINE</div><div id="networkText">NETWORK: CHECKING</div></div>
+  <h1>LUTRON TECHNICIAN</h1><h2>NETWORK AUDIO • LIGHTING • AUTOMATION</h2>
+  <div class="center">
+    <section class="panel">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <div><b>🎵 NETWORK AUDIO</b><div class="device-sub">Current site audio devices</div></div>
+        <button class="btn primary" id="scanBtn">🔎 SCAN</button>
       </div>
 
-      <div id="spotifyLoginBox" style="display:none">
-        <div style="padding:14px;background:rgba(255,170,51,.08);border:1px solid rgba(255,170,51,.35);border-radius:12px;font-size:.78rem;line-height:1.5">
-          Spotify login is required to see your Spotify Connect devices.
-        </div>
-        <button class="connect-action" id="spotifyLoginBtn" style="width:100%;margin-top:10px">LOGIN WITH SPOTIFY</button>
+      <div class="gateway">
+        <input id="gatewayInput" placeholder="Gateway address (optional)" value="">
+        <button class="btn cyan" id="saveGateway">SAVE</button>
       </div>
 
-      <div id="spotifyConnectedBox" style="display:none">
-        <div class="active-device-box">
-          <div class="device-info-left">
-            <div class="device-icon-wrap">🎵</div>
-            <div>
-              <div style="font-size:.85rem;font-weight:700;color:#fff" id="spotifyUserLabel">Spotify</div>
-              <div id="spotifyStatusLabel" style="font-size:.7rem;color:var(--led-green);margin-top:2px">CONNECTED</div>
-            </div>
-          </div>
-          <button class="secondary-action" id="spotifyLogoutBtn">LOGOUT</button>
-        </div>
+      <div class="status" id="status">TEST MODE: No local gateway configured.</div>
+      <div class="devices" id="devices">
+        <div class="empty">No devices yet.<br>At home, TEST MODE can verify the interface.<br>At a site, the local gateway will provide real devices.</div>
       </div>
 
-      <div class="spotify-search" id="spotifySearchBox" style="display:none">
-        <input id="spotifySearchInput" placeholder="Search Spotify song..." autocomplete="off">
-        <button class="connect-action" id="spotifySearchBtn">SEARCH</button>
+      <div class="help">
+        Final site flow: connect phone/laptop to site Wi‑Fi → open this page → local gateway scans the LAN → compatible streamers appear.<br>
+        GitHub Pages itself cannot scan a private LAN directly, so the gateway address is only used when a site gateway is available.
       </div>
-      <div id="spotifySearchResults" style="display:none;max-height:220px;overflow:auto"></div>
+    </section>
+  </div>
+</div>
 
-      <div class="device-list-title" id="networkStatusHeader">SPOTIFY DEVICES</div>
-      <div id="networkDeviceListContainer">
-        <div style="padding:18px;text-align:center;color:var(--text-muted);font-size:.75rem">Open Connect to load devices.</div>
-      </div>
-
-      <button class="secondary-action" id="refreshSpotifyDevicesBtn">↻ REFRESH DEVICES</button>
-      <div style="font-size:.62rem;color:#718096;line-height:1.45">
-        Only devices available to your Spotify account are shown. Same Wi‑Fi alone does not make a normal speaker a Spotify Connect device.
-      </div>
+<div class="player">
+  <div class="track">
+    <div style="min-width:0;flex:1"><div class="title" id="trackTitle">No device selected</div><div class="sub" id="trackSub">Select a network audio device</div></div>
+    <div class="controls">
+      <button class="btn round" id="prev">⏮</button><button class="btn round play" id="play">▶</button><button class="btn round" id="next">⏭</button>
+      <div class="vol">🔊 <input id="volume" type="range" min="0" max="100" value="50"></div>
     </div>
   </div>
-
-  <div class="outdoor-scenery day-mode" id="outdoorScenery">
-    <div class="sky-sun"></div><div class="sky-moon" id="skyMoon"></div>
-    <svg class="mountain-layer" viewBox="0 0 1440 600" preserveAspectRatio="none">
-      <path class="mountain-back" d="M0,600 L0,320 L160,220 L340,360 L520,180 L720,310 L940,150 L1160,290 L1320,190 L1440,260 L1440,600 Z"></path>
-      <path class="mountain-front" d="M0,600 L0,410 L220,290 L460,430 L680,260 L920,410 L1180,240 L1360,370 L1440,310 L1440,600 Z"></path>
-    </svg>
-  </div>
-  <div class="curtain-track-rod"></div>
-  <div class="curtain-container"><div class="curtain-panel curtain-left" id="curtainLeft"><div class="curtain-pleats"></div></div><div class="curtain-panel curtain-right" id="curtainRight"><div class="curtain-pleats"></div></div></div>
-  <div class="blueprint-grid"></div><div class="ambient-glow" id="ambientGlow"></div>
-  <div class="lighting-fixtures-layer"><div class="pendant-light pendant-1"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div><div class="pendant-light pendant-2"><div class="pendant-wire"></div><div class="pendant-shade"></div><div class="pendant-bulb"></div><div class="light-beam"></div></div></div>
-
-  <div class="app-container">
-    <header class="top-header">
-      <div class="status-badge"><span class="led-dot"></span><span id="processorStatusText">SCENE 03: AMBIENT 2700K KELVIN</span></div>
-      <div id="liveWeatherStatus" style="font-family:JetBrains Mono,monospace;color:var(--amber-warm)">LIVE WEATHER: SYNCING...</div>
-    </header>
-    <div class="hero-header"><h1 class="main-title">LUTRON TECHNICIAN</h1><div class="sub-title">System Programmer • Architectural Lighting & Motorized Drapery</div></div>
-    <main class="central-stage">
-      <div class="sidebar-drawer" id="sidebarDrawer">
-        <div class="palladiom-frame"><div class="palladiom-faceplate">
-          <button class="keypad-btn" data-scene="bright"><span>01 BRIGHT</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="dim"><span>02 DIM / MOVIE</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn active" data-scene="warm"><span>03 AMBIENT 2700K</span><span class="keypad-led"></span></button>
-          <div class="kelvin-inline-tumbler" id="kelvinTumbler"><div class="tumbler-row"><span>KELVIN SPECTRUM</span></div><input type="range" min="1000" max="12000" step="200" value="3000" class="horizontal-slider" id="kelvinRange"><div class="tumbler-row"><span>INTENSITY LEVEL</span></div><input type="range" min="0" max="100" value="85" class="horizontal-slider" id="dimRange"></div>
-          <button class="keypad-btn" data-scene="party"><span>04 DALI BLUE</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="shades" id="shadesBtn"><span>05 DRAPERY: OPEN</span><span class="keypad-led"></span></button>
-          <button class="keypad-btn" data-scene="off"><span>06 ALL OFF</span><span class="keypad-led"></span></button>
-        </div></div>
-        <button class="sidebar-trigger-tab" id="sidebarTriggerBtn"><span>▶</span><span>SCENES</span></button>
-      </div>
-    </main>
-  </div>
-
-  <div class="mini-tv-dock" id="miniTvDock">
-    <div class="mini-tv-header"><span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span><button class="mini-tv-close" id="openYoutubeBtn" style="margin-right:8px">↗</button><button class="mini-tv-close" id="miniTvCloseBtn">✖</button></div>
-    <div class="mini-tv-frame"><div id="youtube-player-container"><div id="yt-player"></div></div></div>
-  </div>
-
-  <div class="player-wrapper">
-    <div class="glass-player">
-      <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (YouTube Playlist Mode)...">
-        <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
-      </div>
-      <div class="playlist-drawer" id="playlistDrawer"></div>
-      <div class="player-top-row">
-        <div class="track-info"><div class="album-art"><img id="albumImg" src="https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg" alt="Art"></div><div class="track-details"><div class="track-title" id="trackTitle">Tu Hi Haqeeqat — Javed Ali</div><div class="track-artist" id="trackArtist">YouTube Player • Studio HD</div></div></div>
-        <div class="player-controls">
-          <button class="ctrl-btn" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="ctrl-btn play-btn" id="playPauseBtn"><svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="pauseIcon" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
-          <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-          <div class="volume-container"><span id="volumeIcon">🔊</span><input type="range" min="0" max="100" value="100" class="volume-slider" id="volumeSlider"></div>
-          <button class="mini-tv-btn" id="miniTvBtn">📺 MINI TV</button>
-          <button class="stream-tv-btn" id="streamTvBtn">🎵 CONNECT</button>
-          <button class="playlist-toggle-btn" id="playlistToggleBtn">📋 SONGS</button>
-        </div>
-      </div>
-      <div class="progress-container"><span class="time-stamp" id="currentTime">0:00</span><div class="progress-bar-bg" id="progressBarBg"><div class="progress-bar-fill" id="progressBarFill"></div></div><span class="time-stamp" id="totalTime">0:00</span></div>
-    </div>
-  </div>
+</div>
 
 <script>
-/* =========================================================
-   SPOTIFY CONFIGURATION
-   1. Create a Spotify Developer App.
-   2. Put your Client ID below.
-   3. Add the exact Netlify/GitHub Pages URL as Redirect URI.
-   ========================================================= */
-const SPOTIFY_CLIENT_ID = "201c5d19e7264a69b3e303082b40dbd5";
-const SPOTIFY_REDIRECT_URI = "https://lutron-technician.github.io/Lutron-Studio";
-const SPOTIFY_SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming user-read-private";
+const $=id=>document.getElementById(id);
+let gateway=localStorage.getItem("lutron_audio_gateway")||"";
+let selected=null;
+$("gatewayInput").value=gateway;
 
-let spotifyAccessToken = localStorage.getItem("spotify_access_token") || "";
-let spotifyRefreshToken = localStorage.getItem("spotify_refresh_token") || "";
-let spotifyExpiresAt = Number(localStorage.getItem("spotify_expires_at") || 0);
-
-function base64UrlEncode(bytes){
-  let str="";
-  bytes.forEach(b=>str+=String.fromCharCode(b));
-  return btoa(str).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+function setStatus(t){$("status").textContent=t}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function render(list){
+  const box=$("devices");
+  if(!list.length){box.innerHTML='<div class="empty">No network audio devices found.</div>';return}
+  box.innerHTML="";
+  list.forEach(d=>{
+    const el=document.createElement("div");el.className="device"+(selected?.id===d.id?" active":"");
+    el.innerHTML=`<div><div class="device-name">🔊 ${esc(d.name||"Network Audio")}</div><div class="device-sub">${esc(d.type||"Streamer")} • ${esc(d.ip||"")}</div></div><button class="btn green">SELECT</button>`;
+    el.querySelector("button").onclick=()=>selectDevice(d);
+    box.appendChild(el);
+  });
 }
-function randomString(length=64){
-  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  const arr=new Uint8Array(length); crypto.getRandomValues(arr);
-  return Array.from(arr,b=>chars[b%chars.length]).join("");
+function selectDevice(d){
+  selected=d;
+  $("trackTitle").textContent=d.name||"Network Audio";
+  $("trackSub").textContent=(d.type||"Streamer")+" • "+(d.ip||"");
+  [...$("devices").children].forEach(x=>x.classList.remove("active"));
+  const i=[...$("devices").children].find(x=>x.querySelector(".device-name")?.textContent.includes(d.name));
+  if(i)i.classList.add("active");
+  setStatus("SELECTED: "+(d.name||d.ip));
 }
-async function sha256(text){ return crypto.subtle.digest("SHA-256",new TextEncoder().encode(text)); }
-
-async function spotifyLogin(){
-  if(SPOTIFY_CLIENT_ID.includes("PASTE_")){
-    alert("Spotify Client ID is missing.");
+async function gatewayFetch(path,opts={}){
+  if(!gateway)throw new Error("Gateway not configured");
+  const r=await fetch(gateway.replace(/\/+$/,"")+path,{...opts,cache:"no-store"});
+  const text=await r.text();
+  if(!r.ok)throw new Error(text||("HTTP "+r.status));
+  try{return JSON.parse(text)}catch{return {}}
+}
+async function scan(){
+  if(!gateway){
+    render([]);
+    setStatus("TEST MODE: Gateway not configured. This is normal at home.");
+    $("networkText").textContent="NETWORK: TEST MODE";
     return;
   }
-  const verifier=randomString(64);
-  const challenge=base64UrlEncode(new Uint8Array(await sha256(verifier)));
-  // For this static GitHub Pages app, carry the PKCE verifier in state so
-  // the OAuth callback does not depend on browser storage surviving redirects.
-  const state="LTSPKCE."+verifier;
-  localStorage.setItem("spotify_code_verifier",verifier);
-  const params=new URLSearchParams({
-    client_id:SPOTIFY_CLIENT_ID,
-    response_type:"code",
-    redirect_uri:SPOTIFY_REDIRECT_URI,
-    scope:SPOTIFY_SCOPES,
-    code_challenge_method:"S256",
-    code_challenge:challenge,
-    state
-  });
-  location.href="https://accounts.spotify.com/authorize?"+params.toString();
-}
-
-async function exchangeSpotifyCode(code, callbackVerifier){
-  const verifier=callbackVerifier || localStorage.getItem("spotify_code_verifier") || sessionStorage.getItem("spotify_code_verifier");
-  if(!verifier) throw new Error("Missing PKCE verifier. Please start Spotify login again.");
-  const body=new URLSearchParams({
-    client_id:SPOTIFY_CLIENT_ID,
-    grant_type:"authorization_code",
-    code,
-    redirect_uri:SPOTIFY_REDIRECT_URI,
-    code_verifier:verifier
-  });
-  const res=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});
-  const data=await res.json();
-  if(!res.ok) throw new Error(data.error_description||data.error||"Spotify login failed");
-  saveSpotifyTokens(data);
-  localStorage.removeItem("spotify_code_verifier"); sessionStorage.removeItem("spotify_code_verifier");
-  history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
-}
-
-function saveSpotifyTokens(data){
-  spotifyAccessToken=data.access_token;
-  if(data.refresh_token) spotifyRefreshToken=data.refresh_token;
-  spotifyExpiresAt=Date.now()+((data.expires_in||3600)*1000);
-  localStorage.setItem("spotify_access_token",spotifyAccessToken);
-  localStorage.setItem("spotify_refresh_token",spotifyRefreshToken);
-  localStorage.setItem("spotify_expires_at",String(spotifyExpiresAt));
-}
-async function refreshSpotifyToken(){
-  if(!spotifyRefreshToken) return false;
-  const body=new URLSearchParams({client_id:SPOTIFY_CLIENT_ID,grant_type:"refresh_token",refresh_token:spotifyRefreshToken});
-  const res=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});
-  const data=await res.json();
-  if(!res.ok){ spotifyLogout(false); return false; }
-  saveSpotifyTokens(data); return true;
-}
-async function ensureSpotifyToken(){
-  if(!spotifyAccessToken) return false;
-  if(Date.now()<spotifyExpiresAt-60000) return true;
-  return await refreshSpotifyToken();
-}
-async function spotifyFetch(url,options={}){
-  if(!(await ensureSpotifyToken())) throw new Error("Spotify login required");
-  const headers=Object.assign({},options.headers||{},{"Authorization":"Bearer "+spotifyAccessToken});
-  let res=await fetch(url,{...options,headers});
-  if(res.status===401 && await refreshSpotifyToken()){
-    headers.Authorization="Bearer "+spotifyAccessToken;
-    res=await fetch(url,{...options,headers});
-  }
-  if(!res.ok){
-    let msg="Spotify request failed";
-    try{const e=await res.json();msg=e.error?.message||msg;}catch(_){}
-    throw new Error(msg);
-  }
-  if(res.status===204) return null;
-  return res.json();
-}
-
-async function handleSpotifyCallback(){
-  const params=new URLSearchParams(location.search);
-  const code=params.get("code");
-  const error=params.get("error");
-  const state=params.get("state") || "";
-  if(error){
-    history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
-    alert("Spotify login cancelled: "+error);
-    return;
-  }
-  if(code){
-    try{
-      let callbackVerifier="";
-      if(state.startsWith("LTSPKCE.")) callbackVerifier=state.slice("LTSPKCE.".length);
-      await exchangeSpotifyCode(code, callbackVerifier);
-      history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
-      alert("Spotify connected successfully.");
-    }catch(e){
-      console.error(e);
-      history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
-      alert("Spotify login failed: "+e.message);
-    }
-  }
-}
-
-async function loadSpotifyUser(){
-  const me=await spotifyFetch("https://api.spotify.com/v1/me");
-  document.getElementById("spotifyUserLabel").textContent=me.display_name||me.id||"Spotify";
-}
-function spotifyLogout(show=true){
-  spotifyAccessToken="";spotifyRefreshToken="";spotifyExpiresAt=0;
-  localStorage.removeItem("spotify_access_token");localStorage.removeItem("spotify_refresh_token");localStorage.removeItem("spotify_expires_at");
-  if(show) renderSpotifyLoginState();
-}
-function renderSpotifyLoginState(){
-  const logged=!!spotifyAccessToken;
-  document.getElementById("spotifyLoginBox").style.display=logged?"none":"block";
-  document.getElementById("spotifyConnectedBox").style.display=logged?"block":"none";
-  document.getElementById("spotifySearchBox").style.display=logged?"flex":"none";
-  if(logged) loadSpotifyUser().catch(()=>spotifyLogout(false));
-}
-
-async function loadSpotifyDevices(){
-  const header=document.getElementById("networkStatusHeader");
-  const list=document.getElementById("networkDeviceListContainer");
-  header.textContent="LOADING SPOTIFY DEVICES...";
-  list.innerHTML="<div style='padding:18px;text-align:center;color:var(--text-muted);font-size:.75rem'>Searching your Spotify devices...</div>";
+  setStatus("SCANNING CURRENT SITE NETWORK...");
+  $("networkText").textContent="NETWORK: SCANNING";
   try{
-    const data=await spotifyFetch("https://api.spotify.com/v1/me/player/devices");
-    const devices=data.devices||[];
-    if(!devices.length){
-      header.textContent="NO SPOTIFY DEVICES";
-      list.innerHTML="<div style='padding:18px;text-align:center;color:var(--text-muted);font-size:.75rem'>No available Spotify Connect device found. Open Spotify on the speaker/device first and make sure it is online.</div>";
-      return;
-    }
-    header.textContent=devices.length+" SPOTIFY DEVICE"+(devices.length>1?"S":"")+" FOUND";
-    list.innerHTML="";
-    devices.forEach(device=>{
-      const div=document.createElement("div");
-      div.className="device-item";
-      div.style.marginTop="8px";
-      const icon=device.type==="Smartphone"?"📱":device.type==="Computer"?"💻":device.type==="TV"?"📺":"🔊";
-      div.innerHTML=`<div class="device-info-left"><span style="font-size:1.1rem">${icon}</span><div><div style="font-size:.8rem;font-weight:600;color:#fff">${escapeHtml(device.name)}</div><div style="font-size:.65rem;color:var(--text-muted)">${escapeHtml(device.type||"Device")} • ${device.is_active?"ACTIVE":"AVAILABLE"}</div></div></div><span style="font-size:.7rem;color:var(--amber-warm);font-family:JetBrains Mono">CONNECT</span>`;
-      div.onclick=()=>connectSpotifyDevice(device.id,device.name);
-      list.appendChild(div);
-    });
+    const data=await gatewayFetch("/api/scan");
+    render(data.devices||[]);
+    setStatus((data.devices?.length||0)+" device(s) found");
+    $("networkText").textContent="NETWORK: ONLINE";
   }catch(e){
-    header.textContent="SPOTIFY DEVICE ERROR";
-    list.innerHTML=`<div style="padding:18px;text-align:center;color:#fca5a5;font-size:.75rem">${escapeHtml(e.message)}</div>`;
+    setStatus("Gateway error: "+e.message);
+    $("networkText").textContent="NETWORK: ERROR";
   }
 }
-async function connectSpotifyDevice(deviceId,deviceName){
-  try{
-    const current=await spotifyFetch("https://api.spotify.com/v1/me/player");
-    const body={device_ids:[deviceId],play:false};
-    await spotifyFetch("https://api.spotify.com/v1/me/player",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    document.getElementById("currentActiveSongLabel").textContent="Connected: "+deviceName;
-    document.getElementById("spotifyStatusLabel").textContent="ACTIVE: "+deviceName;
-    alert("Connected to "+deviceName+".\nNow select a Spotify song below to play it there.");
-    await loadSpotifyDevices();
-  }catch(e){ alert("Could not connect: "+e.message); }
-}
-async function searchSpotify(){
-  const q=document.getElementById("spotifySearchInput").value.trim();
-  const box=document.getElementById("spotifySearchResults");
-  if(!q)return;
-  box.style.display="block";box.innerHTML="<div style='padding:15px;color:var(--text-muted);font-size:.75rem'>Searching Spotify...</div>";
-  try{
-    const data=await spotifyFetch("https://api.spotify.com/v1/search?type=track&limit=10&q="+encodeURIComponent(q));
-    box.innerHTML="";
-    (data.tracks?.items||[]).forEach(track=>{
-      const row=document.createElement("div");row.className="spotify-track";
-      const img=track.album?.images?.[2]?.url||track.album?.images?.[0]?.url||"";
-      row.innerHTML=`<img src="${img}" alt=""><div style="min-width:0;flex:1"><div style="font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(track.name)}</div><small>${escapeHtml(track.artists.map(a=>a.name).join(", "))}</small></div><span style="color:var(--amber-warm);font-size:.7rem;font-weight:700">PLAY</span>`;
-      row.onclick=()=>playSpotifyUri(track.uri,track.name,track.artists.map(a=>a.name).join(", "));
-      box.appendChild(row);
-    });
-    if(!data.tracks?.items?.length) box.innerHTML="<div style='padding:15px;color:var(--text-muted);font-size:.75rem'>No tracks found.</div>";
-  }catch(e){box.innerHTML=`<div style='padding:15px;color:#fca5a5;font-size:.75rem'>${escapeHtml(e.message)}</div>`}
-}
-async function playSpotifyUri(uri,name,artist){
-  try{
-    const state=await spotifyFetch("https://api.spotify.com/v1/me/player");
-    if(!state?.device?.id){ await loadSpotifyDevices(); throw new Error("No active Spotify device. Select a speaker first."); }
-    await spotifyFetch("https://api.spotify.com/v1/me/player/play?device_id="+encodeURIComponent(state.device.id),{
-      method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({uris:[uri]})
-    });
-    document.getElementById("trackTitle").textContent=name;
-    document.getElementById("trackArtist").textContent=artist+" • Spotify";
-    document.getElementById("currentActiveSongLabel").textContent=name+" — "+artist;
-    document.getElementById("spotifySearchResults").style.display="none";
-  }catch(e){alert("Playback failed: "+e.message)}
-}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-
-/* ---------- Existing YouTube player ---------- */
-const YT_API_KEY="AIzaSyCQ9yQ2a6qxbrYV-CZmVs94shF2ja_8JjQ";
-let songsList=[
-  {id:"1fueZCTYkpA",name:"Tu Hi Haqeeqat — Javed Ali",img:"https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg"},
-  {id:"TFr6G5zveS8",name:"Lag Jaa Gale — Lata Mangeshkar",img:"https://i.ytimg.com/vi/TFr6G5zveS8/hqdefault.jpg"},
-  {id:"o1-f2rB_gP4",name:"Abhi Mujh Mein Kahin — Sonu Nigam",img:"https://i.ytimg.com/vi/o1-f2rB_gP4/hqdefault.jpg"}
-];
-let currentTrackIndex=0,player,isPlaying=false,progressTimer=null;
-function onYouTubeIframeAPIReady(){player=new YT.Player("yt-player",{height:"100%",width:"100%",videoId:songsList[0].id,host:"https://www.youtube-nocookie.com",playerVars:{autoplay:0,controls:1,playsinline:1,rel:0,enablejsapi:1,origin:window.location.origin},events:{
-  onReady:()=>{renderPlaylist();updateTrackInfo();updateTimeDisplay()},
-  onError:e=>{
-    const codes={2:"Invalid video ID",5:"HTML5 player error",100:"Video not found/private",101:"Embedding disabled by owner",150:"Embedding disabled by owner"};
-    document.getElementById("trackArtist").innerText="YouTube • "+(codes[e.data]||("Playback error "+e.data));
-    alert("This YouTube video cannot play inside the Mini TV. Try another result.");
-    isPlaying=false;
-    document.getElementById("playIcon").style.display="block";
-    document.getElementById("pauseIcon").style.display="none";
-    stopTimer();
-  },
-  onStateChange:e=>{
-    if(e.data===YT.PlayerState.PLAYING){
-      isPlaying=true;document.getElementById("playIcon").style.display="none";document.getElementById("pauseIcon").style.display="block";startTimer();
-    }else if(e.data===YT.PlayerState.ENDED){
-      playTrackAtIndex((currentTrackIndex+1)%songsList.length);
-    }else{
-      isPlaying=false;document.getElementById("playIcon").style.display="block";document.getElementById("pauseIcon").style.display="none";stopTimer();
-    }
-  }
-}})}
-function playTrackAtIndex(idx){
-  currentTrackIndex=idx;
-  const track=songsList[idx];
-  updateTrackInfo();
-  renderPlaylist();
-  miniTvDock.classList.add("open");
-  if(player && typeof player.loadVideoById==="function"){
-    try{
-      player.loadVideoById(track.id);
-      player.playVideo();
-    }catch(e){
-      document.getElementById("trackArtist").innerText="YouTube • Player error";
-    }
-  }else{
-    alert("YouTube player is still loading. Please tap the song again.");
-  }
-}
-function updateTrackInfo(){const track=songsList[currentTrackIndex];if(track){document.getElementById("trackTitle").innerText=track.name;document.getElementById("albumImg").src=track.img;document.getElementById("miniTvTitle").innerText="📺 "+track.name}}
-function renderPlaylist(){const d=document.getElementById("playlistDrawer");d.innerHTML="";songsList.forEach((s,i)=>{const div=document.createElement("div");div.className="playlist-item "+(i===currentTrackIndex?"active-track":"");div.innerHTML=`<span>🎵 ${escapeHtml(s.name)}</span><span style="color:var(--amber-warm);font-weight:bold">▶ PLAY</span>`;div.onclick=()=>{playTrackAtIndex(i);d.classList.remove("open")};d.appendChild(div)})}
-document.getElementById("playPauseBtn").onclick=()=>{if(player)(isPlaying?player.pauseVideo():player.playVideo())};
-document.getElementById("nextBtn").onclick=()=>playTrackAtIndex((currentTrackIndex+1)%songsList.length);
-document.getElementById("prevBtn").onclick=()=>playTrackAtIndex((currentTrackIndex-1+songsList.length)%songsList.length);
-function formatTime(sec){if(!sec||isNaN(sec)||sec<=0)return"0:00";const m=Math.floor(sec/60),s=Math.floor(sec%60);return`${m}:${s<10?"0":""}${s}`}
-function updateTimeDisplay(){if(player?.getDuration){const cur=player.getCurrentTime()||0,dur=player.getDuration()||0;document.getElementById("currentTime").innerText=formatTime(cur);if(dur>0){document.getElementById("totalTime").innerText=formatTime(dur);document.getElementById("progressBarFill").style.width=(cur/dur*100)+"%"}}}
-function startTimer(){stopTimer();progressTimer=setInterval(updateTimeDisplay,500)}function stopTimer(){if(progressTimer)clearInterval(progressTimer)}
-document.getElementById("progressBarBg").onclick=e=>{if(player?.getDuration){const r=e.currentTarget.getBoundingClientRect(),p=(e.clientX-r.left)/r.width;player.seekTo(player.getDuration()*p,true)}};
-document.getElementById("volumeSlider").oninput=e=>player?.setVolume(parseInt(e.target.value));
-async function searchSongs(){const q=document.getElementById("songQueryInput").value.trim();if(!q)return;document.getElementById("searchSubmitBtn").innerText="SEARCHING...";try{const res=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${encodeURIComponent(q+" Official Audio")}&type=video&videoEmbeddable=true&videoSyndicated=true&key=${YT_API_KEY}`);const data=await res.json();if(data.items?.length){songsList=data.items.map(x=>({id:x.id.videoId,name:x.snippet.title,img:x.snippet.thumbnails.high?.url||""}));renderPlaylist();document.getElementById("playlistDrawer").classList.add("open")}}catch(e){alert("YouTube Search error.")}finally{document.getElementById("searchSubmitBtn").innerText="SEARCH"}}
-document.getElementById("searchSubmitBtn").onclick=searchSongs;document.getElementById("songQueryInput").onkeydown=e=>{if(e.key==="Enter")searchSongs()};document.getElementById("playlistToggleBtn").onclick=()=>document.getElementById("playlistDrawer").classList.toggle("open");
-const miniTvDock=document.getElementById("miniTvDock");document.getElementById("miniTvBtn").onclick=()=>miniTvDock.classList.toggle("open");document.getElementById("miniTvCloseBtn").onclick=()=>miniTvDock.classList.remove("open");
-document.getElementById("openYoutubeBtn").onclick=()=>{const track=songsList[currentTrackIndex];window.open("https://www.youtube.com/watch?v="+encodeURIComponent(track.id),"_blank")};
-
-/* ---------- Connect button ---------- */
-document.getElementById("streamTvBtn").onclick=async()=>{
-  document.getElementById("connectOverlay").classList.add("open");
-  renderSpotifyLoginState();
-  if(spotifyAccessToken) await loadSpotifyDevices();
+$("saveGateway").onclick=()=>{
+  gateway=$("gatewayInput").value.trim().replace(/\/+$/,"");
+  if(gateway)localStorage.setItem("lutron_audio_gateway",gateway);
+  else localStorage.removeItem("lutron_audio_gateway");
+  setStatus(gateway?"Gateway saved. Tap SCAN.":"TEST MODE: Gateway cleared.");
 };
-document.getElementById("closeSheetBtn").onclick=()=>document.getElementById("connectOverlay").classList.remove("open");
-document.getElementById("spotifyLoginBtn").onclick=spotifyLogin;
-document.getElementById("spotifyLogoutBtn").onclick=()=>spotifyLogout(true);
-document.getElementById("refreshSpotifyDevicesBtn").onclick=loadSpotifyDevices;
-document.getElementById("spotifySearchBtn").onclick=searchSpotify;
-document.getElementById("spotifySearchInput").onkeydown=e=>{if(e.key==="Enter")searchSpotify()};
+$("scanBtn").onclick=scan;
 
-/* ---------- Scenes / curtains ---------- */
-function updateMoonPhase(){const today=new Date(),start=new Date("2026-08-17"),diff=Math.floor((today-start)/86400000),moon=document.getElementById("skyMoon");if(moon){const o=Math.max(2,18-diff*1.5);moon.style.boxShadow=`-${o}px 4px 0 0 #fef08a`}}updateMoonPhase();
-const root=document.documentElement,warmBtn=document.querySelector('[data-scene="warm"]'),tumbler=document.getElementById("kelvinTumbler");
-warmBtn.onclick=()=>{if(warmBtn.classList.contains("active"))tumbler.classList.toggle("open")};
-document.getElementById("kelvinRange").oninput=e=>{const k=parseInt(e.target.value),c=k<=2000?"#ff6600":k<=5000?"#ffddaa":k<=8000?"#fff":"#3b82f6";root.style.setProperty("--fixture-color",c);root.style.setProperty("--fixture-glow",c)};
-document.getElementById("dimRange").oninput=e=>root.style.setProperty("--beam-opacity",parseInt(e.target.value)/100);
-document.getElementById("sidebarTriggerBtn").onclick=()=>document.getElementById("sidebarDrawer").classList.toggle("open");
-async function fetchWeather(){try{const res=await fetch("https://api.open-meteo.com/v1/forecast?latitude=18.62&longitude=73.80&current_weather=true"),d=await res.json(),code=d.current_weather.weathercode,temp=Math.round(d.current_weather.temperature),s=document.getElementById("outdoorScenery"),h=new Date().getHours();if(h>=19||h<6){s.className="outdoor-scenery night-mode";document.getElementById("liveWeatherStatus").innerText=`LIVE WEATHER: NIGHT ${temp}°C`}else if(code>=50){s.className="outdoor-scenery rainy-mode";document.getElementById("liveWeatherStatus").innerText=`LIVE WEATHER: RAIN ${temp}°C`}else if(code>=1){s.className="outdoor-scenery cloudy-mode";document.getElementById("liveWeatherStatus").innerText=`LIVE WEATHER: CLOUDY ${temp}°C`}else{s.className="outdoor-scenery day-mode";document.getElementById("liveWeatherStatus").innerText=`LIVE WEATHER: CLEAR SUNNY ${temp}°C`}}catch(e){document.getElementById("liveWeatherStatus").innerText="LIVE WEATHER: ONLINE"}}fetchWeather();
+async function cmd(action,value){
+  if(!selected){setStatus("Select a device first.");return}
+  try{
+    let path="/api/device/"+encodeURIComponent(selected.ip)+"/"+action;
+    if(value!==undefined)path+="?value="+encodeURIComponent(value);
+    await gatewayFetch(path);
+    setStatus(action.toUpperCase()+" → "+selected.name);
+  }catch(e){setStatus("Command error: "+e.message)}
+}
+$("play").onclick=()=>cmd("play");
+$("prev").onclick=()=>cmd("prev");
+$("next").onclick=()=>cmd("next");
+$("volume").oninput=e=>cmd("volume",e.target.value);
 
-const curtainLeft=document.getElementById("curtainLeft"),curtainRight=document.getElementById("curtainRight"),shadesBtn=document.getElementById("shadesBtn"),processorStatusText=document.getElementById("processorStatusText");let curtainPos=0,curtainMotionState="STOPPED",nextTarget="OPEN",curtainAnimFrame=null;
-function renderCurtainPosition(){curtainLeft.style.transform=`translateX(-${curtainPos}%)`;curtainRight.style.transform=`translateX(${curtainPos}%)`}
-function animateCurtainStep(){if(curtainMotionState==="OPENING"){curtainPos+=.35;if(curtainPos>=100){curtainPos=100;curtainMotionState="STOPPED";nextTarget="CLOSE";shadesBtn.querySelector("span").textContent="05 DRAPERY: CLOSE";processorStatusText.textContent="SCENE: DRAPERY FULLY OPEN (100%)"}else{shadesBtn.querySelector("span").textContent="05 STOP DRAPERY";processorStatusText.textContent=`SCENE: DRAPERY OPENING (${Math.round(curtainPos)}%)`;curtainAnimFrame=requestAnimationFrame(animateCurtainStep)}}else if(curtainMotionState==="CLOSING"){curtainPos-=.35;if(curtainPos<=0){curtainPos=0;curtainMotionState="STOPPED";nextTarget="OPEN";shadesBtn.querySelector("span").textContent="05 DRAPERY: OPEN";processorStatusText.textContent="SCENE: DRAPERY CLOSED (ROOM PRIVACY)"}else{shadesBtn.querySelector("span").textContent="05 STOP DRAPERY";processorStatusText.textContent=`SCENE: DRAPERY CLOSING (${Math.round(curtainPos)}%)`;curtainAnimFrame=requestAnimationFrame(animateCurtainStep)}}renderCurtainPosition()}
-function handleDraperyClick(){if(curtainMotionState!=="STOPPED"){cancelAnimationFrame(curtainAnimFrame);nextTarget=curtainMotionState==="OPENING"?"CLOSE":"OPEN";curtainMotionState="STOPPED";shadesBtn.querySelector("span").textContent=`05 DRAPERY: ${nextTarget}`}else{if(nextTarget==="OPEN"){curtainMotionState="OPENING";shadesBtn.classList.add("active")}else curtainMotionState="CLOSING";shadesBtn.querySelector("span").textContent="05 STOP DRAPERY";curtainAnimFrame=requestAnimationFrame(animateCurtainStep)}}
-const keypadButtons=document.querySelectorAll(".keypad-btn"),sceneLightingConfig={bright:{color:"#fff",glow:"rgba(255,255,255,.95)",opacity:".95",status:"01 BRIGHT (100% COOL WHITE)"},dim:{color:"#ffaa33",glow:"rgba(255,170,51,.45)",opacity:".35",status:"02 DIM / MOVIE (20% WARM)"},warm:{color:"#ffaa00",glow:"rgba(255,170,0,.75)",opacity:".85",status:"03 AMBIENT 2700K KELVIN"},party:{color:"#00f0ff",glow:"rgba(0,240,255,.8)",opacity:".75",status:"04 DALI BLUE NIGHT MODE"},off:{color:"#000",glow:"transparent",opacity:"0",status:"06 ALL OFF (0% LOAD)"}};
-function applySceneLighting(n,b){if(n==="shades"){handleDraperyClick();return}keypadButtons.forEach(x=>{if(x.dataset.scene!=="shades")x.classList.remove("active")});b?.classList.add("active");const c=sceneLightingConfig[n]||sceneLightingConfig.warm;root.style.setProperty("--fixture-color",c.color);root.style.setProperty("--fixture-glow",c.glow);root.style.setProperty("--beam-opacity",c.opacity);processorStatusText.textContent=c.status}
-keypadButtons.forEach(b=>b.addEventListener("click",()=>applySceneLighting(b.dataset.scene,b)));renderCurtainPosition();
-
-/* Process Spotify redirect after all functions exist */
-handleSpotifyCallback().then(()=>{ renderSpotifyLoginState(); if(spotifyAccessToken) loadSpotifyDevices().catch(()=>{}); });
+if(gateway){$("networkText").textContent="NETWORK: GATEWAY SAVED";setStatus("Gateway saved. Tap SCAN when you are on that site network.");}
+else{$("networkText").textContent="NETWORK: TEST MODE";}
 </script>
 </body>
 </html>
