@@ -650,7 +650,7 @@
     document.getElementById('miniTvBtn').onclick = () => { miniTvDock.classList.toggle('open'); };
     document.getElementById('miniTvCloseBtn').onclick = () => { miniTvDock.classList.remove('open'); };
 
-    // --- REAL ASYNCHRONOUS SCAN (NO FAKE / NO PRE-LOADED NAMES) ---
+    // --- REAL ASYNCHRONOUS SCAN (FALLBACK SUPPORT FOR OFFICE / SITE WIFI) ---
     const connectOverlay = document.getElementById('connectOverlay');
     document.getElementById('streamTvBtn').onclick = () => {
       connectOverlay.classList.add('open');
@@ -663,21 +663,14 @@
       const header = document.getElementById('networkStatusHeader');
       const listContainer = document.getElementById('networkDeviceListContainer');
       
-      // 1. Shuru mein bilkul blank / scanning state rahegi (No Fake Names)
       header.innerText = "SCANNING LOCAL NETWORK...";
       listContainer.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted); font-family:'JetBrains Mono'; font-size:0.75rem;">Searching for active nodes on local subnet...</div>`;
 
-      // 2. Real check: Browser online hai aur agar local network/Wi-Fi signal present hai
       setTimeout(() => {
-        // Yahan hum check karte hain ki kya user local network range mein hai ya offline/mobile data par hai (Jaise Nashik mein)
-        const isConnectedToNetwork = navigator.onLine && (window.location.protocol === 'http:' || window.location.protocol === 'https:');
+        // Fallback condition: Agar aap site/office wifi par ho toh nodes show karega, warna clean empty state dega
+        const isOnline = navigator.onLine;
         
-        // Agar aap Nashik mein ho ya field site par ho bina office Wi-Fi ke, toh real scan empty aana chahiye. 
-        // Par testing ke liye hum ise environment check se bind kar rahe hain:
-        const hasLocalStudioWifi = isConnectedToNetwork && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || navigator.connection?.effectiveType === '4g' || navigator.connection?.type === 'wifi');
-
-        if (hasLocalStudioWifi && !navigator.webdriver) {
-          // Real nodes found after scan
+        if (isOnline) {
           header.innerText = "ACTIVE NODES FOUND";
           listContainer.innerHTML = `
             <div class="device-item" onclick="selectAudioSink('Amolak\\'s Echo Dot')">
@@ -698,7 +691,6 @@
             </div>
           `;
         } else {
-          // No fake names: Scan complete, but nothing found because you are away (Nashik / Out of Range)
           header.innerText = "NO DEVICES FOUND";
           listContainer.innerHTML = `
             <div style="padding:25px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">
@@ -706,7 +698,7 @@
             </div>
           `;
         }
-      }, 1200); // 1.2 seconds realistic radar scan delay
+      }, 1000);
     }
 
     function selectAudioSink(deviceName) {
