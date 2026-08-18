@@ -159,7 +159,7 @@
   </div>
 
   <div class="mini-tv-dock" id="miniTvDock">
-    <div class="mini-tv-header"><span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span><button class="mini-tv-close" id="miniTvCloseBtn">✖</button></div>
+    <div class="mini-tv-header"><span class="mini-tv-title" id="miniTvTitle">📺 STUDIO MONITOR</span><button class="mini-tv-close" id="openYoutubeBtn" style="margin-right:8px">↗</button><button class="mini-tv-close" id="miniTvCloseBtn">✖</button></div>
     <div class="mini-tv-frame"><div id="youtube-player-container"><div id="yt-player"></div></div></div>
   </div>
 
@@ -194,7 +194,7 @@
    3. Add the exact Netlify/GitHub Pages URL as Redirect URI.
    ========================================================= */
 const SPOTIFY_CLIENT_ID = "201c5d19e7264a69b3e303082b40dbd5";
-const SPOTIFY_REDIRECT_URI = window.location.origin + window.location.pathname;
+const SPOTIFY_REDIRECT_URI = "https://lutron-technician.github.io/Lutron-Studio/";
 const SPOTIFY_SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming user-read-private";
 
 let spotifyAccessToken = localStorage.getItem("spotify_access_token") || "";
@@ -215,11 +215,14 @@ async function sha256(text){ return crypto.subtle.digest("SHA-256",new TextEncod
 
 async function spotifyLogin(){
   if(SPOTIFY_CLIENT_ID.includes("PASTE_")){
-    alert("First add your Spotify Client ID in the code.");
+    alert("Spotify Client ID is missing.");
     return;
   }
   const verifier=randomString(64);
   const challenge=base64UrlEncode(new Uint8Array(await sha256(verifier)));
+  // For this static GitHub Pages app, carry the PKCE verifier in state so
+  // the OAuth callback does not depend on browser storage surviving redirects.
+  const state="LTSPKCE."+verifier;
   localStorage.setItem("spotify_code_verifier",verifier);
   const params=new URLSearchParams({
     client_id:SPOTIFY_CLIENT_ID,
@@ -227,14 +230,15 @@ async function spotifyLogin(){
     redirect_uri:SPOTIFY_REDIRECT_URI,
     scope:SPOTIFY_SCOPES,
     code_challenge_method:"S256",
-    code_challenge:challenge
+    code_challenge:challenge,
+    state
   });
   location.href="https://accounts.spotify.com/authorize?"+params.toString();
 }
 
-async function exchangeSpotifyCode(code){
-  const verifier=localStorage.getItem("spotify_code_verifier") || sessionStorage.getItem("spotify_code_verifier");
-  if(!verifier) throw new Error("Missing PKCE verifier.");
+async function exchangeSpotifyCode(code, callbackVerifier){
+  const verifier=callbackVerifier || localStorage.getItem("spotify_code_verifier") || sessionStorage.getItem("spotify_code_verifier");
+  if(!verifier) throw new Error("Missing PKCE verifier. Please start Spotify login again.");
   const body=new URLSearchParams({
     client_id:SPOTIFY_CLIENT_ID,
     grant_type:"authorization_code",
@@ -292,6 +296,7 @@ async function handleSpotifyCallback(){
   const params=new URLSearchParams(location.search);
   const code=params.get("code");
   const error=params.get("error");
+  const state=params.get("state") || "";
   if(error){
     history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
     alert("Spotify login cancelled: "+error);
@@ -299,20 +304,19 @@ async function handleSpotifyCallback(){
   }
   if(code){
     try{
-      const verifier=localStorage.getItem("spotify_code_verifier") || sessionStorage.getItem("spotify_code_verifier");
-      if(!verifier){
-        history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
-        alert("Spotify login session expired. Please tap CONNECT → LOGIN WITH SPOTIFY again.");
-        return;
-      }
-      await exchangeSpotifyCode(code);
+      let callbackVerifier="";
+      if(state.startsWith("LTSPKCE.")) callbackVerifier=state.slice("LTSPKCE.".length);
+      await exchangeSpotifyCode(code, callbackVerifier);
+      history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
+      alert("Spotify connected successfully.");
     }catch(e){
       console.error(e);
       history.replaceState({},document.title,SPOTIFY_REDIRECT_URI);
-      alert(e.message);
+      alert("Spotify login failed: "+e.message);
     }
   }
 }
+
 async function loadSpotifyUser(){
   const me=await spotifyFetch("https://api.spotify.com/v1/me");
   document.getElementById("spotifyUserLabel").textContent=me.display_name||me.id||"Spotify";
@@ -438,9 +442,15 @@ function playTrackAtIndex(idx){
   updateTrackInfo();
   renderPlaylist();
   miniTvDock.classList.add("open");
-  if(player?.loadVideoById){
-    player.loadVideoById({videoId:track.id,startSeconds:0});
-    setTimeout(()=>{try{player.playVideo()}catch(e){}},120);
+  if(player && typeof player.loadVideoById==="function"){
+    try{
+      player.loadVideoById(track.id);
+      player.playVideo();
+    }catch(e){
+      document.getElementById("trackArtist").innerText="YouTube • Player error";
+    }
+  }else{
+    alert("YouTube player is still loading. Please tap the song again.");
   }
 }
 function updateTrackInfo(){const track=songsList[currentTrackIndex];if(track){document.getElementById("trackTitle").innerText=track.name;document.getElementById("albumImg").src=track.img;document.getElementById("miniTvTitle").innerText="📺 "+track.name}}
@@ -456,6 +466,7 @@ document.getElementById("volumeSlider").oninput=e=>player?.setVolume(parseInt(e.
 async function searchSongs(){const q=document.getElementById("songQueryInput").value.trim();if(!q)return;document.getElementById("searchSubmitBtn").innerText="SEARCHING...";try{const res=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${encodeURIComponent(q+" Official Audio")}&type=video&videoEmbeddable=true&videoSyndicated=true&key=${YT_API_KEY}`);const data=await res.json();if(data.items?.length){songsList=data.items.map(x=>({id:x.id.videoId,name:x.snippet.title,img:x.snippet.thumbnails.high?.url||""}));renderPlaylist();document.getElementById("playlistDrawer").classList.add("open")}}catch(e){alert("YouTube Search error.")}finally{document.getElementById("searchSubmitBtn").innerText="SEARCH"}}
 document.getElementById("searchSubmitBtn").onclick=searchSongs;document.getElementById("songQueryInput").onkeydown=e=>{if(e.key==="Enter")searchSongs()};document.getElementById("playlistToggleBtn").onclick=()=>document.getElementById("playlistDrawer").classList.toggle("open");
 const miniTvDock=document.getElementById("miniTvDock");document.getElementById("miniTvBtn").onclick=()=>miniTvDock.classList.toggle("open");document.getElementById("miniTvCloseBtn").onclick=()=>miniTvDock.classList.remove("open");
+document.getElementById("openYoutubeBtn").onclick=()=>{const track=songsList[currentTrackIndex];window.open("https://www.youtube.com/watch?v="+encodeURIComponent(track.id),"_blank")};
 
 /* ---------- Connect button ---------- */
 document.getElementById("streamTvBtn").onclick=async()=>{
@@ -488,7 +499,7 @@ function applySceneLighting(n,b){if(n==="shades"){handleDraperyClick();return}ke
 keypadButtons.forEach(b=>b.addEventListener("click",()=>applySceneLighting(b.dataset.scene,b)));renderCurtainPosition();
 
 /* Process Spotify redirect after all functions exist */
-handleSpotifyCallback().then(()=>renderSpotifyLoginState());
+handleSpotifyCallback().then(()=>{ renderSpotifyLoginState(); if(spotifyAccessToken) loadSpotifyDevices().catch(()=>{}); });
 </script>
 </body>
 </html>
