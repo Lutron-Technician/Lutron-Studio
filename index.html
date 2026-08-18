@@ -1,139 +1,123 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Lutron Studio — Network Audio</title>
+<title>Lutron Technician — Master Edition</title>
 <style>
-:root{--bg:#07090e;--card:rgba(18,22,33,.94);--amber:#ffaa33;--cyan:#00d2ff;--green:#10b981;--muted:#8a94a6;--border:rgba(255,255,255,.12)}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,Arial,sans-serif;color:#fff;background:#07090e}body{overflow:hidden}
-.bg{position:fixed;inset:0;background:radial-gradient(circle at 80% 20%,#172554 0,#0b1020 35%,#07090e 75%);z-index:0}.grid{position:fixed;inset:0;background-image:linear-gradient(#00d2ff08 1px,transparent 1px),linear-gradient(90deg,#00d2ff08 1px,transparent 1px);background-size:35px 35px;z-index:1}
-.app{position:relative;z-index:2;height:100%;padding:18px 4vw 170px;display:flex;flex-direction:column}.top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font:12px monospace}.badge{border:1px solid var(--border);border-radius:20px;padding:8px 12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);margin-right:7px}
-h1{font-size:clamp(30px,6vw,64px);letter-spacing:.08em;margin:25px 0 4px;background:linear-gradient(#fff,#94a3b8);color:transparent;background-clip:text}h2{font:12px monospace;letter-spacing:.2em;color:var(--amber);margin:0 0 20px}.center{flex:1;display:flex;align-items:center;justify-content:center}.panel{width:min(760px,100%);background:var(--card);border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:0 25px 70px #000b;backdrop-filter:blur(20px)}
-.row{display:flex;gap:9px;align-items:center}.btn{border:1px solid var(--border);background:#ffffff0b;color:#fff;border-radius:11px;padding:11px 14px;cursor:pointer;font-weight:700}.btn.primary{background:var(--amber);color:#090b10;border-color:var(--amber)}.btn.cyan{color:var(--cyan);border-color:#00d2ff66;background:#00d2ff12}.btn.green{color:var(--green);border-color:#10b98166;background:#10b98112}
-input{width:100%;background:#ffffff0a;border:1px solid var(--border);color:#fff;border-radius:11px;padding:12px;outline:none}.gateway{display:flex;gap:8px;margin-bottom:14px}.gateway input{flex:1}.status{font:12px monospace;color:var(--muted);padding:10px 0}.devices{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto}.device{display:flex;align-items:center;justify-content:space-between;padding:13px;background:#ffffff06;border:1px solid var(--border);border-radius:13px}.device.active{border-color:var(--green);background:#10b98110}.device-name{font-weight:700}.device-sub{font:11px monospace;color:var(--muted);margin-top:4px}.empty{text-align:center;padding:28px;color:var(--muted);font:12px monospace;border:1px dashed var(--border);border-radius:13px}
-.player{position:fixed;z-index:5;bottom:14px;left:50%;transform:translateX(-50%);width:min(900px,calc(100% - 22px));background:var(--card);border:1px solid var(--border);border-radius:18px;padding:12px;box-shadow:0 20px 50px #000d;backdrop-filter:blur(20px)}.track{display:flex;justify-content:space-between;gap:12px;align-items:center}.title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font:11px monospace;color:var(--muted);margin-top:4px}.controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.round{width:38px;height:38px;padding:0;border-radius:50%;display:grid;place-items:center}.play{background:var(--amber);color:#000;border:0}.vol{display:flex;align-items:center;gap:6px;border:1px solid var(--border);padding:5px 9px;border-radius:20px}.vol input{width:80px;padding:0;border:0}.help{font:11px monospace;color:#718096;line-height:1.5;margin-top:12px}
-@media(max-width:700px){.app{padding:15px 12px 205px}h1{text-align:center;font-size:30px}.top{font-size:10px}.panel{padding:13px}.controls{justify-content:center}.gateway{flex-direction:column}.gateway .btn{width:100%}.track{align-items:flex-start;flex-direction:column}.player{bottom:8px}}
+:root{--bg:#07090e;--card:rgba(18,22,33,.94);--amber:#ffaa33;--cyan:#00d2ff;--green:#10b981;--muted:#8a94a6;--border:rgba(255,255,255,.1);--glow:rgba(255,170,0,.65);--fixture:#ffaa00}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:#f3f4f6;font-family:Inter,Arial,sans-serif}
+button,input{font:inherit}button{cursor:pointer}.scene-bg{position:fixed;inset:0;background:radial-gradient(circle at 78% 22%,#182554 0,#07090e 55%);z-index:0}.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,210,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,.025) 1px,transparent 1px);background-size:35px 35px;z-index:1}.glow{position:fixed;right:8%;top:30%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 68%);filter:blur(90px);opacity:.75;z-index:1}
+.app{position:relative;z-index:5;height:100vh;padding:22px 4vw 120px;display:flex;flex-direction:column}.top{display:flex;justify-content:space-between;gap:10px;font:11px monospace;color:var(--muted)}.badge{border:1px solid var(--border);padding:7px 10px;border-radius:30px;background:#ffffff08}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);margin-right:6px}
+h1{font-size:clamp(28px,5vw,58px);letter-spacing:.12em;margin:35px 0 3px;font-weight:800;background:linear-gradient(#fff,#9da8b8);color:transparent;background-clip:text}.sub{font:11px monospace;letter-spacing:.2em;color:var(--amber)}.stage{flex:1;position:relative}
+.scenes{position:absolute;left:0;top:50%;transform:translateY(-50%);width:255px;background:linear-gradient(145deg,#2a2f3d,#12151f);padding:12px;border-radius:12px;box-shadow:0 25px 50px #000c}.scene-btn{width:100%;height:42px;margin:4px 0;background:#ffffff08;color:#bbb;border:1px solid var(--border);border-radius:5px;text-align:left;padding:0 12px}.scene-btn.active{color:#fff;background:#ffffff18;border-color:#ffffff33}.scene-btn span:last-child{float:right;color:var(--amber)}
+.bottom{position:fixed;z-index:30;bottom:15px;left:50%;transform:translateX(-50%);width:min(900px,calc(100% - 24px));background:var(--card);border:1px solid #ffffff22;border-radius:18px;padding:12px;box-shadow:0 20px 45px #000d;backdrop-filter:blur(20px)}.row{display:flex;align-items:center;gap:8px}.search input{flex:1;background:#ffffff0b;color:#fff;border:1px solid var(--border);padding:10px;border-radius:9px;outline:none}.amber{background:var(--amber);border:0;color:#000;font-weight:800;border-radius:9px;padding:10px 14px}.controls{justify-content:space-between;margin-top:9px}.track{display:flex;align-items:center;gap:10px;min-width:180px}.art{width:44px;height:44px;border-radius:9px;background:#293044;object-fit:cover}.title{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.artist{font:10px monospace;color:var(--muted);margin-top:3px}.circle{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#ffffff09;color:#fff}.play{background:var(--amber);color:#000;border:0}.progress{height:4px;background:#ffffff12;border-radius:5px;margin-top:9px;cursor:pointer}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--cyan));border-radius:5px}.time{font:9px monospace;color:var(--muted);min-width:32px}
+.connect{background:#00d2ff15;border:1px solid var(--cyan);color:var(--cyan);border-radius:8px;padding:8px 10px;font:11px monospace;font-weight:700}.network-panel{position:fixed;z-index:40;right:18px;top:90px;width:min(430px,calc(100% - 36px));max-height:70vh;overflow:auto;background:#0c1019f5;border:1px solid #ffffff22;border-radius:18px;padding:16px;display:none;box-shadow:0 25px 60px #000}.network-panel.open{display:block}.panel-head{display:flex;justify-content:space-between;align-items:center}.panel-title{font:700 14px monospace;color:#fff}.hint{font:10px monospace;color:var(--muted);line-height:1.5}.gateway{display:flex;gap:7px;margin:12px 0}.gateway input{flex:1;background:#ffffff09;border:1px solid var(--border);color:#fff;padding:9px;border-radius:8px}.device{display:flex;align-items:center;justify-content:space-between;padding:11px;margin-top:7px;border:1px solid var(--border);background:#ffffff06;border-radius:10px}.device small{display:block;color:var(--muted);font:9px monospace;margin-top:3px}.device button{background:#ffffff0a;border:1px solid var(--border);color:var(--amber);border-radius:7px;padding:7px}.selected{border-color:var(--green)}.network-controls{display:flex;gap:6px;margin-top:10px}.network-controls button{flex:1;background:#ffffff08;color:#fff;border:1px solid var(--border);border-radius:8px;padding:9px}.vol{width:100%;accent-color:var(--amber)}
+.overlay{position:fixed;inset:0;background:#000b;z-index:100;display:none;align-items:flex-end}.overlay.open{display:flex}.sheet{width:100%;max-width:520px;margin:auto auto 0;background:#121622;border-radius:22px 22px 0 0;padding:20px;max-height:85vh;overflow:auto}.sheet h2{font-size:17px;margin:0 0 10px}.song{display:flex;gap:10px;align-items:center;padding:9px;background:#ffffff06;border:1px solid var(--border);border-radius:9px;margin-top:6px}.song img{width:42px;height:42px;object-fit:cover;border-radius:6px}.song .sname{flex:1;font-size:12px}.song small{display:block;color:var(--muted);margin-top:3px}.mini{position:fixed;right:18px;bottom:130px;width:280px;background:#080a0f;border:1px solid #ffffff22;border-radius:12px;padding:6px;z-index:35;display:none}.mini.open{display:block}.mini iframe{width:100%;aspect-ratio:16/9;border:0}.minihead{display:flex;justify-content:space-between;font:10px monospace;color:var(--amber);padding:5px}
+@media(max-width:768px){.app{padding:16px 12px 125px}h1{margin-top:25px;font-size:30px}.sub{font-size:8px}.scenes{display:none}.top{font-size:8px}.controls{flex-wrap:wrap}.track{width:100%}.circle{width:34px;height:34px}.bottom{padding:9px}.network-panel{top:70px;right:10px;width:calc(100% - 20px)}.mini{right:10px;bottom:145px;width:250px}}
 </style>
 </head>
 <body>
-<div class="bg"></div><div class="grid"></div>
+<div class="scene-bg" id="sceneBg"></div><div class="grid"></div><div class="glow" id="glow"></div>
 <div class="app">
-  <div class="top"><div class="badge"><span class="dot"></span>LUTRON STUDIO ONLINE</div><div id="networkText">NETWORK: CHECKING</div></div>
-  <h1>LUTRON TECHNICIAN</h1><h2>NETWORK AUDIO • LIGHTING • AUTOMATION</h2>
-  <div class="center">
-    <section class="panel">
-      <div class="row" style="justify-content:space-between;margin-bottom:12px">
-        <div><b>🎵 NETWORK AUDIO</b><div class="device-sub">Current site audio devices</div></div>
-        <button class="btn primary" id="scanBtn">🔎 SCAN</button>
-      </div>
-
-      <div class="gateway">
-        <input id="gatewayInput" placeholder="Gateway address (optional)" value="">
-        <button class="btn cyan" id="saveGateway">SAVE</button>
-      </div>
-
-      <div class="status" id="status">TEST MODE: No local gateway configured.</div>
-      <div class="devices" id="devices">
-        <div class="empty">No devices yet.<br>At home, TEST MODE can verify the interface.<br>At a site, the local gateway will provide real devices.</div>
-      </div>
-
-      <div class="help">
-        Final site flow: connect phone/laptop to site Wi‑Fi → open this page → local gateway scans the LAN → compatible streamers appear.<br>
-        GitHub Pages itself cannot scan a private LAN directly, so the gateway address is only used when a site gateway is available.
-      </div>
-    </section>
-  </div>
-</div>
-
-<div class="player">
-  <div class="track">
-    <div style="min-width:0;flex:1"><div class="title" id="trackTitle">No device selected</div><div class="sub" id="trackSub">Select a network audio device</div></div>
-    <div class="controls">
-      <button class="btn round" id="prev">⏮</button><button class="btn round play" id="play">▶</button><button class="btn round" id="next">⏭</button>
-      <div class="vol">🔊 <input id="volume" type="range" min="0" max="100" value="50"></div>
+  <div class="top"><div class="badge"><span class="dot"></span>LUTRON STUDIO ONLINE</div><div id="netStatus">NETWORK: LOCAL</div></div>
+  <h1>LUTRON TECHNICIAN</h1><div class="sub">System Programmer • Architectural Lighting & Motorized Drapery</div>
+  <div class="stage">
+    <div class="scenes">
+      <button class="scene-btn active" data-scene="warm">01 AMBIENT 2700K <span>●</span></button>
+      <button class="scene-btn" data-scene="bright">02 BRIGHT <span>○</span></button>
+      <button class="scene-btn" data-scene="movie">03 DIM / MOVIE <span>○</span></button>
+      <button class="scene-btn" data-scene="blue">04 DALI BLUE <span>○</span></button>
+      <button class="scene-btn" id="curtainBtn">05 DRAPERY OPEN <span>○</span></button>
+      <button class="scene-btn" data-scene="off">06 ALL OFF <span>○</span></button>
     </div>
   </div>
 </div>
 
+<div class="network-panel" id="networkPanel">
+  <div class="panel-head"><div class="panel-title">🎵 NETWORK AUDIO</div><button class="circle" id="closeNet">×</button></div>
+  <div class="hint" style="margin-top:5px">WiiM / Linkplay devices on the current site network. The browser cannot scan a private LAN by itself, so this panel uses the free local gateway below.</div>
+  <div class="gateway"><input id="gatewayInput" placeholder="Gateway URL, e.g. http://192.168.1.10:8787"><button class="amber" id="saveGateway">SAVE</button></div>
+  <div class="row" style="justify-content:space-between"><span class="hint" id="scanStatus">Ready to scan</span><button class="connect" id="scanBtn">SCAN</button></div>
+  <div id="deviceList" style="margin-top:8px"></div>
+  <div id="selectedBox" style="display:none">
+    <div class="hint" style="margin-top:12px">SELECTED SPEAKER</div>
+    <div id="selectedName" style="font-weight:700;margin-top:4px"></div>
+    <div class="network-controls">
+      <button onclick="audioCmd('prev')">⏮</button><button onclick="audioCmd('play')">▶</button><button onclick="audioCmd('pause')">⏸</button><button onclick="audioCmd('next')">⏭</button>
+    </div>
+    <input class="vol" id="netVol" type="range" min="0" max="100" value="50" style="margin-top:10px">
+    <div class="hint" id="deviceStatus" style="margin-top:6px">Status: —</div>
+  </div>
+</div>
+
+<div class="mini" id="mini"><div class="minihead"><span id="miniTitle">MINI TV</span><button class="circle" id="closeMini">×</button></div><iframe id="ytFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+
+<div class="overlay" id="spotifySheet"><div class="sheet">
+  <div class="row" style="justify-content:space-between"><h2>Spotify / Network Audio</h2><button class="circle" id="closeSpotify">×</button></div>
+  <div class="hint">Spotify Web API playback control requires a Spotify Premium account. Your WiiM network speakers can still be discovered and controlled by the Network Audio panel without Spotify.</div>
+</div></div>
+
+<div class="bottom">
+  <div class="row search"><input id="songSearch" placeholder="🔍 Search song (YouTube)"><button class="amber" id="searchBtn">SEARCH</button></div>
+  <div class="row controls">
+    <div class="track"><img class="art" id="art" src="https://i.ytimg.com/vi/1fueZCTYkpA/hqdefault.jpg"><div style="min-width:0"><div class="title" id="title">Tu Hi Haqeeqat — Javed Ali</div><div class="artist" id="artist">YouTube • Studio</div></div></div>
+    <div class="row">
+      <button class="circle" id="prev">⏮</button><button class="circle play" id="play">▶</button><button class="circle" id="next">⏭</button>
+      <button class="connect" id="networkBtn">🎵 CONNECT</button>
+      <button class="connect" id="miniBtn">📺 MINI</button>
+    </div>
+  </div>
+  <div class="row" style="margin-top:7px"><span class="time" id="cur">0:00</span><div class="progress" id="progress"><div class="fill" id="fill"></div></div><span class="time" id="dur">0:00</span></div>
+</div>
+
 <script>
 const $=id=>document.getElementById(id);
-let gateway=localStorage.getItem("lutron_audio_gateway")||"";
-let selected=null;
-$("gatewayInput").value=gateway;
+let gateway=localStorage.getItem('lutron_gateway')||'';
+let selectedDevice=null, songs=[{id:'1fueZCTYkpA',name:'Tu Hi Haqeeqat — Javed Ali'}],index=0,playing=false,timer=null;
+const gatewayInput=$('gatewayInput'); gatewayInput.value=gateway;
 
-function setStatus(t){$("status").textContent=t}
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function render(list){
-  const box=$("devices");
-  if(!list.length){box.innerHTML='<div class="empty">No network audio devices found.</div>';return}
-  box.innerHTML="";
-  list.forEach(d=>{
-    const el=document.createElement("div");el.className="device"+(selected?.id===d.id?" active":"");
-    el.innerHTML=`<div><div class="device-name">🔊 ${esc(d.name||"Network Audio")}</div><div class="device-sub">${esc(d.type||"Streamer")} • ${esc(d.ip||"")}</div></div><button class="btn green">SELECT</button>`;
-    el.querySelector("button").onclick=()=>selectDevice(d);
-    box.appendChild(el);
-  });
-}
-function selectDevice(d){
-  selected=d;
-  $("trackTitle").textContent=d.name||"Network Audio";
-  $("trackSub").textContent=(d.type||"Streamer")+" • "+(d.ip||"");
-  [...$("devices").children].forEach(x=>x.classList.remove("active"));
-  const i=[...$("devices").children].find(x=>x.querySelector(".device-name")?.textContent.includes(d.name));
-  if(i)i.classList.add("active");
-  setStatus("SELECTED: "+(d.name||d.ip));
-}
-async function gatewayFetch(path,opts={}){
-  if(!gateway)throw new Error("Gateway not configured");
-  const r=await fetch(gateway.replace(/\/+$/,"")+path,{...opts,cache:"no-store"});
-  const text=await r.text();
-  if(!r.ok)throw new Error(text||("HTTP "+r.status));
-  try{return JSON.parse(text)}catch{return {}}
-}
-async function scan(){
-  if(!gateway){
-    render([]);
-    setStatus("TEST MODE: Gateway not configured. This is normal at home.");
-    $("networkText").textContent="NETWORK: TEST MODE";
-    return;
-  }
-  setStatus("SCANNING CURRENT SITE NETWORK...");
-  $("networkText").textContent="NETWORK: SCANNING";
+function gatewayUrl(path){let g=(gateway||gatewayInput.value||'').trim().replace(/\/+$/,'');return g+path}
+async function api(path,options={}){if(!gateway)throw new Error('Gateway address not configured');let r=await fetch(gatewayUrl(path),options);if(!r.ok)throw new Error(await r.text());return r.json()}
+
+$('saveGateway').onclick=()=>{gateway=gatewayInput.value.trim().replace(/\/+$/,'');localStorage.setItem('lutron_gateway',gateway);$('scanStatus').textContent=gateway?'Gateway saved.':'Gateway cleared.'};
+$('networkBtn').onclick=()=>{$('networkPanel').classList.add('open');if(gateway)scanDevices()};
+$('closeNet').onclick=()=>$('networkPanel').classList.remove('open');
+
+async function scanDevices(){
+  $('scanStatus').textContent='Scanning current site network...';$('deviceList').innerHTML='<div class="hint">Searching WiiM / Linkplay devices...</div>';
   try{
-    const data=await gatewayFetch("/api/scan");
-    render(data.devices||[]);
-    setStatus((data.devices?.length||0)+" device(s) found");
-    $("networkText").textContent="NETWORK: ONLINE";
-  }catch(e){
-    setStatus("Gateway error: "+e.message);
-    $("networkText").textContent="NETWORK: ERROR";
-  }
+    const d=await api('/api/devices');
+    if(!d.devices?.length){$('deviceList').innerHTML='<div class="hint">No compatible network audio device found. Make sure the speaker is powered and on the same Wi‑Fi/LAN as the gateway.</div>';$('scanStatus').textContent='0 devices';return}
+    $('scanStatus').textContent=d.devices.length+' device(s) found';
+    $('deviceList').innerHTML='';
+    d.devices.forEach(x=>{
+      const el=document.createElement('div');el.className='device'+(selectedDevice?.id===x.id?' selected':'');
+      el.innerHTML='<div><b>'+esc(x.name||'Network Speaker')+'</b><small>'+esc(x.ip||'')+' • '+esc(x.type||'WiiM / Linkplay')+'</small></div><button>SELECT</button>';
+      el.onclick=()=>selectDevice(x);$('deviceList').appendChild(el);
+    });
+  }catch(e){$('scanStatus').textContent='Gateway error';$('deviceList').innerHTML='<div class="hint">'+esc(e.message)+'</div>'}
 }
-$("saveGateway").onclick=()=>{
-  gateway=$("gatewayInput").value.trim().replace(/\/+$/,"");
-  if(gateway)localStorage.setItem("lutron_audio_gateway",gateway);
-  else localStorage.removeItem("lutron_audio_gateway");
-  setStatus(gateway?"Gateway saved. Tap SCAN.":"TEST MODE: Gateway cleared.");
-};
-$("scanBtn").onclick=scan;
+$('scanBtn').onclick=scanDevices;
+async function selectDevice(d){selectedDevice=d;$('selectedBox').style.display='block';$('selectedName').textContent=d.name||d.ip;scanDevices();await refreshStatus()}
+async function audioCmd(cmd){if(!selectedDevice)return;try{await api('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:selectedDevice.id,command:cmd})});await refreshStatus()}catch(e){alert('Speaker command failed: '+e.message)}}
+$('netVol').oninput=async e=>{if(!selectedDevice)return;try{await api('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:selectedDevice.id,command:'volume',value:Number(e.target.value)})})}catch{}};
+async function refreshStatus(){if(!selectedDevice)return;try{const d=await api('/api/status?id='+encodeURIComponent(selectedDevice.id));$('deviceStatus').textContent='Status: '+(d.state?.status||d.state?.mode||'ONLINE')+(d.state?.title?' • '+d.state.title:'');if(d.state?.volume!=null)$('netVol').value=d.state.volume}catch(e){$('deviceStatus').textContent='Status: online / status unavailable'}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]) )}
 
-async function cmd(action,value){
-  if(!selected){setStatus("Select a device first.");return}
-  try{
-    let path="/api/device/"+encodeURIComponent(selected.ip)+"/"+action;
-    if(value!==undefined)path+="?value="+encodeURIComponent(value);
-    await gatewayFetch(path);
-    setStatus(action.toUpperCase()+" → "+selected.name);
-  }catch(e){setStatus("Command error: "+e.message)}
-}
-$("play").onclick=()=>cmd("play");
-$("prev").onclick=()=>cmd("prev");
-$("next").onclick=()=>cmd("next");
-$("volume").oninput=e=>cmd("volume",e.target.value);
+function loadVideo(id){$('ytFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&playsinline=1&rel=0';$('mini').classList.add('open');playing=true;$('play').textContent='⏸'}
+function setTrack(i){index=(i+songs.length)%songs.length;let s=songs[index];$('title').textContent=s.name;$('art').src='https://i.ytimg.com/vi/'+s.id+'/hqdefault.jpg';loadVideo(s.id)}
+$('play').onclick=()=>{if(!songs[index])return;if(playing){$('ytFrame').src='';playing=false;$('play').textContent='▶'}else loadVideo(songs[index].id)};
+$('next').onclick=()=>setTrack(index+1);$('prev').onclick=()=>setTrack(index-1);
+$('miniBtn').onclick=()=>$('mini').classList.toggle('open');$('closeMini').onclick=()=>{$('mini').classList.remove('open');$('ytFrame').src='';playing=false;$('play').textContent='▶'};
+$('searchBtn').onclick=async()=>{let q=$('songSearch').value.trim();if(!q)return;$('artist').textContent='Searching YouTube...';try{let r=await fetch('https://www.youtube.com/results?search_query='+encodeURIComponent(q));let t=await r.text();let m=t.match(/"videoId":"([A-Za-z0-9_-]{11})"/);if(m){songs=[{id:m[1],name:q}];index=0;$('title').textContent=q;$('art').src='https://i.ytimg.com/vi/'+m[1]+'/hqdefault.jpg';loadVideo(m[1]);$('artist').textContent='YouTube'}}catch(e){$('artist').textContent='Search unavailable'}};$('songSearch').onkeydown=e=>{if(e.key==='Enter')$('searchBtn').click()};
 
-if(gateway){$("networkText").textContent="NETWORK: GATEWAY SAVED";setStatus("Gateway saved. Tap SCAN when you are on that site network.");}
-else{$("networkText").textContent="NETWORK: TEST MODE";}
+document.querySelectorAll('[data-scene]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-scene]').forEach(x=>x.classList.remove('active'));b.classList.add('active');let s=b.dataset.scene;let cfg={warm:['#ffaa00','rgba(255,170,0,.65)'],bright:['#fff','rgba(255,255,255,.9)'],movie:['#ffaa33','rgba(255,170,51,.35)'],blue:['#00f0ff','rgba(0,240,255,.7)'],off:['#000','transparent']}[s]||['#ffaa00','rgba(255,170,0,.65)'];document.documentElement.style.setProperty('--fixture',cfg[0]);document.documentElement.style.setProperty('--glow',cfg[1]);$('netStatus').textContent='SCENE: '+b.textContent.trim()});
+let curtainOpen=true;$('curtainBtn').onclick=()=>{curtainOpen=!curtainOpen;$('curtainBtn').firstChild.textContent=curtainOpen?'05 DRAPERY OPEN':'05 DRAPERY CLOSE';$('sceneBg').style.background=curtainOpen?'radial-gradient(circle at 78% 22%,#182554 0,#07090e 55%)':'radial-gradient(circle at 50% 50%,#33210d 0,#07090e 65%)'};
+
+$('networkBtn').addEventListener('dblclick',()=>{$('spotifySheet').classList.add('open')});$('closeSpotify').onclick=()=>$('spotifySheet').classList.remove('open');
+
+if(gateway){$('netStatus').textContent='NETWORK: GATEWAY READY'}
 </script>
 </body>
 </html>
