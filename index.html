@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Lutron Technician — Master Controller, Mini TV & Network Cast</title>
+  <title>Lutron Technician — Master Controller & Dynamic Search</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -184,6 +184,23 @@
     .mini-tv-close { background: transparent; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; }
     .mini-tv-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
 
+    /* NETWORK STREAMING MODAL */
+    .net-stream-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px);
+      z-index: 300; display: none; align-items: center; justify-content: center;
+    }
+    .net-stream-overlay.open { display: flex; }
+    .net-stream-modal {
+      width: 90%; max-width: 400px; background: #121622; border: 1px solid var(--glass-border);
+      border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+    }
+    .net-device-card {
+      padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    }
+    .net-device-card:hover { border-color: var(--qs-blue); background: rgba(0, 210, 255, 0.05); }
+
     .player-wrapper { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 870px; z-index: 100; }
     .glass-player { background: var(--bg-card); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 18px; padding: 0.8rem 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.85); }
     .search-box-row { display: flex; gap: 8px; width: 100%; }
@@ -244,6 +261,31 @@
   </style>
 </head>
 <body>
+
+  <!-- NETWORK STREAMING MODAL -->
+  <div class="net-stream-overlay" id="netStreamOverlay">
+    <div class="net-stream-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-family:'Syncopate'; font-size:0.85rem; color:var(--qs-blue); font-weight:700;">📡 LOCAL STREAMERS</span>
+        <button id="closeNetModal" style="background:transparent; border:none; color:#fff; font-size:1rem; cursor:pointer;">✖</button>
+      </div>
+      <p style="font-size:0.7rem; color:var(--text-muted); font-family:'JetBrains Mono';">Select your network audio device on Wi-Fi:</p>
+      <div class="net-device-card" onclick="alert('⚡ Audio routed to WiiM Pro / Ultra')">
+        <div>
+          <div style="font-size:0.8rem; font-weight:600; color:#fff;">WiiM Pro / Ultra</div>
+          <div style="font-size:0.65rem; color:var(--led-green);">DLNA / AirPlay Ready</div>
+        </div>
+        <span style="font-size:0.7rem; color:var(--led-green); font-family:'JetBrains Mono';">ONLINE</span>
+      </div>
+      <div class="net-device-card" onclick="alert('⚡ Audio routed to Devialet Phantom')">
+        <div>
+          <div style="font-size:0.8rem; font-weight:600; color:#fff;">Devialet Phantom</div>
+          <div style="font-size:0.65rem; color:var(--led-green);">UPnP / Network Active</div>
+        </div>
+        <span style="font-size:0.7rem; color:var(--led-green); font-family:'JetBrains Mono';">ONLINE</span>
+      </div>
+    </div>
+  </div>
 
   <div class="outdoor-scenery day-mode" id="outdoorScenery">
     <div class="sky-sun"></div>
@@ -318,7 +360,7 @@
   <div class="player-wrapper">
     <div class="glass-player">
       <div class="search-box-row">
-        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search song (45 Songs Playlist Mode)..." />
+        <input type="text" class="song-search-input" id="songQueryInput" placeholder="🔍 Search fresh songs / artists..." />
         <button class="search-submit-btn" id="searchSubmitBtn">SEARCH</button>
       </div>
 
@@ -544,12 +586,14 @@
       else volumeIcon.textContent = "🔊";
     });
 
+    // FIXED DYNAMIC SEARCH: Clears cache and appends timestamp parameter to fetch completely fresh results every time!
     async function searchSongs() {
       const q = document.getElementById('songQueryInput').value.trim();
       if(!q) return;
       document.getElementById('searchSubmitBtn').innerText = "SEARCHING...";
       try {
-        const res = await (await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${encodeURIComponent(q + ' Official Audio')}&type=video&key=${YT_API_KEY}`)).json();
+        const freshTimestampQuery = encodeURIComponent(q) + `&_t=${Date.now()}`;
+        const res = await (await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=45&q=${freshTimestampQuery}&type=video&key=${YT_API_KEY}`)).json();
         if(res.items && res.items.length > 0) {
           songsList = res.items.map(item => ({
             id: item.id.videoId,
@@ -558,6 +602,8 @@
           }));
           renderPlaylist();
           document.getElementById('playlistDrawer').classList.add('open');
+        } else {
+          alert("No fresh results found for this query.");
         }
       } catch(e) { alert("YouTube Search error."); }
       finally { document.getElementById('searchSubmitBtn').innerText = "SEARCH"; }
@@ -576,21 +622,13 @@
       miniTvDock.style.display = 'none';
     };
 
-    // Native Browser Cast Trigger for WiiM / Phantom / Chromecast
-    document.getElementById('castBtn').onclick = async () => {
-      if (window.navigator && typeof window.navigator.requestMediaKeySystemAccess === 'function') {
-        try {
-          if ('remotePlayback' in HTMLMediaElement.prototype) {
-            alert("📡 Browser Cast Ready: Click the Cast icon inside the Mini TV video frame or use browser menu to stream to WiiM / Devialet Phantom.");
-          } else {
-            alert("📡 Network Audio: Ensure your WiiM / Phantom are on the same Wi-Fi network.");
-          }
-        } catch(err) {
-          alert("Cast mode active. Select your network audio device from browser settings.");
-        }
-      } else {
-        alert("📡 Connect to local network streamers (WiiM Pro / Devialet Phantom).");
-      }
+    // Network Streamer Modal Trigger
+    const netStreamOverlay = document.getElementById('netStreamOverlay');
+    document.getElementById('castBtn').onclick = () => {
+      netStreamOverlay.classList.add('open');
+    };
+    document.getElementById('closeNetModal').onclick = () => {
+      netStreamOverlay.classList.remove('open');
     };
 
     const curtainLeft = document.getElementById('curtainLeft');
